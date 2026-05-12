@@ -69,13 +69,20 @@ const navLinks = [
                 </div>
 
                 <div className="hidden md:flex items-center gap-4">
-                <button className="text-gray-400 hover:text-white px-4 py-2 rounded-lg transition">
-                    Iniciar Sesión
-                </button>
-                <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition">
-                    Comenzar
-                </button>
-                </div>
+                    <a
+                        href="/login"
+                        className="text-gray-400 hover:text-white px-4 py-2 rounded-lg transition"
+                    >
+                        Iniciar Sesión
+                    </a>
+
+                    <a
+                        href="/register"
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition"
+                    >
+                        Registrarse
+                    </a>
+                    </div>
 
                 <button
                 className="md:hidden text-white p-2"
@@ -108,13 +115,20 @@ const navLinks = [
             ))}
 
             <div className="pt-4 space-y-3">
-                <button className="w-full border border-gray-600 text-white px-4 py-2 rounded-lg">
-                Iniciar Sesión
-                </button>
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
-                Comenzar
-                </button>
-            </div>
+                <a
+                    href="/login"
+                    className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-all duration-300"
+                >
+                    Iniciar Sesión
+                </a>
+
+                <a
+                    href="/login"
+                    className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg transition-all duration-300"
+                >
+                    Comenzar
+                </a>
+                </div>
             </div>
         </motion.div>
         </>

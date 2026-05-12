@@ -76,16 +76,16 @@ export function CTASection(){
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-            <button className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 shadow-[0_8px_35px_rgba(239,68,68,0.25)]">
+            <a href="/login" className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 shadow-[0_8px_35px_rgba(239,68,68,0.25)]">
                 <span className="relative z-10 flex items-center gap-2">
-                Comenzar Gratis
+                Iniciar Sesión
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </span>
-            </button>
+            </a>
 
-            <button className="border border-blue-500/40 hover:border-blue-500 text-white px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 hover:bg-blue-500/10">
-                Solicitar Demo
-            </button>
+            <a href="/register" className="border border-blue-500/40 hover:border-blue-500 text-white px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 hover:bg-blue-500/10">
+                Registrarse
+            </a>
             </motion.div>
 
             <motion.div

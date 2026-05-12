@@ -78,23 +78,23 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.8 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-            <button
+            <a href="/login"
                 className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300"
                 >
                 <span className="relative z-10 flex items-center gap-2">
                     <LogIn className="w-5 h-5" />
                     Iniciar Sesión
                 </span>
-                </button>
+                </a>
 
-                <button
+                <a href="/register"
                 className="group relative overflow-hidden border border-blue-500/50 hover:border-blue-500 text-white px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300 hover:bg-blue-500/10"
                 >
                 <span className="relative z-10 flex items-center gap-2">
                     <Wrench className="w-5 h-5" />
-                    Explorar Sistema
+                    Registrarse
                 </span>
-                </button>
+                </a>
             </motion.div>
 
             {/* Stats */}
