@@ -1,43 +1,30 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Login from "./pages/Login"
-import ForgotPassword from "./pages/ForgotPassword"
-import Register from "./pages/Register"
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import Dashboard from "./pages/Dashboard";
 
-import { Navigation } from "./components/Navigation"
-import { HeroSection } from "./components/HeroSection"
-import { FeaturesSection } from "./components/FeaturesSection"
-import { ScrollAssembly } from "./components/ScrollAsembly"
-import { CTASection } from "./components/CTASection"
-import { Footer } from "./components/Footer"
-import { BackgroundGears } from "./components/BackgroundGears"
+export default function App() {
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-function Landing() {
-  return (
-    <div className="min-h-screen bg-black relative">
-      <BackgroundGears />
-
-      <Navigation />
-      <HeroSection />
-      <FeaturesSection />
-      <ScrollAssembly />
-      <CTASection />
-      <Footer />
-    </div>
-  )
-}
-
-function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={<Home />} />
+
         <Route path="/login" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+
         <Route path="/register" element={<Register />} />
+
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        <Route
+          path="/dashboard"
+          element={isLoggedIn ? <Dashboard /> : <Login />}
+        />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
-
-export default App

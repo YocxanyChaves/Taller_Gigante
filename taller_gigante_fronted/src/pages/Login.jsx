@@ -13,30 +13,46 @@ import {
     Mail,
     Lock,
     User,
+    AlertCircle,
     } from "lucide-react";
+
+    const fakeUser = {
+    email: "admin@tallergigante.com",
+    password: "admin123",
+    };
 
     export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [email, setEmail] = useState("admin@tallergigante.com");
+    const [password, setPassword] = useState("admin123");
+    const [error, setError] = useState("");
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        setError("");
         setIsLoading(true);
 
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+
+        if (email === fakeUser.email && password === fakeUser.password) {
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "/dashboard";
+        } else {
+        setError("Correo o contraseña incorrectos.");
+        }
 
         setIsLoading(false);
     };
 
     return (
         <div className="min-h-screen relative overflow-hidden">
-        {/* Background */}
         <div className="fixed inset-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
 
-        {/* Background gears */}
         <BackgroundGears />
 
-        {/* Decorative gears */}
         <div className="fixed top-20 left-10 opacity-20">
             <AnimatedGear size={120} variant="rust" />
         </div>
@@ -53,7 +69,6 @@ import {
             <AnimatedGear size={100} variant="rust" reverse delay={0.3} />
         </div>
 
-        {/* Main */}
         <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">
             <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -61,33 +76,26 @@ import {
             transition={{ duration: 0.6 }}
             className="w-full max-w-md"
             >
-            {/* Back */}
             <div className="mb-8">
                 <a
                 href="/"
                 className="inline-flex items-center gap-2 text-zinc-400 hover:text-red-500 transition-colors group"
                 >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-
-                <span className="font-mono text-sm">
-                    Volver al inicio
-                </span>
+                <span className="font-mono text-sm">Volver al inicio</span>
                 </a>
             </div>
 
-            {/* Card */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
                 className="backdrop-blur-md bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden"
             >
-                {/* Corner gear */}
                 <div className="absolute -top-6 -right-6 opacity-10">
                 <AnimatedGear size={80} variant="bronze" />
                 </div>
 
-                {/* Header */}
                 <div className="text-center mb-8">
                 <motion.div
                     initial={{ scale: 0 }}
@@ -107,15 +115,18 @@ import {
                     <span className="text-red-500 font-semibold">
                     Taller Mecánico
                     </span>{" "}
-                    <span className="text-blue-400 font-semibold">
-                    Gigante
-                    </span>
+                    <span className="text-blue-400 font-semibold">Gigante</span>
                 </p>
                 </div>
 
-                {/* Form */}
+                {error && (
+                <div className="mb-5 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                    <AlertCircle className="w-5 h-5" />
+                    {error}
+                </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-5">
-                {/* User */}
                 <div className="space-y-2">
                     <label className="text-white font-medium flex items-center gap-2">
                     <User className="w-4 h-4 text-red-500" />
@@ -124,13 +135,14 @@ import {
 
                     <input
                     type="text"
-                    placeholder="tu@email.com"
+                    placeholder="admin@tallergigante.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-4 pr-4 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-red-500"
                     required
                     />
                 </div>
 
-                {/* Password */}
                 <div className="space-y-2">
                     <label className="text-white font-medium flex items-center gap-2">
                     <Lock className="w-4 h-4 text-blue-400" />
@@ -141,6 +153,8 @@ import {
                     <input
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="w-full pl-4 pr-12 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-blue-400"
                         required
                     />
@@ -159,35 +173,50 @@ import {
                     </div>
                 </div>
 
-                {/* Remember */}
                 <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 text-sm text-zinc-400">
                     <input type="checkbox" />
                     Recordarme
                     </label>
 
-                    <a href="/forgot-password"
+                    <a
+                    href="/forgot-password"
                     className="text-sm text-blue-400 hover:underline"
                     >
-                    Olvidaste tu contraseña?
+                    ¿Olvidaste tu contraseña?
                     </a>
                 </div>
 
-                {/* Submit */}
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white w-full py-4 text-lg font-semibold rounded-lg transition-all duration-300"
+                    className="group relative overflow-hidden bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white w-full py-4 text-lg font-semibold rounded-lg transition-all duration-300 shadow-[0_0_30px_rgba(59,130,246,0.25)] disabled:opacity-70"
                 >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                     <LogIn className="w-5 h-5" />
-
-                    {isLoading ? "Cargando..." : "Iniciar Sesión"}
+                    {isLoading ? "Validando..." : "Iniciar sesión"}
                     </span>
                 </button>
+
+                <div className="rounded-xl border border-zinc-700 bg-black/20 p-4 text-sm text-zinc-400">
+                    <p className="font-semibold text-white mb-2">
+                    Acceso temporal:
+                    </p>
+
+                    <p>
+                    Usuario:
+                    <span className="text-blue-400 ml-2">
+                        admin@tallergigante.com
+                    </span>
+                    </p>
+
+                    <p>
+                    Contraseña:
+                    <span className="text-red-400 ml-2">admin123</span>
+                    </p>
+                </div>
                 </form>
 
-                {/* Divider */}
                 <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-zinc-700" />
@@ -200,7 +229,6 @@ import {
                 </div>
                 </div>
 
-                {/* Social */}
                 <div className="grid grid-cols-2 gap-4">
                 <button
                     type="button"
@@ -218,18 +246,19 @@ import {
                 </button>
                 </div>
 
-                {/* Register */}
                 <p className="text-center mt-8 text-zinc-400 text-sm">
-                No tienes una cuenta?{" "}
-                <a href="/register" className="text-red-500 hover:underline font-semibold">
-                    Registrate aquí
-                    </a>
+                ¿No tienes una cuenta?{" "}
+                <a
+                    href="/register"
+                    className="text-red-500 hover:underline font-semibold"
+                >
+                    Regístrate aquí
+                </a>
                 </p>
             </motion.div>
 
-            {/* Footer */}
             <p className="text-center mt-8 text-zinc-500 text-xs font-mono">
-                Taller Mecánico Gigante © 2024
+                Taller Mecánico Gigante © 2026
             </p>
             </motion.div>
         </div>
