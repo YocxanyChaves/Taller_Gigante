@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Layout } from "../components/layout/Layout";
 import { StatCard } from "../components/dashboard/StatCard";
+import { supabase } from "../lib/supabaseClient";
 import {
     Car,
     ClipboardList,
@@ -8,6 +10,7 @@ import {
     Activity,
     CheckCircle2,
     Clock,
+    Loader2,
     } from "lucide-react";
 
 import {
@@ -18,254 +21,397 @@ import {
   Tooltip,
 } from "recharts";
 
-const chartData = [
-    { day: "Lun", orders: 4 },
-    { day: "Mar", orders: 7 },
-    { day: "Mié", orders: 5 },
-    { day: "Jue", orders: 9 },
-    { day: "Vie", orders: 12 },
-    { day: "Sáb", orders: 8 },
-];
+const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-    const stats = [
-    {
-        title: "Vehículos activos",
-        value: "42",
-        change: "+12% esta semana",
-        icon: Car,
-        color: "blue",
-    },
+const estadoBadge = {
+  Completado: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",
+  "En proceso": "bg-blue-500/15 text-blue-600 dark:text-blue-300",
+  Pendiente: "bg-red-500/15 text-red-600 dark:text-red-300",
+};
 
-    {
-        title: "Órdenes pendientes",
-        value: "18",
-        change: "+5 nuevas hoy",
-        icon: ClipboardList,
-        color: "red",
-    },
+function parseMonto(valor) {
+  if (!valor) return 0;
+  const limpio = String(valor).replace(/[^0-9.-]/g, "");
+  const numero = parseFloat(limpio);
+  return Number.isNaN(numero) ? 0 : numero;
+}
 
-    {
-        title: "Clientes registrados",
-        value: "126",
-        change: "+8 este mes",
-        icon: Users,
-        color: "blue",
-    },
+function formatMonto(numero) {
+  return `₡${numero.toLocaleString("es-CR", { maximumFractionDigits: 0 })}`;
+}
 
-    {
-        title: "Ingresos del mes",
-        value: "₡2.4M",
-        change: "+18% vs mes anterior",
-        icon: DollarSign,
-        color: "red",
-    },
-    ];
+export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState([]);
+  const [ordenesRecientes, setOrdenesRecientes] = useState([]);
+  const [chartData, setChartData] = useState([]);
+  const [actividad, setActividad] = useState([]);
+  const [nombre, setNombre] = useState("");
 
-    const orders = [
-    {
-        id: "#TG-204",
-        client: "Carlos Ramírez",
-        vehicle: "Toyota Hilux",
-        status: "En proceso",
-        date: "Hoy",
-    },
-    {
-        id: "#TG-203",
-        client: "María López",
-        vehicle: "Honda Civic",
-        status: "Pendiente",
-        date: "Ayer",
-    },
-    {
-        id: "#TG-202",
-        client: "Andrés Mora",
-        vehicle: "Nissan Sentra",
-        status: "Completado",
-        date: "Lunes",
-    },
-    ];
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata;
+      const nombreCompleto = meta?.nombre || data.user?.email || "";
+      setNombre(nombreCompleto.split(" ")[0] || nombreCompleto);
+    });
+  }, []);
 
-    export default function Dashboard() {
-    return (
-        <Layout>
-        <div className="space-y-8">
-            <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-8 shadow-2xl shadow-black/40">
-            <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-red-600/20 blur-3xl" />
-            <div className="absolute bottom-0 left-1/2 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
+  useEffect(() => {
+    const cargarDashboard = async () => {
+      setLoading(true);
 
-            <div className="relative z-10 max-w-3xl">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2 text-sm text-white/70">
-                <Activity className="h-4 w-4 text-red-400" />
-                Sistema operativo en tiempo real
-                </div>
+      const inicioMes = new Date();
+      inicioMes.setDate(1);
+      inicioMes.setHours(0, 0, 0, 0);
 
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight">
-                Panel inteligente del taller
-                </h1>
+      const haceSieteDias = new Date();
+      haceSieteDias.setDate(haceSieteDias.getDate() - 6);
+      haceSieteDias.setHours(0, 0, 0, 0);
 
-                <p className="mt-4 text-white/55 max-w-2xl">
-                Monitoree órdenes de trabajo, vehículos, clientes y rendimiento
-                del taller desde un único centro de control.
-                </p>
+      const [
+        { count: totalVehiculos },
+        { count: totalClientes },
+        { count: ordenesPendientes },
+        { count: ordenesEnProceso },
+        { data: ordenesDelMes },
+        { data: ultimasOrdenes },
+        { data: ordenesSemana },
+        { data: ultimoCliente },
+      ] = await Promise.all([
+        supabase.from("vehiculos").select("*", { count: "exact", head: true }),
+        supabase.from("clientes").select("*", { count: "exact", head: true }),
+        supabase
+          .from("ordenes")
+          .select("*", { count: "exact", head: true })
+          .eq("estado", "Pendiente"),
+        supabase
+          .from("ordenes")
+          .select("*", { count: "exact", head: true })
+          .eq("estado", "En proceso"),
+        supabase
+          .from("ordenes")
+          .select("costo_final, fecha_entrega")
+          .gte("fecha_entrega", inicioMes.toISOString()),
+        supabase
+          .from("ordenes")
+          .select(
+            "id, estado, fecha_ingreso, vehiculos(placa, marca, modelo, clientes(nombre))"
+          )
+          .order("id", { ascending: false })
+          .limit(5),
+        supabase
+          .from("ordenes")
+          .select("id, fecha_ingreso")
+          .gte("fecha_ingreso", haceSieteDias.toISOString()),
+        supabase
+          .from("clientes")
+          .select("nombre, fecha_ingreso")
+          .order("fecha_ingreso", { ascending: false })
+          .limit(1),
+      ]);
+
+      const ingresosMes = (ordenesDelMes || []).reduce(
+        (acc, o) => acc + parseMonto(o.costo_final),
+        0
+      );
+
+      setStats([
+        {
+          title: "Vehículos activos",
+          value: String(totalVehiculos ?? 0),
+          change: "Registrados en el taller",
+          icon: Car,
+          color: "blue",
+        },
+        {
+          title: "Órdenes pendientes",
+          value: String(ordenesPendientes ?? 0),
+          change: `${ordenesEnProceso ?? 0} en proceso`,
+          icon: ClipboardList,
+          color: "red",
+        },
+        {
+          title: "Clientes registrados",
+          value: String(totalClientes ?? 0),
+          change: "Base total de clientes",
+          icon: Users,
+          color: "blue",
+        },
+        {
+          title: "Ingresos del mes",
+          value: formatMonto(ingresosMes),
+          change: `${(ordenesDelMes || []).length} órdenes entregadas`,
+          icon: DollarSign,
+          color: "red",
+        },
+      ]);
+
+      setOrdenesRecientes(ultimasOrdenes || []);
+
+      const conteoPorDia = {};
+      (ordenesSemana || []).forEach((o) => {
+        const dia = DIAS[new Date(o.fecha_ingreso).getDay()];
+        conteoPorDia[dia] = (conteoPorDia[dia] || 0) + 1;
+      });
+
+      const hoy = new Date();
+      const serieSemana = [];
+      for (let i = 6; i >= 0; i--) {
+        const fecha = new Date(hoy);
+        fecha.setDate(hoy.getDate() - i);
+        const dia = DIAS[fecha.getDay()];
+        serieSemana.push({ day: dia, orders: conteoPorDia[dia] || 0 });
+      }
+      setChartData(serieSemana);
+
+      const eventos = [];
+      if (ultimoCliente && ultimoCliente[0]) {
+        eventos.push({
+          icon: Users,
+          title: "Cliente registrado",
+          text: `Se agregó a ${ultimoCliente[0].nombre} como cliente.`,
+        });
+      }
+      if (ultimasOrdenes && ultimasOrdenes[0]) {
+        const o = ultimasOrdenes[0];
+        eventos.push({
+          icon: o.estado === "Completado" ? CheckCircle2 : Clock,
+          title:
+            o.estado === "Completado"
+              ? "Orden completada"
+              : "Orden reciente",
+          text: `${o.vehiculos?.placa || "Vehículo"} está en estado "${
+            o.estado
+          }".`,
+        });
+      }
+      const completada = (ultimasOrdenes || []).find(
+        (o) => o.estado === "Completado"
+      );
+      if (completada) {
+        eventos.push({
+          icon: CheckCircle2,
+          title: "Orden completada",
+          text: `${completada.vehiculos?.placa || "Vehículo"} fue marcado como entregado.`,
+        });
+      }
+      setActividad(eventos.slice(0, 3));
+
+      setLoading(false);
+    };
+
+    cargarDashboard();
+  }, []);
+
+  return (
+    <Layout>
+      <div className="space-y-8">
+        <section className="relative overflow-hidden rounded-[2rem] border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/[0.03] to-transparent dark:from-white/[0.08] dark:to-white/[0.02] p-8 shadow-2xl shadow-black/5 dark:shadow-black/40">
+          <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-red-600/20 blur-3xl" />
+          <div className="absolute bottom-0 left-1/2 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
+
+          <div className="relative z-10 max-w-3xl">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/30 px-4 py-2 text-sm text-zinc-700 dark:text-white/70">
+              <Activity className="h-4 w-4 text-red-500 dark:text-red-400" />
+              Sistema operativo en tiempo real
             </div>
-            </section>
 
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 dark:text-white">
+              {nombre ? `Bienvenido, ${nombre}` : "Bienvenido"}
+            </h1>
+
+            <p className="mt-4 text-zinc-600 dark:text-white/55 max-w-2xl">
+              Panel inteligente del taller
+            </p>
+          </div>
+        </section>
+
+        {loading ? (
+          <div className="flex items-center justify-center gap-3 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-16 text-zinc-500 dark:text-white/50">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Cargando datos del taller...
+          </div>
+        ) : (
+          <>
             <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-            {stats.map((stat) => (
+              {stats.map((stat) => (
                 <StatCard key={stat.title} {...stat} />
-            ))}
+              ))}
             </section>
 
             <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30">
-                <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-xl font-bold">Órdenes recientes</h2>
-                    <p className="text-sm text-white/45">
-                    Últimos trabajos registrados en el sistema
+              <div className="xl:col-span-2 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-6 shadow-2xl shadow-black/5 dark:shadow-black/30">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Órdenes recientes</h2>
+                    <p className="text-sm text-zinc-500 dark:text-white/45">
+                      Últimos trabajos registrados en el sistema
                     </p>
-                </div>
+                  </div>
 
-                <button className="rounded-xl bg-white/10 px-4 py-2 text-sm hover:bg-white/15 transition">
+                  <a
+                    href="/ordenes"
+                    className="rounded-xl bg-black/5 dark:bg-white/10 px-4 py-2 text-sm text-zinc-800 dark:text-white hover:bg-black/10 dark:hover:bg-white/15 transition"
+                  >
                     Ver todas
-                </button>
+                  </a>
                 </div>
 
-                <div className="overflow-hidden rounded-2xl border border-white/10">
-                <table className="w-full text-sm">
-                    <thead className="bg-white/[0.06] text-white/50">
-                    <tr>
-                        <th className="text-left p-4">Orden</th>
-                        <th className="text-left p-4">Cliente</th>
-                        <th className="text-left p-4">Vehículo</th>
-                        <th className="text-left p-4">Estado</th>
-                        <th className="text-left p-4">Fecha</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    {orders.map((order) => (
-                        <tr
-                        key={order.id}
-                        className="border-t border-white/10 hover:bg-white/[0.04] transition"
-                        >
-                        <td className="p-4 font-semibold">{order.id}</td>
-                        <td className="p-4 text-white/70">{order.client}</td>
-                        <td className="p-4 text-white/70">{order.vehicle}</td>
-                        <td className="p-4">
-                            <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                                order.status === "Completado"
-                                ? "bg-emerald-500/15 text-emerald-300"
-                                : order.status === "En proceso"
-                                ? "bg-blue-500/15 text-blue-300"
-                                : "bg-red-500/15 text-red-300"
-                            }`}
-                            >
-                            {order.status}
-                            </span>
-                        </td>
-                        <td className="p-4 text-white/50">{order.date}</td>
+                {ordenesRecientes.length === 0 ? (
+                  <div className="rounded-2xl border border-black/10 dark:border-white/10 p-10 text-center text-zinc-400 dark:text-white/40 text-sm">
+                    Todavía no hay órdenes registradas.
+                  </div>
+                ) : (
+                  <div className="overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
+                    <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-black/[0.03] dark:bg-white/[0.06] text-zinc-500 dark:text-white/50">
+                        <tr>
+                          <th className="text-left p-4">Orden</th>
+                          <th className="text-left p-4">Cliente</th>
+                          <th className="text-left p-4">Vehículo</th>
+                          <th className="text-left p-4">Estado</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
-                </div>
-            </div>
+                      </thead>
 
-            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30">
-                <h2 className="text-xl font-bold">Actividad reciente</h2>
-                <p className="text-sm text-white/45 mb-6">
-                Movimientos importantes del día
+                      <tbody>
+                        {ordenesRecientes.map((orden) => (
+                          <tr
+                            key={orden.id}
+                            className="border-t border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition"
+                          >
+                            <td className="p-4 font-semibold text-zinc-900 dark:text-white">
+                              #TG-{orden.id}
+                            </td>
+                            <td className="p-4 text-zinc-600 dark:text-white/70">
+                              {orden.vehiculos?.clientes?.nombre || "—"}
+                            </td>
+                            <td className="p-4 text-zinc-600 dark:text-white/70">
+                              {orden.vehiculos?.placa || "—"}
+                            </td>
+                            <td className="p-4">
+                              <span
+                                className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                  estadoBadge[orden.estado] ||
+                                  "bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-white/60"
+                                }`}
+                              >
+                                {orden.estado}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-6 shadow-2xl shadow-black/5 dark:shadow-black/30">
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Actividad reciente</h2>
+                <p className="text-sm text-zinc-500 dark:text-white/45 mb-6">
+                  Movimientos importantes del sistema
                 </p>
 
                 <div className="space-y-5">
-                <ActivityItem
-                    icon={CheckCircle2}
-                    title="Orden completada"
-                    text="Honda Civic fue marcado como entregado."
-                />
-                <ActivityItem
-                    icon={Clock}
-                    title="Nueva orden pendiente"
-                    text="Toyota Hilux ingresó a revisión general."
-                />
-                <ActivityItem
-                    icon={Users}
-                    title="Cliente registrado"
-                    text="Se agregó un nuevo cliente al sistema."
-                />
+                  {actividad.length === 0 ? (
+                    <p className="text-sm text-zinc-400 dark:text-white/40">
+                      Todavía no hay actividad registrada.
+                    </p>
+                  ) : (
+                    actividad.map((item, i) => (
+                      <ActivityItem key={i} {...item} />
+                    ))
+                  )}
                 </div>
-            </div>
+              </div>
 
-            <div className="xl:col-span-3 rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 overflow-hidden relative">
-            <div className="absolute top-0 right-0 h-56 w-56 bg-blue-500/10 blur-3xl rounded-full" />
-            <div className="absolute bottom-0 left-0 h-56 w-56 bg-red-500/10 blur-3xl rounded-full" />
+              <div className="xl:col-span-3 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-6 shadow-2xl shadow-black/5 dark:shadow-black/30 overflow-hidden relative">
+                <div className="absolute top-0 right-0 h-56 w-56 bg-blue-500/10 blur-3xl rounded-full" />
+                <div className="absolute bottom-0 left-0 h-56 w-56 bg-red-500/10 blur-3xl rounded-full" />
 
-            <div className="relative z-10 mb-6">
-                <h2 className="text-2xl font-black tracking-tight">
-                Rendimiento semanal
-                </h2>
+                <div className="relative z-10 mb-6">
+                  <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
+                    Rendimiento semanal
+                  </h2>
 
-                <p className="text-white/45 text-sm mt-1">
-                Órdenes procesadas durante la semana
-                </p>
-            </div>
+                  <p className="text-zinc-500 dark:text-white/45 text-sm mt-1">
+                    Órdenes ingresadas en los últimos 7 días
+                  </p>
+                </div>
 
-            <div className="h-[320px] relative z-10">
-                <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                    <defs>
-                    <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.7} />
-                        <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
-                    </linearGradient>
-                    </defs>
+                <div className="h-[320px] relative z-10">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData}>
+                      <defs>
+                        <linearGradient
+                          id="colorOrders"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#3b82f6"
+                            stopOpacity={0.7}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#ef4444"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
 
-                    <XAxis
-                    dataKey="day"
-                    stroke="rgba(255,255,255,0.3)"
-                    tickLine={false}
-                    axisLine={false}
-                    />
+                      <XAxis
+                        dataKey="day"
+                        stroke="currentColor"
+                        className="text-zinc-400 dark:text-white/30"
+                        tickLine={false}
+                        axisLine={false}
+                      />
 
-                    <Tooltip
-                    contentStyle={{
-                        background: "#0f172a",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "16px",
-                        color: "white",
-                    }}
-                    />
+                      <Tooltip
+                        contentStyle={{
+                          background: "#0f172a",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          borderRadius: "16px",
+                          color: "white",
+                        }}
+                      />
 
-                    <Area
-                    type="monotone"
-                    dataKey="orders"
-                    stroke="#3b82f6"
-                    strokeWidth={4}
-                    fill="url(#colorOrders)"
-                    />
-                </AreaChart>
-                </ResponsiveContainer>
-            </div>
-</div>
+                      <Area
+                        type="monotone"
+                        dataKey="orders"
+                        stroke="#3b82f6"
+                        strokeWidth={4}
+                        fill="url(#colorOrders)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </section>
-        </div>
-        </Layout>
-    );
-    }
+          </>
+        )}
+      </div>
+    </Layout>
+  );
+}
 
-    function ActivityItem({ icon: Icon, title, text }) {
-    return (
-        <div className="flex gap-4">
-        <div className="h-10 w-10 rounded-2xl bg-white/10 flex items-center justify-center">
-            <Icon className="h-5 w-5 text-blue-300" />
-        </div>
+function ActivityItem({ icon: Icon, title, text }) {
+  return (
+    <div className="flex gap-4">
+      <div className="h-10 w-10 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center">
+        <Icon className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+      </div>
 
-        <div>
-            <p className="font-semibold">{title}</p>
-            <p className="text-sm text-white/45">{text}</p>
-        </div>
-        </div>
-    );
+      <div>
+        <p className="font-semibold text-zinc-900 dark:text-white">{title}</p>
+        <p className="text-sm text-zinc-500 dark:text-white/45">{text}</p>
+      </div>
+    </div>
+  );
 }

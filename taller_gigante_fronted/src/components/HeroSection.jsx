@@ -30,7 +30,7 @@ export function HeroSection() {
         <div
             className="absolute inset-0 pointer-events-none"
             style={{
-            background: "radial-gradient(ellipse at center, transparent 0%, oklch(0.96 0.01 80 / 0.6) 70%)",
+            background: "radial-gradient(ellipse at center, transparent 0%, var(--color-vignette) 70%)",
             }}
         />
 
@@ -79,7 +79,7 @@ export function HeroSection() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
             <a href="/login"
-                className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300"
+                className="group relative overflow-hidden bg-accent hover:bg-accent/90 text-cream px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300"
                 >
                 <span className="relative z-10 flex items-center gap-2">
                     <LogIn className="w-5 h-5" />
@@ -88,7 +88,7 @@ export function HeroSection() {
                 </a>
 
                 <a href="/register"
-                className="group relative overflow-hidden border border-blue-500/50 hover:border-blue-500 text-white px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300 hover:bg-blue-500/10"
+                className="group relative overflow-hidden border border-primary/50 hover:border-primary text-foreground px-8 py-6 text-lg font-semibold rounded-lg transition-all duration-300 hover:bg-primary/10"
                 >
                 <span className="relative z-10 flex items-center gap-2">
                     <Wrench className="w-5 h-5" />

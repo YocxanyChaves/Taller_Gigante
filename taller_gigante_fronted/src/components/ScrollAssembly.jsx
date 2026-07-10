@@ -20,21 +20,21 @@ const assemblyParts = [
     })
 
     return (
-        <section ref={containerRef} id="system" className="relative py-32 overflow-hidden bg-zinc-950">
+        <section ref={containerRef} id="system" className="relative py-32 overflow-hidden bg-muted">
         <div
             className="absolute inset-0"
             style={{
             background:
-                "linear-gradient(180deg, #050505 0%, #111827 50%, #050505 100%)",
+                "linear-gradient(180deg, var(--color-cream) 0%, var(--color-background) 50%, var(--color-cream) 100%)",
             }}
         />
 
         <div
-            className="absolute inset-0 opacity-[0.05]"
+            className="absolute inset-0 opacity-[0.06]"
             style={{
             backgroundImage: `
-                linear-gradient(rgba(59, 130, 246, 0.45) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.45) 1px, transparent 1px)
+                linear-gradient(rgba(61, 90, 82, 0.45) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(61, 90, 82, 0.45) 1px, transparent 1px)
             `,
             backgroundSize: "30px 30px",
             }}
@@ -48,25 +48,25 @@ const assemblyParts = [
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
             >
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
                 <span className="block">Sistema</span>
-                <span className="block text-blue-500 mt-2">Modular</span>
+                <span className="block text-primary mt-2">Modular</span>
             </h2>
 
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
                 Componentes que se ensamblan perfectamente para crear la solución ideal para tu taller.
             </p>
             </motion.div>
 
             <div className="relative flex items-center justify-center min-h-[500px]">
             <motion.div
-                className="absolute w-32 h-32 rounded-full bg-zinc-950 border-2 border-blue-500/40 flex items-center justify-center z-20"
+                className="absolute w-32 h-32 rounded-full bg-card border-2 border-primary/40 flex items-center justify-center z-20"
                 animate={{
                 scale: [1, 1.03, 1],
                 boxShadow: [
-                    "0 8px 40px rgba(59, 130, 246, 0.2)",
-                    "0 8px 50px rgba(59, 130, 246, 0.35)",
-                    "0 8px 40px rgba(59, 130, 246, 0.2)",
+                    "0 8px 40px rgba(61, 90, 82, 0.2)",
+                    "0 8px 50px rgba(61, 90, 82, 0.35)",
+                    "0 8px 40px rgba(61, 90, 82, 0.2)",
                 ],
                 }}
                 transition={{
@@ -75,7 +75,7 @@ const assemblyParts = [
                 ease: "easeInOut",
                 }}
             >
-                <span className="text-3xl font-bold text-blue-500">TMG</span>
+                <span className="text-3xl font-bold text-primary">TMG</span>
             </motion.div>
 
             {assemblyParts.map((part, index) => {
@@ -99,9 +99,9 @@ const assemblyParts = [
             <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ minHeight: 500 }}>
                 <defs>
                 <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="rgba(59, 130, 246, 0)" />
-                    <stop offset="50%" stopColor="rgba(59, 130, 246, 0.4)" />
-                    <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
+                    <stop offset="0%" stopColor="rgba(61, 90, 82, 0)" />
+                    <stop offset="50%" stopColor="rgba(61, 90, 82, 0.4)" />
+                    <stop offset="100%" stopColor="rgba(61, 90, 82, 0)" />
                 </linearGradient>
                 </defs>
 
@@ -161,21 +161,21 @@ const assemblyParts = [
         }}
         >
         <motion.div
-            className={`w-16 h-16 rounded-xl bg-zinc-950 flex items-center justify-center border ${
-            isAccent ? "border-red-500/40" : "border-blue-500/40"
+            className={`w-16 h-16 rounded-xl bg-card flex items-center justify-center border ${
+            isAccent ? "border-accent/40" : "border-primary/40"
             }`}
             whileHover={{
             scale: 1.1,
             boxShadow: isAccent
-                ? "0 8px 30px rgba(239, 68, 68, 0.3)"
-                : "0 8px 30px rgba(59, 130, 246, 0.3)",
+                ? "0 8px 30px rgba(168, 70, 15, 0.3)"
+                : "0 8px 30px rgba(61, 90, 82, 0.3)",
             }}
             transition={{ duration: 0.3 }}
         >
-            <Icon className={`w-7 h-7 ${isAccent ? "text-red-500" : "text-blue-500"}`} />
+            <Icon className={`w-7 h-7 ${isAccent ? "text-accent" : "text-primary"}`} />
         </motion.div>
 
-        <span className="text-xs font-mono text-gray-400 whitespace-nowrap">{label}</span>
+        <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">{label}</span>
         </motion.div>
     )
 }

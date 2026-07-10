@@ -3,8 +3,8 @@ import { Cog, Mail } from "lucide-react"
 
 const footerLinks = {
     product: [
-        { label: "Características", href: "#" },
-        { label: "Precios", href: "#" },
+        { label: "Características", href: "#features" },
+        { label: "Sistema", href: "#system" },
         { label: "Integraciones", href: "#" },
         { label: "API", href: "#" },
     ],
@@ -13,7 +13,7 @@ const footerLinks = {
         { label: "Sobre Nosotros", href: "#" },
         { label: "Blog", href: "#" },
         { label: "Carreras", href: "#" },
-        { label: "Contacto", href: "#" },
+        { label: "Contacto", href: "#contact" },
     ],
 
     resources: [
@@ -36,10 +36,10 @@ const footerLinks = {
 
     export function Footer() {
     return (
-        <footer className="relative pt-20 pb-10 overflow-hidden bg-black">
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-black" />
+        <footer className="relative pt-20 pb-10 overflow-hidden bg-background">
+        <div className="absolute inset-0 bg-gradient-to-t from-muted to-background" />
 
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-16">
@@ -50,7 +50,7 @@ const footerLinks = {
                 whileHover={{ scale: 1.02 }}
                 >
                 <motion.div
-                    className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center"
+                    className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/30 flex items-center justify-center"
                     animate={{ rotate: 360 }}
                     transition={{
                     duration: 20,
@@ -58,21 +58,21 @@ const footerLinks = {
                     ease: "linear",
                     }}
                 >
-                    <Cog className="w-6 h-6 text-blue-500" />
+                    <Cog className="w-6 h-6 text-accent" />
                 </motion.div>
 
                 <div>
-                    <span className="text-xl font-bold text-white block">
+                    <span className="text-xl font-bold text-foreground block">
                     Taller Mecánico Gigante
                     </span>
 
-                    <span className="text-xs font-mono text-gray-400 tracking-widest uppercase">
+                    <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase">
                     Workshop Management
                     </span>
                 </div>
                 </motion.a>
 
-                <p className="text-sm text-gray-400 max-w-xs leading-relaxed mb-6">
+                <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-6">
                 Plataforma moderna para la gestión de talleres mecánicos con enfoque profesional.
                 </p>
 
@@ -81,7 +81,7 @@ const footerLinks = {
                     <motion.a
                     key={social.label}
                     href={social.href}
-                    className="w-10 h-10 rounded-lg bg-zinc-900 flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-300"
+                    className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-accent hover:bg-accent/10 transition-all duration-300"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     aria-label={social.label}
@@ -98,14 +98,14 @@ const footerLinks = {
             <FooterColumn title="Legal" links={footerLinks.legal} />
             </div>
 
-            <div className="pt-8 border-t border-white/10">
+            <div className="pt-8 border-t border-foreground/10">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Taller Mecánico Gigante.
                 </p>
 
-                <div className="flex items-center gap-2 text-xs text-gray-400 font-mono">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 <span>Sistema operativo</span>
                 </div>
             </div>
@@ -118,7 +118,7 @@ const footerLinks = {
     function FooterColumn({ title, links }) {
     return (
         <div>
-        <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
+        <h4 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider">
             {title}
         </h4>
 
@@ -127,7 +127,7 @@ const footerLinks = {
             <li key={link.label}>
                 <a
                 href={link.href}
-                className="text-sm text-gray-400 hover:text-blue-500 transition-colors duration-300"
+                className="text-sm text-muted-foreground hover:text-accent transition-colors duration-300"
                 >
                 {link.label}
                 </a>

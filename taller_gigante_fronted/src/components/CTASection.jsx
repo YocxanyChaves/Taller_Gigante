@@ -1,25 +1,48 @@
 import { motion } from "framer-motion"
-import { ArrowRight, Sparkles } from "lucide-react"
+import { Phone, Mail, MapPin, Clock, Send } from "lucide-react"
 import { AnimatedGear } from "./AnimatedGear"
+
+const contactInfo = [
+    {
+        icon: Phone,
+        label: "Teléfono",
+        value: "+506 8888-8888",
+    },
+    {
+        icon: Mail,
+        label: "Correo",
+        value: "contacto@tallergigante.com",
+    },
+    {
+        icon: MapPin,
+        label: "Ubicación",
+        value: "San José, Costa Rica",
+    },
+    {
+        icon: Clock,
+        label: "Horario",
+        value: "Lunes a viernes, 8:00 am – 5:00 pm",
+    },
+]
 
 export function CTASection(){
     return (
-        <section className="relative py-32 overflow-hidden bg-black">
+        <section id="contact" className="relative py-32 overflow-hidden bg-background">
         <div
             className="absolute inset-0"
             style={{
             background:
-                "linear-gradient(180deg, #050505 0%, #111827 50%, #050505 100%)",
+                "linear-gradient(180deg, var(--color-background) 0%, var(--color-cream) 50%, var(--color-background) 100%)",
             }}
         />
 
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute -top-20 -left-20 opacity-10">
-            <AnimatedGear size={250} />
+            <div className="absolute -top-20 -left-20 opacity-25">
+            <AnimatedGear size={250} variant="rust" />
             </div>
 
-            <div className="absolute -bottom-20 -right-20 opacity-10">
-            <AnimatedGear size={300} reverse />
+            <div className="absolute -bottom-20 -right-20 opacity-25">
+            <AnimatedGear size={300} reverse variant="bronze" />
             </div>
         </div>
 
@@ -27,88 +50,95 @@ export function CTASection(){
             className="absolute inset-0 pointer-events-none"
             style={{
             background: `
-                radial-gradient(ellipse at 30% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 50%, rgba(239, 68, 68, 0.07) 0%, transparent 50%)
+                radial-gradient(ellipse at 30% 50%, rgba(61, 90, 82, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 50%, rgba(168, 70, 15, 0.08) 0%, transparent 50%)
             `,
             }}
         />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
             <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-red-500/10 border border-red-500/30"
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-accent/10 border border-accent/30"
             >
-            <Sparkles className="w-4 h-4 text-red-500" />
-            <span className="text-sm font-mono text-red-400 tracking-wider uppercase">
-                Comienza Ahora
-            </span>
+                <Send className="w-4 h-4 text-accent" />
+                <span className="text-sm font-mono text-accent tracking-wider uppercase">
+                Contáctanos
+                </span>
             </motion.div>
 
             <motion.h2
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
             >
-            <span className="block">Transforma Tu Taller</span>
-            <span className="block text-red-500 mt-2">Hoy Mismo</span>
+                <span className="block">Hablemos de tu</span>
+                <span className="block text-accent mt-2">Taller</span>
             </motion.h2>
 
             <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             >
-            Organiza clientes, vehículos, órdenes de trabajo e historial de reparaciones
-            desde una plataforma moderna creada para talleres mecánicos.
+                ¿Tienes dudas sobre el sistema o quieres implementarlo en tu taller?
+                Escríbenos por cualquiera de estos medios.
             </motion.p>
+            </div>
 
             <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
             >
-            <a href="/login" className="group relative overflow-hidden bg-red-600 hover:bg-red-700 text-white px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 shadow-[0_8px_35px_rgba(239,68,68,0.25)]">
-                <span className="relative z-10 flex items-center gap-2">
-                Iniciar Sesión
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-            </a>
+            {contactInfo.map((item) => (
+                <div
+                key={item.label}
+                className="backdrop-blur-md bg-card/80 border border-foreground/10 rounded-2xl p-6 text-center hover:border-accent/40 transition-colors duration-300"
+                >
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/15 border border-accent/30 mb-4">
+                    <item.icon className="w-5 h-5 text-accent" />
+                </div>
 
-            <a href="/register" className="border border-blue-500/40 hover:border-blue-500 text-white px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 hover:bg-blue-500/10">
-                Registrarse
-            </a>
+                <p className="text-xs font-mono text-muted-foreground tracking-widest uppercase mb-1">
+                    {item.label}
+                </p>
+
+                <p className="text-foreground font-semibold">
+                    {item.value}
+                </p>
+                </div>
+            ))}
             </motion.div>
 
             <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400"
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-            <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span>Sin tarjeta de crédito</span>
-            </div>
+            <a
+                href="mailto:contacto@tallergigante.com"
+                className="group relative overflow-hidden bg-accent hover:bg-accent/90 text-cream px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 shadow-[0_8px_35px_rgba(168,70,15,0.25)] flex items-center gap-2"
+            >
+                Escríbenos
+                <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </a>
 
-            <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span>Configuración rápida</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span>Sistema web responsive</span>
-            </div>
+            <a href="/register" className="border border-primary/40 hover:border-primary text-foreground px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 hover:bg-primary/10">
+                Crear Cuenta
+            </a>
             </motion.div>
         </div>
         </section>

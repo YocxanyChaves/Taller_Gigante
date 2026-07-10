@@ -1,27 +1,38 @@
 import { motion } from "framer-motion"
 import { useState } from "react"
 
-import { ArrowLeft, Mail, KeyRound, CheckCircle } from "lucide-react"
+import { ArrowLeft, Mail, KeyRound, CheckCircle, AlertCircle } from "lucide-react"
+import { supabase } from "../lib/supabaseClient"
 
 export default function ForgotPassword() {
     const [isLoading, setIsLoading] = useState(false)
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [email, setEmail] = useState("")
+    const [error, setError] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
+        setError("")
         setIsLoading(true)
 
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+            email,
+            { redirectTo: `${window.location.origin}/reset-password` }
+        )
 
         setIsLoading(false)
+
+        if (resetError) {
+            setError(resetError.message)
+            return
+        }
+
         setIsSubmitted(true)
     }
 
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
+        <div className="min-h-screen bg-background paper-texture flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="fixed inset-0 bg-gradient-to-br from-background via-cream to-muted" />
 
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -30,7 +41,7 @@ export default function ForgotPassword() {
         >
             <a
             href="/login"
-            className="inline-flex items-center gap-2 text-zinc-400 hover:text-red-500 transition-colors mb-8 group"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors mb-8 group"
             >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
 
@@ -39,27 +50,34 @@ export default function ForgotPassword() {
             </span>
             </a>
 
-            <div className="backdrop-blur-md bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
+            <div className="backdrop-blur-md bg-card/80 border border-foreground/10 rounded-2xl p-8 shadow-2xl">
             {!isSubmitted ? (
                 <>
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/20 border border-blue-500/30 mb-4">
-                    <KeyRound className="w-8 h-8 text-blue-400" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/15 border border-primary/30 mb-4">
+                    <KeyRound className="w-8 h-8 text-primary" />
                     </div>
 
-                    <h1 className="text-2xl font-bold text-white mb-2">
+                    <h1 className="text-2xl font-bold text-foreground mb-2">
                     Recuperar Contraseña
                     </h1>
 
-                    <p className="text-zinc-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                     Ingresa tu correo electrónico para enviarte las instrucciones de recuperación.
                     </p>
                 </div>
 
+                {error && (
+                    <div className="mb-5 flex items-center gap-3 rounded-lg border border-accent/20 bg-accent/10 px-4 py-3 text-sm text-accent">
+                        <AlertCircle className="w-5 h-5" />
+                        {error}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-blue-400" />
+                    <label className="text-foreground font-medium flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-primary" />
                         Correo Electrónico
                     </label>
 
@@ -69,14 +87,14 @@ export default function ForgotPassword() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="w-full pl-4 pr-4 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-blue-400"
+                        className="w-full pl-4 pr-4 py-4 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-primary"
                     />
                     </div>
 
                     <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all duration-300"
+                    className="w-full py-4 bg-gradient-to-r from-accent to-primary hover:opacity-90 text-cream font-semibold rounded-lg transition-all duration-300 disabled:opacity-70"
                     >
                     {isLoading ? (
                         "Enviando..."
@@ -89,11 +107,11 @@ export default function ForgotPassword() {
                     </button>
                 </form>
 
-                <p className="text-center mt-6 text-zinc-400 text-sm">
+                <p className="text-center mt-6 text-muted-foreground text-sm">
                     ¿Recuerdas tu contraseña?{" "}
                     <a
                     href="/login"
-                    className="text-red-500 hover:underline"
+                    className="text-accent hover:underline"
                     >
                     Inicia sesión aquí
                     </a>
@@ -105,21 +123,21 @@ export default function ForgotPassword() {
                     <CheckCircle className="w-10 h-10 text-green-500" />
                 </div>
 
-                <h2 className="text-2xl font-bold text-white mb-3">
+                <h2 className="text-2xl font-bold text-foreground mb-3">
                     Correo Enviado
                 </h2>
 
-                <p className="text-zinc-400 mb-2">
-                    Hemos enviado instrucciones a:
+                <p className="text-muted-foreground mb-2">
+                    Si existe una cuenta con ese correo, hemos enviado instrucciones a:
                 </p>
 
-                <p className="text-red-500 font-semibold mb-6">
+                <p className="text-accent font-semibold mb-6">
                     {email}
                 </p>
 
                 <a
                     href="/login"
-                    className="block w-full py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all"
+                    className="block w-full py-4 bg-gradient-to-r from-accent to-primary hover:opacity-90 text-cream font-semibold rounded-lg transition-all"
                 >
                     Volver al Login
                 </a>

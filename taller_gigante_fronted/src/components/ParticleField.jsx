@@ -1,7 +1,10 @@
 import { motion } from "framer-motion"
 import { useMemo } from "react"
+import { useTheme } from "../context/ThemeContext"
 
 export function ParticleField() {
+    const { theme } = useTheme()
+
     const particles = useMemo(() => {
         return Array.from({ length: 30 }, (_, i) => ({
         id: i,
@@ -14,6 +17,8 @@ export function ParticleField() {
         }))
     }, [])
 
+    const color = theme === "dark" ? "59, 130, 246" : "168, 70, 15"
+
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {particles.map((particle) => (
@@ -25,8 +30,8 @@ export function ParticleField() {
                 top: `${particle.y}%`,
                 width: particle.size,
                 height: particle.size,
-                background: "rgba(59, 130, 246, 0.35)",
-                boxShadow: `0 0 ${particle.size * 3}px rgba(59, 130, 246, 0.45)`,
+                background: `rgba(${color}, 0.3)`,
+                boxShadow: `0 0 ${particle.size * 3}px rgba(${color}, 0.4)`,
             }}
             animate={{
                 y: [0, -20, 0],

@@ -1,7 +1,70 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Paleta del landing page: retro/vintage en claro, técnica en oscuro */
+@theme {
+  --color-background: #f3e7d2;
+  --color-cream: #eeddb8;
+  --color-muted: #e1caa0;
+  --color-card: #faf3e3;
+  --color-foreground: #3a2b1d;
+  --color-muted-foreground: #6f5c43;
+  --color-accent: #a8460f;
+  --color-primary: #3d5a52;
+  --color-vignette: oklch(0.96 0.01 80 / 0.6);
+}
+
+.dark {
+  --color-background: #05070b;
+  --color-cream: #0b0e14;
+  --color-muted: #0f1420;
+  --color-card: #18181b;
+  --color-foreground: #ffffff;
+  --color-muted-foreground: #9ca3af;
+  --color-accent: #ef4444;
+  --color-primary: #3b82f6;
+  --color-vignette: oklch(0.09 0.02 260 / 0.55);
+}
+
 .glass {
+    background: rgba(244, 233, 216, 0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(58, 43, 29, 0.08);
+}
+
+.dark .glass {
     background: rgba(10, 10, 10, 0.72);
     backdrop-filter: blur(18px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.paper-texture {
+    background-image:
+        radial-gradient(rgba(120, 90, 50, 0.06) 1px, transparent 1px),
+        radial-gradient(rgba(120, 90, 50, 0.045) 1px, transparent 1px);
+    background-size: 3px 3px, 7px 7px;
+    background-position: 0 0, 2px 3px;
+}
+
+.dark .paper-texture {
+    background-image: none;
+}
+
+.text-shadow-red {
+    text-shadow: 0 3px 20px rgba(168, 70, 15, 0.35);
+}
+
+.dark .text-shadow-red {
+    text-shadow: none;
+}
+
+/* Que el selector de fecha nativo (calendarito) se vea bien en ambos temas */
+input[type="date"] {
+    color-scheme: light;
+    cursor: pointer;
+}
+
+.dark input[type="date"] {
+    color-scheme: dark;
 }

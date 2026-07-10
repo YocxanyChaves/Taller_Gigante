@@ -53,24 +53,24 @@ const features = [
     const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"])
 
     return (
-        <section ref={ref} id="features" className="relative py-32 overflow-hidden bg-black/70">
+        <section ref={ref} id="features" className="relative py-32 overflow-hidden bg-cream">
         <motion.div style={{ y: backgroundY }} className="absolute inset-0 pointer-events-none">
             <div
             className="absolute inset-0"
             style={{
                 background: `
-                radial-gradient(ellipse at 20% 30%, rgba(239, 68, 68, 0.12) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 70%, rgba(59, 130, 246, 0.10) 0%, transparent 50%)
+                radial-gradient(ellipse at 20% 30%, rgba(168, 70, 15, 0.10) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(61, 90, 82, 0.08) 0%, transparent 50%)
                 `,
             }}
             />
 
             <div
-            className="absolute inset-0 opacity-[0.05]"
+            className="absolute inset-0 opacity-[0.06]"
             style={{
                 backgroundImage: `
-                linear-gradient(rgba(239, 68, 68, 0.35) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.35) 1px, transparent 1px)
+                linear-gradient(rgba(168, 70, 15, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(61, 90, 82, 0.3) 1px, transparent 1px)
                 `,
                 backgroundSize: "100px 100px",
             }}
@@ -90,20 +90,20 @@ const features = [
                 whileInView={{ scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-red-500/15 border border-red-500/35"
+                className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-accent/15 border border-accent/35"
             >
-                <Wrench className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-mono text-red-400 tracking-wider uppercase font-semibold">
+                <Wrench className="w-4 h-4 text-accent" />
+                <span className="text-sm font-mono text-accent tracking-wider uppercase font-semibold">
                 Características
                 </span>
             </motion.div>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
                 <span className="block">Herramientas</span>
-                <span className="block text-blue-500 mt-2">Profesionales</span>
+                <span className="block text-primary mt-2">Profesionales</span>
             </h2>
 
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
                 Todo lo que necesitas para gestionar tu taller mecánico de forma eficiente y profesional.
             </p>
             </motion.div>
@@ -125,7 +125,7 @@ const features = [
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="mt-20 h-[2px] bg-gradient-to-r from-transparent via-red-500/40 to-transparent"
+            className="mt-20 h-[2px] bg-gradient-to-r from-transparent via-accent/40 to-transparent"
             />
         </div>
         </section>

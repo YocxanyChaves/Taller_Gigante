@@ -8,7 +8,7 @@ import { BackgroundGears } from "../components/BackgroundGears";
 
 export default function Home() {
     return (
-        <div className="min-h-screen bg-black relative">
+        <div className="min-h-screen bg-background relative">
         <BackgroundGears />
 
         <div className="relative z-10">

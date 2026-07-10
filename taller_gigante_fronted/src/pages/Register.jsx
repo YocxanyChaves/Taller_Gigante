@@ -1,12 +1,14 @@
 import { motion } from "framer-motion"
 import { useState } from "react"
 
+import { supabase } from "../lib/supabaseClient"
+import { Logo } from "../components/Logo"
+
 import {
     Eye,
     EyeOff,
     UserPlus,
     ArrowLeft,
-    Wrench,
     Mail,
     Lock,
     User,
@@ -14,6 +16,7 @@ import {
     Building2,
     CheckCircle2,
     Sparkles,
+    AlertCircle,
     } from "lucide-react"
 
     export default function Register() {
@@ -21,15 +24,49 @@ import {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const [error, setError] = useState("")
+
+    const [nombre, setNombre] = useState("")
+    const [apellido, setApellido] = useState("")
+    const [email, setEmail] = useState("")
+    const [telefono, setTelefono] = useState("")
     const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
 
     const handleSubmit = async (e) => {
         e.preventDefault()
+        setError("")
+
+        if (password !== confirmPassword) {
+        setError("Las contraseñas no coinciden.")
+        return
+        }
+
         setIsLoading(true)
 
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+            nombre: `${nombre} ${apellido}`.trim(),
+            telefono,
+            rol: "cliente",
+            },
+        },
+        })
 
         setIsLoading(false)
+
+        if (authError) {
+        setError(
+            authError.message === "User already registered"
+            ? "Ya existe una cuenta con ese correo."
+            : authError.message
+        )
+        return
+        }
+
         setIsSuccess(true)
     }
 
@@ -47,31 +84,31 @@ import {
 
     if (isSuccess) {
         return (
-        <div className="min-h-screen bg-black flex items-center justify-center px-4 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
+        <div className="min-h-screen bg-background paper-texture flex items-center justify-center px-4 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-background via-cream to-muted" />
 
             <motion.div
             initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative z-10 backdrop-blur-md bg-zinc-900/60 border border-zinc-800 rounded-2xl p-10 text-center max-w-md w-full shadow-2xl"
+            className="relative z-10 backdrop-blur-md bg-card/80 border border-foreground/10 rounded-2xl p-10 text-center max-w-md w-full shadow-2xl"
             >
-            <div className="flex justify-center gap-2 mb-4 text-blue-400">
+            <div className="flex justify-center gap-2 mb-4 text-primary">
                 <Sparkles className="w-5 h-5" />
                 <CheckCircle2 className="w-14 h-14 text-green-500" />
                 <Sparkles className="w-5 h-5" />
             </div>
 
-            <h2 className="text-2xl font-bold text-white mb-3">
+            <h2 className="text-2xl font-bold text-foreground mb-3">
                 Registro Exitoso
             </h2>
 
-            <p className="text-zinc-400 mb-8">
+            <p className="text-muted-foreground mb-8">
                 Tu cuenta ha sido creada correctamente. Ya puedes iniciar sesión en el sistema.
             </p>
 
             <a
                 href="/login"
-                className="block w-full py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-all"
+                className="block w-full py-4 bg-gradient-to-r from-accent to-primary hover:opacity-90 text-cream font-semibold rounded-lg transition-all"
             >
                 Ir a Iniciar Sesión
             </a>
@@ -81,8 +118,8 @@ import {
     }
 
     return (
-        <div className="min-h-screen bg-black relative overflow-hidden">
-        <div className="fixed inset-0 bg-gradient-to-br from-black via-zinc-900 to-black" />
+        <div className="min-h-screen bg-background paper-texture relative overflow-hidden">
+        <div className="fixed inset-0 bg-gradient-to-br from-background via-cream to-muted" />
 
         <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">
             <motion.div
@@ -92,104 +129,119 @@ import {
             >
             <a
                 href="/"
-                className="inline-flex items-center gap-2 text-zinc-400 hover:text-red-500 transition-colors mb-6 group"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors mb-6 group"
             >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 <span className="font-mono text-sm">Volver al inicio</span>
             </a>
 
-            <div className="backdrop-blur-md bg-zinc-900/60 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
+            <div className="backdrop-blur-md bg-card/80 border border-foreground/10 rounded-2xl p-8 shadow-2xl">
                 <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 border border-red-500/30 mb-4">
-                    <Wrench className="w-8 h-8 text-red-500" />
+                <div className="inline-flex items-center justify-center mb-4">
+                    <Logo className="h-[100px] w-auto" />
                 </div>
 
-                <h1 className="text-2xl font-bold text-white mb-2">
+                <h1 className="text-2xl font-bold text-foreground mb-2">
                     Crea tu cuenta
                 </h1>
 
-                <p className="text-zinc-400 text-sm">
+                <p className="text-muted-foreground text-sm">
                     Únete a{" "}
-                    <span className="text-red-500 font-semibold">
+                    <span className="text-accent font-semibold">
                     Taller Mecánico
                     </span>{" "}
-                    <span className="text-blue-400 font-semibold">
+                    <span className="text-primary font-semibold">
                     Gigante
                     </span>
                 </p>
                 </div>
 
+                {error && (
+                <div className="mb-5 flex items-center gap-3 rounded-lg border border-accent/20 bg-accent/10 px-4 py-3 text-sm text-accent">
+                    <AlertCircle className="w-5 h-5" />
+                    {error}
+                </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center gap-2 text-sm">
-                        <User className="w-4 h-4 text-red-500" />
+                    <label className="text-foreground font-medium flex items-center gap-2 text-sm">
+                        <User className="w-4 h-4 text-accent" />
                         Nombre
                     </label>
                     <input
                         type="text"
                         placeholder="Juan"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
                         required
-                        className="w-full px-4 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-red-500"
+                        className="w-full px-4 py-4 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-accent"
                     />
                     </div>
 
                     <div className="space-y-2">
-                    <label className="text-white font-medium text-sm">
+                    <label className="text-foreground font-medium text-sm">
                         Apellido
                     </label>
                     <input
                         type="text"
                         placeholder="Pérez"
+                        value={apellido}
+                        onChange={(e) => setApellido(e.target.value)}
                         required
-                        className="w-full px-4 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-red-500"
+                        className="w-full px-4 py-4 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-accent"
                     />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center gap-2 text-sm">
-                    <Mail className="w-4 h-4 text-red-500" />
+                    <label className="text-foreground font-medium flex items-center gap-2 text-sm">
+                    <Mail className="w-4 h-4 text-accent" />
                     Correo Electrónico
                     </label>
                     <input
                     type="email"
                     placeholder="tu@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-red-500"
+                    className="w-full px-4 py-4 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-accent"
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center gap-2 text-sm">
-                    <Phone className="w-4 h-4 text-blue-400" />
+                    <label className="text-foreground font-medium flex items-center gap-2 text-sm">
+                    <Phone className="w-4 h-4 text-primary" />
                     Teléfono
                     </label>
                     <input
                     type="tel"
                     placeholder="+506 8888-8888"
-                    className="w-full px-4 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-blue-400"
+                    value={telefono}
+                    onChange={(e) => setTelefono(e.target.value)}
+                    className="w-full px-4 py-4 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-primary"
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center gap-2 text-sm">
-                    <Building2 className="w-4 h-4 text-zinc-400" />
+                    <label className="text-foreground font-medium flex items-center gap-2 text-sm">
+                    <Building2 className="w-4 h-4 text-muted-foreground" />
                     Empresa{" "}
-                    <span className="text-zinc-500 font-normal">
+                    <span className="text-muted-foreground font-normal">
                         (opcional)
                     </span>
                     </label>
                     <input
                     type="text"
                     placeholder="Tu empresa o taller"
-                    className="w-full px-4 py-4 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-zinc-400"
+                    className="w-full px-4 py-4 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-muted-foreground"
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center gap-2 text-sm">
-                    <Lock className="w-4 h-4 text-blue-400" />
+                    <label className="text-foreground font-medium flex items-center gap-2 text-sm">
+                    <Lock className="w-4 h-4 text-primary" />
                     Contraseña
                     </label>
 
@@ -200,13 +252,13 @@ import {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="w-full px-4 py-4 pr-12 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-blue-400"
+                        className="w-full px-4 py-4 pr-12 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-primary"
                     />
 
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-blue-400"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
                     >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -224,16 +276,16 @@ import {
                                     ? "bg-green-500"
                                     : passwordStrength >= 2
                                     ? "bg-yellow-500"
-                                    : "bg-red-500"
-                                : "bg-zinc-700"
+                                    : "bg-accent"
+                                : "bg-foreground/10"
                             }`}
                             />
                         ))}
                         </div>
 
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-xs text-muted-foreground">
                         Fortaleza:{" "}
-                        <span className="font-medium text-blue-400">
+                        <span className="font-medium text-primary">
                             {strengthLabels[passwordStrength]}
                         </span>
                         </p>
@@ -242,8 +294,8 @@ import {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-white font-medium flex items-center gap-2 text-sm">
-                    <Lock className="w-4 h-4 text-blue-400" />
+                    <label className="text-foreground font-medium flex items-center gap-2 text-sm">
+                    <Lock className="w-4 h-4 text-primary" />
                     Confirmar Contraseña
                     </label>
 
@@ -251,29 +303,31 @@ import {
                     <input
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Repite tu contraseña"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         required
-                        className="w-full px-4 py-4 pr-12 bg-zinc-950 border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-blue-400"
+                        className="w-full px-4 py-4 pr-12 bg-foreground/5 border border-foreground/15 text-foreground placeholder:text-muted-foreground rounded-lg focus:outline-none focus:border-primary"
                     />
 
                     <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-blue-400"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
                     >
                         {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                     </div>
                 </div>
 
-                <label className="flex items-start gap-3 text-sm text-zinc-400 pt-2">
+                <label className="flex items-start gap-3 text-sm text-muted-foreground pt-2">
                     <input type="checkbox" required className="mt-1" />
                     <span>
                     Acepto los{" "}
-                    <a href="#" className="text-red-500 hover:underline">
+                    <a href="#" className="text-accent hover:underline">
                         Términos y Condiciones
                     </a>{" "}
                     y la{" "}
-                    <a href="#" className="text-red-500 hover:underline">
+                    <a href="#" className="text-accent hover:underline">
                         Política de Privacidad
                     </a>
                     </span>
@@ -282,7 +336,7 @@ import {
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-semibold text-lg rounded-lg transition-all duration-300 disabled:opacity-70"
+                    className="w-full py-4 bg-gradient-to-r from-accent to-primary hover:opacity-90 text-cream font-semibold text-lg rounded-lg transition-all duration-300 disabled:opacity-70"
                 >
                     {isLoading ? (
                     "Creando cuenta..."
@@ -297,10 +351,10 @@ import {
 
                 <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-zinc-700" />
+                    <div className="w-full border-t border-foreground/10" />
                 </div>
                 <div className="relative flex justify-center">
-                    <span className="bg-zinc-900 px-4 text-sm text-zinc-400">
+                    <span className="bg-card px-4 text-sm text-muted-foreground">
                     o registrate con
                     </span>
                 </div>
@@ -309,36 +363,36 @@ import {
                 <div className="grid grid-cols-2 gap-4">
                 <button
                     type="button"
-                    className="py-4 border border-zinc-700 hover:border-red-500 text-white rounded-lg transition-all"
+                    className="py-4 border border-foreground/15 hover:border-accent text-foreground rounded-lg transition-all"
                 >
                     Google
                 </button>
 
                 <button
                     type="button"
-                    className="py-4 border border-zinc-700 hover:border-blue-400 text-white rounded-lg transition-all flex items-center justify-center gap-2"
+                    className="py-4 border border-foreground/15 hover:border-primary text-foreground rounded-lg transition-all flex items-center justify-center gap-2"
                 >
                     <Mail className="w-5 h-5" />
                     Email
                 </button>
                 </div>
 
-                <p className="text-center mt-6 text-zinc-400 text-sm">
+                <p className="text-center mt-6 text-muted-foreground text-sm">
                 ¿Ya tienes una cuenta?{" "}
                 <a
                     href="/login"
-                    className="text-red-500 hover:underline font-semibold"
+                    className="text-accent hover:underline font-semibold"
                 >
                     Inicia sesión aquí
                 </a>
                 </p>
             </div>
 
-            <p className="text-center mt-6 text-zinc-500 text-xs font-mono">
+            <p className="text-center mt-6 text-muted-foreground text-xs font-mono">
                 Taller Mecánico Gigante - Sistema de Gestión Profesional
             </p>
             </motion.div>
         </div>
         </div>
     )
-}
+    }
