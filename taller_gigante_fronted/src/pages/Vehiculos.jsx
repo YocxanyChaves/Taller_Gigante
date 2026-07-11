@@ -141,11 +141,11 @@ export default function Vehiculos() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-3 text-zinc-900 dark:text-white">
-              <Car className="h-6 w-6 text-blue-500 dark:text-blue-400" />
+            <h1 className="text-2xl font-bold flex items-center gap-3 text-foreground">
+              <Car className="h-6 w-6 text-primary" />
               Vehículos
             </h1>
-            <p className="text-sm text-zinc-500 dark:text-white/45 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Vehículos registrados en el taller
             </p>
           </div>
@@ -160,21 +160,21 @@ export default function Vehiculos() {
         </div>
 
         {error && (
-          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-300">
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-accent">
             {error}
           </div>
         )}
 
-        <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] shadow-2xl shadow-black/5 dark:shadow-black/30 overflow-hidden">
+        <div className="rounded-3xl border border-foreground/10 bg-card/60 shadow-2xl shadow-black/5 overflow-hidden">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 p-16 text-zinc-500 dark:text-white/50">
+            <div className="flex items-center justify-center gap-3 p-16 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               Cargando vehículos...
             </div>
           ) : vehiculos.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-16 text-center">
-              <Car className="h-10 w-10 text-zinc-300 dark:text-white/20 mb-3" />
-              <p className="text-zinc-500 dark:text-white/50">
+              <Car className="h-10 w-10 text-muted-foreground/50 mb-3" />
+              <p className="text-muted-foreground">
                 Todavía no hay vehículos registrados.
               </p>
             </div>
@@ -182,7 +182,7 @@ export default function Vehiculos() {
             <div className="overflow-x-auto">
 
               <table className="w-full text-sm">
-              <thead className="bg-black/[0.03] dark:bg-white/[0.06] text-zinc-500 dark:text-white/50">
+              <thead className="bg-card/80 text-muted-foreground">
                 <tr>
                   <th className="text-left p-4">Placa</th>
                   <th className="text-left p-4">Marca / Modelo</th>
@@ -198,42 +198,42 @@ export default function Vehiculos() {
                 {vehiculos.map((vehiculo) => (
                   <tr
                     key={vehiculo.id}
-                    className="border-t border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition"
+                    className="border-t border-foreground/10 hover:bg-card/40 transition"
                   >
-                    <td className="p-4 font-semibold text-zinc-900 dark:text-white">{vehiculo.placa}</td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 font-semibold text-foreground">{vehiculo.placa}</td>
+                    <td className="p-4 text-muted-foreground">
                       {[vehiculo.marca, vehiculo.modelo]
                         .filter(Boolean)
                         .join(" ") || "—"}
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {vehiculo.año || "—"}
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {vehiculo.color || "—"}
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {vehiculo.kilometraje || "—"}
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {vehiculo.clientes?.nombre || "—"}
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(vehiculo)}
-                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] hover:bg-blue-500/20 hover:border-blue-500/30 transition"
+                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-foreground/10 bg-card/60 hover:bg-blue-500/20 hover:border-blue-500/30 transition"
                           title="Editar"
                         >
-                          <Pencil className="h-4 w-4 text-blue-600 dark:text-blue-300" />
+                          <Pencil className="h-4 w-4 text-primary" />
                         </button>
 
                         <button
                           onClick={() => handleDelete(vehiculo)}
-                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] hover:bg-red-500/20 hover:border-red-500/30 transition"
+                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-foreground/10 bg-card/60 hover:bg-red-500/20 hover:border-red-500/30 transition"
                           title="Eliminar"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600 dark:text-red-300" />
+                          <Trash2 className="h-4 w-4 text-accent" />
                         </button>
                       </div>
                     </td>
@@ -247,11 +247,11 @@ export default function Vehiculos() {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0b0e14] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto text-zinc-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg rounded-3xl border border-foreground/10 bg-card p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto text-foreground">
             <button
               onClick={closeModal}
-              className="absolute right-6 top-6 text-zinc-400 dark:text-white/40 hover:text-zinc-900 dark:hover:text-white transition"
+              className="absolute right-6 top-6 text-muted-foreground/70 hover:text-foreground transition"
             >
               <X className="h-5 w-5" />
             </button>
@@ -263,7 +263,7 @@ export default function Vehiculos() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
-                  <User className="h-4 w-4 text-red-500 dark:text-red-400" />
+                  <User className="h-4 w-4 text-accent" />
                   Cliente
                 </label>
                 <select
@@ -272,19 +272,19 @@ export default function Vehiculos() {
                   onChange={(e) =>
                     setForm({ ...form, id_cliente: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-500"
+                  className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                 >
-                  <option value="" disabled>
+                  <option value="" disabled className="bg-card text-foreground">
                     Selecciona un cliente
                   </option>
                   {clientes.map((cliente) => (
-                    <option key={cliente.id} value={cliente.id}>
+                    <option key={cliente.id} value={cliente.id} className="bg-card text-foreground">
                       {cliente.nombre}
                     </option>
                   ))}
                 </select>
                 {clientes.length === 0 && (
-                  <p className="text-xs text-zinc-400 dark:text-white/40">
+                  <p className="text-xs text-muted-foreground/70">
                     Primero registra un cliente en el módulo de Clientes.
                   </p>
                 )}
@@ -300,7 +300,7 @@ export default function Vehiculos() {
                     onChange={(e) =>
                       setForm({ ...form, placa: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-400"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary"
                     placeholder="ABC-123"
                   />
                 </div>
@@ -313,7 +313,7 @@ export default function Vehiculos() {
                     onChange={(e) =>
                       setForm({ ...form, año: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-400"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary"
                     placeholder="2020"
                   />
                 </div>
@@ -328,7 +328,7 @@ export default function Vehiculos() {
                     onChange={(e) =>
                       setForm({ ...form, marca: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-500"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                     placeholder="Toyota"
                   />
                 </div>
@@ -341,7 +341,7 @@ export default function Vehiculos() {
                     onChange={(e) =>
                       setForm({ ...form, modelo: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-500"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                     placeholder="Hilux"
                   />
                 </div>
@@ -349,7 +349,7 @@ export default function Vehiculos() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
-                  <Palette className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                  <Palette className="h-4 w-4 text-primary" />
                   Color
                 </label>
                 <input
@@ -358,14 +358,14 @@ export default function Vehiculos() {
                   onChange={(e) =>
                     setForm({ ...form, color: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-400"
+                  className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary"
                   placeholder="Blanco"
                 />
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
-                  <Gauge className="h-4 w-4 text-red-500 dark:text-red-400" />
+                  <Gauge className="h-4 w-4 text-accent" />
                   Kilometraje
                 </label>
                 <input
@@ -374,7 +374,7 @@ export default function Vehiculos() {
                   onChange={(e) =>
                     setForm({ ...form, kilometraje: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-500"
+                  className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                   placeholder="45000"
                 />
               </div>

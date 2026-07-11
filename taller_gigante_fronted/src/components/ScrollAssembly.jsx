@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef } from "react"
-import { Cog, Cpu, Database, Shield, Zap, Network } from "lucide-react"
+import { Cog, Cpu, Database, Shield, Zap, Network, Layers } from "lucide-react"
 
 const assemblyParts = [
     { icon: Cog, label: "Motor de Gestión", color: "primary" },
@@ -48,6 +48,13 @@ const assemblyParts = [
             transition={{ duration: 0.8 }}
             className="text-center mb-20"
             >
+            <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-primary/15 border border-primary/40">
+                <Layers className="w-4 h-4 text-primary" />
+                <span className="text-sm font-mono text-primary tracking-wider uppercase font-semibold">
+                Cómo Funciona
+                </span>
+            </div>
+
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
                 <span className="block">Sistema</span>
                 <span className="block text-primary mt-2">Modular</span>

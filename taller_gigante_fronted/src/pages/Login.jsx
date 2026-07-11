@@ -11,7 +11,6 @@ import {
     EyeOff,
     LogIn,
     ArrowLeft,
-    Mail,
     Lock,
     User,
     AlertCircle,
@@ -47,6 +46,17 @@ import {
         }
 
         window.location.href = "/dashboard";
+    };
+
+    const handleOAuthLogin = async (provider) => {
+        setError("");
+
+        const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+        });
+
+        if (oauthError) setError(oauthError.message);
     };
 
     return (
@@ -216,6 +226,7 @@ import {
                 <div className="grid grid-cols-2 gap-4">
                 <button
                     type="button"
+                    onClick={() => handleOAuthLogin("google")}
                     className="py-4 border border-foreground/15 hover:border-accent text-foreground rounded-lg transition-all flex items-center justify-center gap-2"
                 >
                     Google
@@ -223,10 +234,10 @@ import {
 
                 <button
                     type="button"
+                    onClick={() => handleOAuthLogin("facebook")}
                     className="py-4 border border-foreground/15 hover:border-primary text-foreground rounded-lg transition-all flex items-center justify-center gap-2"
                 >
-                    <Mail className="w-5 h-5" />
-                    Email
+                    Facebook
                 </button>
                 </div>
 

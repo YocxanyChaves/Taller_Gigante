@@ -1,27 +1,27 @@
 import { motion } from "framer-motion"
-import { Phone, Mail, MapPin, Clock, Send } from "lucide-react"
+import { LogIn, Phone, Mail, MapPin, Clock, Send } from "lucide-react"
 import { AnimatedGear } from "./AnimatedGear"
 
 const contactInfo = [
     {
         icon: Phone,
         label: "Teléfono",
-        value: "+506 8888-8888",
+        value: "8754-3150",
     },
     {
         icon: Mail,
         label: "Correo",
-        value: "contacto@tallergigante.com",
+        value: "tallergigante@gmail.com",
     },
     {
         icon: MapPin,
         label: "Ubicación",
-        value: "San José, Costa Rica",
+        value: "Alajuela, San Ramón centro, 150m del cementerio",
     },
     {
         icon: Clock,
         label: "Horario",
-        value: "Lunes a viernes, 8:00 am – 5:00 pm",
+        value: "Lunes a viernes: 8:00 am – 6:00 pm · Sábados y domingos: cerrado",
     },
 ]
 
@@ -67,7 +67,7 @@ export function CTASection(){
             >
                 <Send className="w-4 h-4 text-accent" />
                 <span className="text-sm font-mono text-accent tracking-wider uppercase">
-                Contáctanos
+                Contáctenos
                 </span>
             </motion.div>
 
@@ -78,8 +78,8 @@ export function CTASection(){
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
             >
-                <span className="block">Hablemos de tu</span>
-                <span className="block text-accent mt-2">Taller</span>
+                <span className="block">Estamos para</span>
+                <span className="block text-accent mt-2">Atenderle</span>
             </motion.h2>
 
             <motion.p
@@ -89,8 +89,8 @@ export function CTASection(){
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             >
-                ¿Tienes dudas sobre el sistema o quieres implementarlo en tu taller?
-                Escríbenos por cualquiera de estos medios.
+                Comuníquese con nosotros por cualquiera de estos medios y con gusto
+                le atendemos.
             </motion.p>
             </div>
 
@@ -114,7 +114,7 @@ export function CTASection(){
                     {item.label}
                 </p>
 
-                <p className="text-foreground font-semibold">
+                <p className="text-foreground font-semibold text-sm leading-snug">
                     {item.value}
                 </p>
                 </div>
@@ -129,11 +129,11 @@ export function CTASection(){
             className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
             >
             <a
-                href="mailto:contacto@tallergigante.com"
+                href="/login"
                 className="group relative overflow-hidden bg-accent hover:bg-accent/90 text-cream px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 shadow-[0_8px_35px_rgba(168,70,15,0.25)] flex items-center gap-2"
             >
-                Escríbenos
-                <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <LogIn className="w-5 h-5" />
+                Iniciar Sesión
             </a>
 
             <a href="/register" className="border border-primary/40 hover:border-primary text-foreground px-10 py-5 text-lg font-semibold rounded-xl transition-all duration-300 hover:bg-primary/10">

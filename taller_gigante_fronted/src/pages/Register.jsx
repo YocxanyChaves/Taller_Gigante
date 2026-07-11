@@ -70,6 +70,17 @@ import {
         setIsSuccess(true)
     }
 
+    const handleOAuthRegister = async (provider) => {
+        setError("")
+
+        const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+        })
+
+        if (oauthError) setError(oauthError.message)
+    }
+
     const getPasswordStrength = (pass) => {
         let strength = 0
         if (pass.length >= 8) strength++
@@ -102,9 +113,19 @@ import {
                 Registro Exitoso
             </h2>
 
-            <p className="text-muted-foreground mb-8">
-                Tu cuenta ha sido creada correctamente. Ya puedes iniciar sesión en el sistema.
+            <p className="text-muted-foreground mb-6">
+                Tu cuenta ha sido creada correctamente.
             </p>
+
+            <div className="flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/10 px-4 py-4 mb-8 text-left">
+                <Mail className="w-6 h-6 text-primary shrink-0 mt-0.5" />
+                <p className="text-sm text-foreground">
+                    Te enviamos un correo de verificación a{" "}
+                    <span className="font-semibold">{email}</span>. Revisa tu
+                    bandeja de entrada (y la carpeta de spam) y haz clic en el
+                    enlace para confirmar tu cuenta antes de iniciar sesión.
+                </p>
+            </div>
 
             <a
                 href="/login"
@@ -363,6 +384,7 @@ import {
                 <div className="grid grid-cols-2 gap-4">
                 <button
                     type="button"
+                    onClick={() => handleOAuthRegister("google")}
                     className="py-4 border border-foreground/15 hover:border-accent text-foreground rounded-lg transition-all"
                 >
                     Google
@@ -370,10 +392,10 @@ import {
 
                 <button
                     type="button"
-                    className="py-4 border border-foreground/15 hover:border-primary text-foreground rounded-lg transition-all flex items-center justify-center gap-2"
+                    onClick={() => handleOAuthRegister("facebook")}
+                    className="py-4 border border-foreground/15 hover:border-primary text-foreground rounded-lg transition-all"
                 >
-                    <Mail className="w-5 h-5" />
-                    Email
+                    Facebook
                 </button>
                 </div>
 

@@ -49,9 +49,24 @@ export default function Dashboard() {
   const [nombre, setNombre] = useState("");
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      const meta = data.user?.user_metadata;
-      const nombreCompleto = meta?.nombre || data.user?.email || "";
+    supabase.auth.getUser().then(async ({ data }) => {
+      const user = data.user;
+      if (!user) return;
+
+      const { data: perfil } = await supabase
+        .from("usuarios")
+        .select("nombre")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const meta = user.user_metadata;
+      const nombreCompleto =
+        perfil?.nombre ||
+        meta?.nombre ||
+        meta?.full_name ||
+        meta?.name ||
+        user.email ||
+        "";
       setNombre(nombreCompleto.split(" ")[0] || nombreCompleto);
     });
   }, []);
@@ -206,28 +221,28 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-8">
-        <section className="relative overflow-hidden rounded-[2rem] border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/[0.03] to-transparent dark:from-white/[0.08] dark:to-white/[0.02] p-8 shadow-2xl shadow-black/5 dark:shadow-black/40">
+        <section className="relative overflow-hidden rounded-[2rem] border border-foreground/10 bg-gradient-to-br from-foreground/[0.05] to-transparent p-8 shadow-2xl shadow-black/5">
           <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-red-600/20 blur-3xl" />
           <div className="absolute bottom-0 left-1/2 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl" />
 
           <div className="relative z-10 max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/30 px-4 py-2 text-sm text-zinc-700 dark:text-white/70">
-              <Activity className="h-4 w-4 text-red-500 dark:text-red-400" />
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-card/60 px-4 py-2 text-sm text-foreground/80">
+              <Activity className="h-4 w-4 text-accent" />
               Sistema operativo en tiempo real
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-zinc-900 dark:text-white">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
               {nombre ? `Bienvenido, ${nombre}` : "Bienvenido"}
             </h1>
 
-            <p className="mt-4 text-zinc-600 dark:text-white/55 max-w-2xl">
+            <p className="mt-4 text-muted-foreground max-w-2xl">
               Panel inteligente del taller
             </p>
           </div>
         </section>
 
         {loading ? (
-          <div className="flex items-center justify-center gap-3 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-16 text-zinc-500 dark:text-white/50">
+          <div className="flex items-center justify-center gap-3 rounded-3xl border border-foreground/10 bg-card/60 p-16 text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
             Cargando datos del taller...
           </div>
@@ -240,32 +255,32 @@ export default function Dashboard() {
             </section>
 
             <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-              <div className="xl:col-span-2 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-6 shadow-2xl shadow-black/5 dark:shadow-black/30">
+              <div className="xl:col-span-2 rounded-3xl border border-foreground/10 bg-card/60 p-6 shadow-2xl shadow-black/5">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                   <div>
-                    <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Órdenes recientes</h2>
-                    <p className="text-sm text-zinc-500 dark:text-white/45">
+                    <h2 className="text-xl font-bold text-foreground">Órdenes recientes</h2>
+                    <p className="text-sm text-muted-foreground">
                       Últimos trabajos registrados en el sistema
                     </p>
                   </div>
 
                   <a
                     href="/ordenes"
-                    className="rounded-xl bg-black/5 dark:bg-white/10 px-4 py-2 text-sm text-zinc-800 dark:text-white hover:bg-black/10 dark:hover:bg-white/15 transition"
+                    className="rounded-xl bg-foreground/5 px-4 py-2 text-sm text-foreground hover:bg-foreground/10 transition"
                   >
                     Ver todas
                   </a>
                 </div>
 
                 {ordenesRecientes.length === 0 ? (
-                  <div className="rounded-2xl border border-black/10 dark:border-white/10 p-10 text-center text-zinc-400 dark:text-white/40 text-sm">
+                  <div className="rounded-2xl border border-foreground/10 p-10 text-center text-muted-foreground/70 text-sm">
                     Todavía no hay órdenes registradas.
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-2xl border border-black/10 dark:border-white/10">
+                  <div className="overflow-hidden rounded-2xl border border-foreground/10">
                     <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-black/[0.03] dark:bg-white/[0.06] text-zinc-500 dark:text-white/50">
+                      <thead className="bg-card/80 text-muted-foreground">
                         <tr>
                           <th className="text-left p-4">Orden</th>
                           <th className="text-left p-4">Cliente</th>
@@ -278,22 +293,22 @@ export default function Dashboard() {
                         {ordenesRecientes.map((orden) => (
                           <tr
                             key={orden.id}
-                            className="border-t border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition"
+                            className="border-t border-foreground/10 hover:bg-card/40 transition"
                           >
-                            <td className="p-4 font-semibold text-zinc-900 dark:text-white">
+                            <td className="p-4 font-semibold text-foreground">
                               #TG-{orden.id}
                             </td>
-                            <td className="p-4 text-zinc-600 dark:text-white/70">
+                            <td className="p-4 text-muted-foreground">
                               {orden.vehiculos?.clientes?.nombre || "—"}
                             </td>
-                            <td className="p-4 text-zinc-600 dark:text-white/70">
+                            <td className="p-4 text-muted-foreground">
                               {orden.vehiculos?.placa || "—"}
                             </td>
                             <td className="p-4">
                               <span
                                 className={`rounded-full px-3 py-1 text-xs font-semibold ${
                                   estadoBadge[orden.estado] ||
-                                  "bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-white/60"
+                                  "bg-foreground/5 text-muted-foreground"
                                 }`}
                               >
                                 {orden.estado}
@@ -308,15 +323,15 @@ export default function Dashboard() {
                 )}
               </div>
 
-              <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-6 shadow-2xl shadow-black/5 dark:shadow-black/30">
-                <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Actividad reciente</h2>
-                <p className="text-sm text-zinc-500 dark:text-white/45 mb-6">
+              <div className="rounded-3xl border border-foreground/10 bg-card/60 p-6 shadow-2xl shadow-black/5">
+                <h2 className="text-xl font-bold text-foreground">Actividad reciente</h2>
+                <p className="text-sm text-muted-foreground mb-6">
                   Movimientos importantes del sistema
                 </p>
 
                 <div className="space-y-5">
                   {actividad.length === 0 ? (
-                    <p className="text-sm text-zinc-400 dark:text-white/40">
+                    <p className="text-sm text-muted-foreground/70">
                       Todavía no hay actividad registrada.
                     </p>
                   ) : (
@@ -327,16 +342,16 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="xl:col-span-3 rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] p-6 shadow-2xl shadow-black/5 dark:shadow-black/30 overflow-hidden relative">
+              <div className="xl:col-span-3 rounded-3xl border border-foreground/10 bg-card/60 p-6 shadow-2xl shadow-black/5 overflow-hidden relative">
                 <div className="absolute top-0 right-0 h-56 w-56 bg-blue-500/10 blur-3xl rounded-full" />
                 <div className="absolute bottom-0 left-0 h-56 w-56 bg-red-500/10 blur-3xl rounded-full" />
 
                 <div className="relative z-10 mb-6">
-                  <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">
+                  <h2 className="text-2xl font-black tracking-tight text-foreground">
                     Rendimiento semanal
                   </h2>
 
-                  <p className="text-zinc-500 dark:text-white/45 text-sm mt-1">
+                  <p className="text-muted-foreground text-sm mt-1">
                     Órdenes ingresadas en los últimos 7 días
                   </p>
                 </div>
@@ -368,7 +383,7 @@ export default function Dashboard() {
                       <XAxis
                         dataKey="day"
                         stroke="currentColor"
-                        className="text-zinc-400 dark:text-white/30"
+                        className="text-muted-foreground/60"
                         tickLine={false}
                         axisLine={false}
                       />
@@ -404,13 +419,13 @@ export default function Dashboard() {
 function ActivityItem({ icon: Icon, title, text }) {
   return (
     <div className="flex gap-4">
-      <div className="h-10 w-10 rounded-2xl bg-black/5 dark:bg-white/10 flex items-center justify-center">
-        <Icon className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+      <div className="h-10 w-10 rounded-2xl bg-foreground/5 flex items-center justify-center">
+        <Icon className="h-5 w-5 text-primary" />
       </div>
 
       <div>
-        <p className="font-semibold text-zinc-900 dark:text-white">{title}</p>
-        <p className="text-sm text-zinc-500 dark:text-white/45">{text}</p>
+        <p className="font-semibold text-foreground">{title}</p>
+        <p className="text-sm text-muted-foreground">{text}</p>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import Vehiculos from "./pages/Vehiculos";
 import Ordenes from "./pages/Ordenes";
 import Historial from "./pages/Historial";
 import Configuracion from "./pages/Configuracion";
+import Usuarios from "./pages/Usuarios";
 import ClientePortal from "./pages/ClientePortal";
 import { supabase } from "./lib/supabaseClient";
 
@@ -69,6 +70,12 @@ export default function App() {
     return element;
   };
 
+  const protectSoloAdmin = (element) => {
+    if (!session) return <Login />;
+    if (rol !== "admin") return <Navigate to="/dashboard" replace />;
+    return element;
+  };
+
   return (
     <BrowserRouter>
       <Routes>
@@ -87,6 +94,7 @@ export default function App() {
         <Route path="/ordenes" element={protectAdmin(<Ordenes />)} />
         <Route path="/historial" element={protectAdmin(<Historial />)} />
         <Route path="/configuracion" element={protectAdmin(<Configuracion />)} />
+        <Route path="/usuarios" element={protectSoloAdmin(<Usuarios />)} />
 
         <Route path="/portal" element={protectCliente(<ClientePortal />)} />
       </Routes>

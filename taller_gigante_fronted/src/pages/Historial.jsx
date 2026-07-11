@@ -50,43 +50,43 @@ export default function Historial() {
       <div className="space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-3 text-zinc-900 dark:text-white">
-              <History className="h-6 w-6 text-blue-500 dark:text-blue-400" />
+            <h1 className="text-2xl font-bold flex items-center gap-3 text-foreground">
+              <History className="h-6 w-6 text-primary" />
               Historial
             </h1>
-            <p className="text-sm text-zinc-500 dark:text-white/45 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Órdenes completadas y entregadas
             </p>
           </div>
 
-          <div className="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] px-4 py-3 w-full md:w-80">
-            <Search className="h-4 w-4 text-zinc-400 dark:text-white/40" />
+          <div className="flex items-center gap-3 rounded-2xl border border-foreground/10 bg-card/60 px-4 py-3 w-full md:w-80">
+            <Search className="h-4 w-4 text-muted-foreground/70" />
             <input
               type="text"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar por cliente o placa..."
-              className="bg-transparent outline-none text-sm w-full text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-white/35"
+              className="bg-transparent outline-none text-sm w-full text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
 
         {error && (
-          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-300">
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-accent">
             {error}
           </div>
         )}
 
-        <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] shadow-2xl shadow-black/5 dark:shadow-black/30 overflow-hidden">
+        <div className="rounded-3xl border border-foreground/10 bg-card/60 shadow-2xl shadow-black/5 overflow-hidden">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 p-16 text-zinc-500 dark:text-white/50">
+            <div className="flex items-center justify-center gap-3 p-16 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               Cargando historial...
             </div>
           ) : ordenesFiltradas.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-16 text-center">
-              <History className="h-10 w-10 text-zinc-300 dark:text-white/20 mb-3" />
-              <p className="text-zinc-500 dark:text-white/50">
+              <History className="h-10 w-10 text-muted-foreground/50 mb-3" />
+              <p className="text-muted-foreground">
                 {ordenes.length === 0
                   ? "Todavía no hay órdenes completadas."
                   : "No hay resultados para esa búsqueda."}
@@ -96,7 +96,7 @@ export default function Historial() {
             <div className="overflow-x-auto">
 
               <table className="w-full text-sm">
-              <thead className="bg-black/[0.03] dark:bg-white/[0.06] text-zinc-500 dark:text-white/50">
+              <thead className="bg-card/80 text-muted-foreground">
                 <tr>
                   <th className="text-left p-4">Orden</th>
                   <th className="text-left p-4">Vehículo</th>
@@ -111,10 +111,10 @@ export default function Historial() {
                 {ordenesFiltradas.map((orden) => (
                   <tr
                     key={orden.id}
-                    className="border-t border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition"
+                    className="border-t border-foreground/10 hover:bg-card/40 transition"
                   >
-                    <td className="p-4 font-semibold text-zinc-900 dark:text-white">#TG-{orden.id}</td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 font-semibold text-foreground">#TG-{orden.id}</td>
+                    <td className="p-4 text-muted-foreground">
                       {orden.vehiculos
                         ? `${orden.vehiculos.placa} · ${[
                             orden.vehiculos.marca,
@@ -124,13 +124,13 @@ export default function Historial() {
                             .join(" ")}`
                         : "—"}
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {orden.vehiculos?.clientes?.nombre || "—"}
                     </td>
-                    <td className="p-4 text-zinc-500 dark:text-white/60 max-w-xs truncate">
+                    <td className="p-4 text-muted-foreground max-w-xs truncate">
                       {orden.descripcion || "—"}
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {orden.costo_final || "—"}
                     </td>
                     <td className="p-4">

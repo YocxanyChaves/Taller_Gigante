@@ -1,8 +1,9 @@
 import { motion, useScroll, useTransform } from "framer-motion"
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ParticleField } from "./ParticleField"
 import { GridOverlay } from "./GridOverlay"
 import { ChevronDown, Wrench, LogIn } from "lucide-react"
+import { supabase } from "../lib/supabaseClient"
 
 export function HeroSection() {
     const ref = useRef(null)
@@ -14,6 +15,35 @@ export function HeroSection() {
     const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
     const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
     const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8])
+
+    const [stats, setStats] = useState([
+        { value: "—", label: "Clientes registrados", color: "text-accent" },
+        { value: "—", label: "Vehículos atendidos", color: "text-primary" },
+        { value: "—", label: "Órdenes completadas", color: "text-accent" },
+    ])
+
+    useEffect(() => {
+        supabase.rpc("get_stats_publicas").then(({ data }) => {
+            if (!data) return
+            setStats([
+                {
+                    value: `${data.clientes ?? 0}+`,
+                    label: "Clientes registrados",
+                    color: "text-accent",
+                },
+                {
+                    value: `${data.vehiculos ?? 0}+`,
+                    label: "Vehículos atendidos",
+                    color: "text-primary",
+                },
+                {
+                    value: `${data.ordenes_completadas ?? 0}+`,
+                    label: "Órdenes completadas",
+                    color: "text-accent",
+                },
+            ])
+        })
+    }, [])
 
     return (
         <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -43,7 +73,6 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="inline-flex justify-center px-4 py-2 mb-6 rounded-full bg-accent/15 border border-accent/40"
             >
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
             <span className="text-sm font-mono text-accent tracking-wider uppercase font-semibold">
                 Taller Mecánico Gigante
             </span>
@@ -56,8 +85,8 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
             >
-            <span className="block text-foreground">Insertar Logo</span>
-            <span className="block text-accent text-shadow-red mt-2">del Taller</span>
+            <span className="block text-foreground">Taller Mecánico</span>
+            <span className="block text-accent text-shadow-red mt-2">Gigante</span>
             </motion.h1>
 
             {/* Subtitle */}
@@ -104,11 +133,7 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 1 }}
             className="grid grid-cols-3 gap-8 mt-20 max-w-2xl mx-auto"
             >
-            {[
-                { value: "10K+", label: "Vehículos", color: "text-accent" },
-                { value: "500+", label: "Talleres", color: "text-primary" },
-                { value: "99.9%", label: "Uptime", color: "text-accent" },
-            ].map((stat, i) => (
+            {stats.map((stat, i) => (
                 <div key={i} className="text-center">
                 <div className={`text-3xl md:text-4xl font-bold ${stat.color}`}>{stat.value}</div>
                 <div className="text-sm text-muted-foreground mt-1 font-mono uppercase tracking-wider">

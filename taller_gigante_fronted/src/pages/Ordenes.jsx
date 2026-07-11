@@ -151,11 +151,11 @@ export default function Ordenes() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-3 text-zinc-900 dark:text-white">
-              <ClipboardList className="h-6 w-6 text-red-500 dark:text-red-400" />
+            <h1 className="text-2xl font-bold flex items-center gap-3 text-foreground">
+              <ClipboardList className="h-6 w-6 text-accent" />
               Órdenes
             </h1>
-            <p className="text-sm text-zinc-500 dark:text-white/45 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               Órdenes de trabajo del taller
             </p>
           </div>
@@ -170,21 +170,21 @@ export default function Ordenes() {
         </div>
 
         {error && (
-          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-300">
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-accent">
             {error}
           </div>
         )}
 
-        <div className="rounded-3xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] shadow-2xl shadow-black/5 dark:shadow-black/30 overflow-hidden">
+        <div className="rounded-3xl border border-foreground/10 bg-card/60 shadow-2xl shadow-black/5 overflow-hidden">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 p-16 text-zinc-500 dark:text-white/50">
+            <div className="flex items-center justify-center gap-3 p-16 text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               Cargando órdenes...
             </div>
           ) : ordenes.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-16 text-center">
-              <ClipboardList className="h-10 w-10 text-zinc-300 dark:text-white/20 mb-3" />
-              <p className="text-zinc-500 dark:text-white/50">
+              <ClipboardList className="h-10 w-10 text-muted-foreground/50 mb-3" />
+              <p className="text-muted-foreground">
                 Todavía no hay órdenes registradas.
               </p>
             </div>
@@ -192,7 +192,7 @@ export default function Ordenes() {
             <div className="overflow-x-auto">
 
               <table className="w-full text-sm">
-              <thead className="bg-black/[0.03] dark:bg-white/[0.06] text-zinc-500 dark:text-white/50">
+              <thead className="bg-card/80 text-muted-foreground">
                 <tr>
                   <th className="text-left p-4">Orden</th>
                   <th className="text-left p-4">Vehículo</th>
@@ -208,10 +208,10 @@ export default function Ordenes() {
                 {ordenes.map((orden) => (
                   <tr
                     key={orden.id}
-                    className="border-t border-black/10 dark:border-white/10 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition"
+                    className="border-t border-foreground/10 hover:bg-card/40 transition"
                   >
-                    <td className="p-4 font-semibold text-zinc-900 dark:text-white">#TG-{orden.id}</td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 font-semibold text-foreground">#TG-{orden.id}</td>
+                    <td className="p-4 text-muted-foreground">
                       {orden.vehiculos
                         ? `${orden.vehiculos.placa} · ${[
                             orden.vehiculos.marca,
@@ -221,23 +221,23 @@ export default function Ordenes() {
                             .join(" ")}`
                         : "—"}
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {orden.vehiculos?.clientes?.nombre || "—"}
                     </td>
                     <td className="p-4">
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold ${
                           estadoStyles[orden.estado] ||
-                          "bg-black/5 dark:bg-white/10 text-zinc-600 dark:text-white/60"
+                          "bg-foreground/5 text-muted-foreground"
                         }`}
                       >
                         {orden.estado}
                       </span>
                     </td>
-                    <td className="p-4 text-zinc-600 dark:text-white/70">
+                    <td className="p-4 text-muted-foreground">
                       {orden.costo_estimado || "—"} / {orden.costo_final || "—"}
                     </td>
-                    <td className="p-4 text-zinc-500 dark:text-white/50">
+                    <td className="p-4 text-muted-foreground">
                       {orden.fecha_entrega
                         ? new Date(orden.fecha_entrega).toLocaleDateString(
                             "es-CR"
@@ -248,18 +248,18 @@ export default function Ordenes() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openEditModal(orden)}
-                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] hover:bg-blue-500/20 hover:border-blue-500/30 transition"
+                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-foreground/10 bg-card/60 hover:bg-blue-500/20 hover:border-blue-500/30 transition"
                           title="Editar"
                         >
-                          <Pencil className="h-4 w-4 text-blue-600 dark:text-blue-300" />
+                          <Pencil className="h-4 w-4 text-primary" />
                         </button>
 
                         <button
                           onClick={() => handleDelete(orden)}
-                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] hover:bg-red-500/20 hover:border-red-500/30 transition"
+                          className="h-9 w-9 flex items-center justify-center rounded-xl border border-foreground/10 bg-card/60 hover:bg-red-500/20 hover:border-red-500/30 transition"
                           title="Eliminar"
                         >
-                          <Trash2 className="h-4 w-4 text-red-600 dark:text-red-300" />
+                          <Trash2 className="h-4 w-4 text-accent" />
                         </button>
                       </div>
                     </td>
@@ -273,11 +273,11 @@ export default function Ordenes() {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-lg rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0b0e14] p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto text-zinc-900 dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="w-full max-w-lg rounded-3xl border border-foreground/10 bg-card p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto text-foreground">
             <button
               onClick={closeModal}
-              className="absolute right-6 top-6 text-zinc-400 dark:text-white/40 hover:text-zinc-900 dark:hover:text-white transition"
+              className="absolute right-6 top-6 text-muted-foreground/70 hover:text-foreground transition"
             >
               <X className="h-5 w-5" />
             </button>
@@ -289,7 +289,7 @@ export default function Ordenes() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
-                  <Car className="h-4 w-4 text-red-500 dark:text-red-400" />
+                  <Car className="h-4 w-4 text-accent" />
                   Vehículo
                 </label>
                 <select
@@ -298,20 +298,20 @@ export default function Ordenes() {
                   onChange={(e) =>
                     setForm({ ...form, id_vehiculo: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-500"
+                  className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                 >
-                  <option value="" disabled>
+                  <option value="" disabled className="bg-card text-foreground">
                     Selecciona un vehículo
                   </option>
                   {vehiculos.map((v) => (
-                    <option key={v.id} value={v.id}>
+                    <option key={v.id} value={v.id} className="bg-card text-foreground">
                       {v.placa} · {[v.marca, v.modelo].filter(Boolean).join(" ")}
                       {v.clientes?.nombre ? ` (${v.clientes.nombre})` : ""}
                     </option>
                   ))}
                 </select>
                 {vehiculos.length === 0 && (
-                  <p className="text-xs text-zinc-400 dark:text-white/40">
+                  <p className="text-xs text-muted-foreground/70">
                     Primero registra un vehículo en el módulo de Vehículos.
                   </p>
                 )}
@@ -325,7 +325,7 @@ export default function Ordenes() {
                     setForm({ ...form, descripcion: e.target.value })
                   }
                   rows={2}
-                  className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-400 resize-none"
+                  className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary resize-none"
                   placeholder="Motivo de ingreso del vehículo"
                 />
               </div>
@@ -338,7 +338,7 @@ export default function Ordenes() {
                     setForm({ ...form, diagnostico: e.target.value })
                   }
                   rows={2}
-                  className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-400 resize-none"
+                  className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary resize-none"
                   placeholder="Diagnóstico del mecánico"
                 />
               </div>
@@ -350,10 +350,10 @@ export default function Ordenes() {
                   onChange={(e) =>
                     setForm({ ...form, estado: e.target.value })
                   }
-                  className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-500"
+                  className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                 >
                   {ESTADOS.map((estado) => (
-                    <option key={estado} value={estado}>
+                    <option key={estado} value={estado} className="bg-card text-foreground">
                       {estado}
                     </option>
                   ))}
@@ -363,7 +363,7 @@ export default function Ordenes() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                    <DollarSign className="h-4 w-4 text-primary" />
                     Costo estimado
                   </label>
                   <input
@@ -372,14 +372,14 @@ export default function Ordenes() {
                     onChange={(e) =>
                       setForm({ ...form, costo_estimado: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-400"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary"
                     placeholder="₡50,000"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-red-500 dark:text-red-400" />
+                    <DollarSign className="h-4 w-4 text-accent" />
                     Costo final
                   </label>
                   <input
@@ -388,7 +388,7 @@ export default function Ordenes() {
                     onChange={(e) =>
                       setForm({ ...form, costo_final: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-red-500"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                     placeholder="₡55,000"
                   />
                 </div>
@@ -396,7 +396,7 @@ export default function Ordenes() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
-                  <CalendarClock className="h-4 w-4 text-blue-500 dark:text-blue-400" />
+                  <CalendarClock className="h-4 w-4 text-primary" />
                   Fecha de entrega
                 </label>
                 <div
@@ -412,7 +412,7 @@ export default function Ordenes() {
                     onChange={(e) =>
                       setForm({ ...form, fecha_entrega: e.target.value })
                     }
-                    className="w-full px-4 py-3 bg-black/[0.03] dark:bg-black/30 border border-black/10 dark:border-white/10 rounded-xl focus:outline-none focus:border-blue-400 cursor-pointer"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary cursor-pointer"
                   />
                 </div>
               </div>

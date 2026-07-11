@@ -9,9 +9,25 @@ export function Topbar({ onMenuClick = () => {} }) {
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      const meta = data.user?.user_metadata;
-      setNombre(meta?.nombre || data.user?.email || "");
+    supabase.auth.getUser().then(async ({ data }) => {
+      const user = data.user;
+      if (!user) return;
+
+      const { data: perfil } = await supabase
+        .from("usuarios")
+        .select("nombre")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const meta = user.user_metadata;
+      setNombre(
+        perfil?.nombre ||
+          meta?.nombre ||
+          meta?.full_name ||
+          meta?.name ||
+          user.email ||
+          ""
+      );
     });
   }, []);
 
@@ -21,21 +37,21 @@ export function Topbar({ onMenuClick = () => {} }) {
   };
 
   return (
-    <header className="sticky top-0 z-20 h-20 border-b border-black/10 dark:border-white/10 bg-white/70 dark:bg-black/30 backdrop-blur-xl flex items-center justify-between px-4 sm:px-8 gap-3 transition-colors duration-300">
+    <header className="sticky top-0 z-20 h-20 border-b border-foreground/10 bg-card/70 backdrop-blur-xl flex items-center justify-between px-4 sm:px-8 gap-3 transition-colors duration-300">
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <button
           onClick={onMenuClick}
-          className="lg:hidden h-11 w-11 shrink-0 rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition"
+          className="lg:hidden h-11 w-11 shrink-0 rounded-2xl border border-foreground/10 bg-card/60 flex items-center justify-center hover:bg-foreground/5 transition"
         >
-          <Menu className="h-5 w-5 text-zinc-700 dark:text-white" />
+          <Menu className="h-5 w-5 text-foreground" />
         </button>
 
-        <div className="hidden md:flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] px-4 py-2 w-full max-w-xs">
-          <Search className="h-4 w-4 text-zinc-400 dark:text-white/40 shrink-0" />
+        <div className="hidden md:flex items-center gap-3 rounded-2xl border border-foreground/10 bg-card/60 px-4 py-2 w-full max-w-xs">
+          <Search className="h-4 w-4 text-muted-foreground/70 shrink-0" />
           <input
             type="text"
             placeholder="Buscar orden, cliente o vehículo..."
-            className="bg-transparent outline-none text-sm w-full text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-white/35"
+            className="bg-transparent outline-none text-sm w-full text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
@@ -43,14 +59,14 @@ export function Topbar({ onMenuClick = () => {} }) {
       <div className="relative shrink-0">
         <button
           onClick={() => setMenuOpen((v) => !v)}
-          className="flex items-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] px-3 py-2 hover:bg-black/5 dark:hover:bg-white/10 transition"
+          className="flex items-center gap-2 rounded-2xl border border-foreground/10 bg-card/60 px-3 py-2 hover:bg-foreground/5 transition"
         >
-          <UserCircle className="h-6 w-6 text-zinc-700 dark:text-white shrink-0" />
-          <span className="hidden md:block text-sm text-zinc-900 dark:text-white truncate max-w-[10rem]">
+          <UserCircle className="h-6 w-6 text-foreground shrink-0" />
+          <span className="hidden md:block text-sm text-foreground truncate max-w-[10rem]">
             {nombre || "Cuenta"}
           </span>
           <ChevronDown
-            className={`h-4 w-4 text-zinc-500 dark:text-white/50 transition-transform ${
+            className={`h-4 w-4 text-muted-foreground transition-transform ${
               menuOpen ? "rotate-180" : ""
             }`}
           />
@@ -60,9 +76,9 @@ export function Topbar({ onMenuClick = () => {} }) {
           <>
             <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
 
-            <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-zinc-900 shadow-2xl z-40 overflow-hidden">
-              <div className="px-4 py-3 border-b border-black/10 dark:border-white/10">
-                <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
+            <div className="absolute right-0 mt-2 w-60 rounded-2xl border border-foreground/10 bg-card shadow-2xl z-40 overflow-hidden">
+              <div className="px-4 py-3 border-b border-foreground/10">
+                <p className="text-sm font-semibold text-foreground truncate">
                   {nombre || "Cuenta"}
                 </p>
               </div>
@@ -72,7 +88,7 @@ export function Topbar({ onMenuClick = () => {} }) {
                   toggleTheme();
                   setMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-700 dark:text-white/80 hover:bg-black/5 dark:hover:bg-white/10 transition"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground/80 hover:bg-foreground/5 transition"
               >
                 {theme === "dark" ? (
                   <Sun className="h-4 w-4 text-yellow-300" />
@@ -84,7 +100,7 @@ export function Topbar({ onMenuClick = () => {} }) {
 
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 dark:text-red-300 hover:bg-red-500/10 transition"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-accent hover:bg-red-500/10 transition"
               >
                 <LogOut className="h-4 w-4" />
                 Cerrar sesión

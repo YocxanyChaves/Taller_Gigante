@@ -2,36 +2,20 @@ import { motion } from "framer-motion"
 import { Cog, Mail } from "lucide-react"
 
 const footerLinks = {
-    product: [
+    navegacion: [
         { label: "Características", href: "#features" },
         { label: "Sistema", href: "#system" },
-        { label: "Integraciones", href: "#" },
-        { label: "API", href: "#" },
-    ],
-
-    company: [
-        { label: "Sobre Nosotros", href: "#" },
-        { label: "Blog", href: "#" },
-        { label: "Carreras", href: "#" },
         { label: "Contacto", href: "#contact" },
     ],
 
-    resources: [
-        { label: "Documentación", href: "#" },
-        { label: "Guías", href: "#" },
-        { label: "Soporte", href: "#" },
-        { label: "Status", href: "#" },
-    ],
-
-    legal: [
-        { label: "Privacidad", href: "#" },
-        { label: "Términos", href: "#" },
-        { label: "Cookies", href: "#" },
+    cuenta: [
+        { label: "Iniciar sesión", href: "/login" },
+        { label: "Crear cuenta", href: "/register" },
     ],
     }
 
     const socialLinks = [
-        { icon: Mail, href: "#", label: "Email" },
+        { icon: Mail, href: "mailto:tallergigante@gmail.com", label: "Email" },
     ]
 
     export function Footer() {
@@ -42,7 +26,7 @@ const footerLinks = {
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
             <div className="col-span-2">
                 <motion.a
                 href="#"
@@ -92,10 +76,8 @@ const footerLinks = {
                 </div>
             </div>
 
-            <FooterColumn title="Producto" links={footerLinks.product} />
-            <FooterColumn title="Compañía" links={footerLinks.company} />
-            <FooterColumn title="Recursos" links={footerLinks.resources} />
-            <FooterColumn title="Legal" links={footerLinks.legal} />
+            <FooterColumn title="Navegación" links={footerLinks.navegacion} />
+            <FooterColumn title="Cuenta" links={footerLinks.cuenta} />
             </div>
 
             <div className="pt-8 border-t border-foreground/10">
