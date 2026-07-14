@@ -20,18 +20,45 @@ import {
   XCircle,
   AlertCircle,
   ShieldAlert,
+  Plus,
+  Palette,
+  Gauge,
+  CalendarClock,
+  Wrench,
+  Stethoscope,
+  Banknote,
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useTheme } from "../context/ThemeContext";
 import { Logo } from "../components/Logo";
 
 const estadoBadge = {
-  Completado: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",
-  "En proceso": "bg-blue-500/15 text-blue-600 dark:text-blue-300",
-  Pendiente: "bg-red-500/15 text-red-600 dark:text-red-300",
+  Completado:
+    "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30",
+  "En proceso": "bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/30",
+  Pendiente: "bg-red-500/15 text-accent border-red-500/30",
 };
 
+const estadoIcon = {
+  Completado: CheckCircle2,
+  "En proceso": Wrench,
+  Pendiente: Clock,
+};
+
+const formatoColones = (valor) =>
+  `₡${Number(valor).toLocaleString("es-CR")}`;
+
 const emptyForm = { nombre: "", telefono: "", correo: "", direccion: "" };
+
+const emptyVehiculoForm = {
+  placa: "",
+  marca: "",
+  modelo: "",
+  año: "",
+  color: "",
+  kilometraje: "",
+  ultima_revision_tecnica: "",
+};
 
 export default function ClientePortal() {
   const { theme, toggleTheme } = useTheme();
@@ -52,6 +79,11 @@ export default function ClientePortal() {
   const [telefonoSolicitud, setTelefonoSolicitud] = useState("");
   const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
   const [errorSolicitud, setErrorSolicitud] = useState("");
+
+  const [agregandoVehiculo, setAgregandoVehiculo] = useState(false);
+  const [formVehiculo, setFormVehiculo] = useState(emptyVehiculoForm);
+  const [guardandoVehiculo, setGuardandoVehiculo] = useState(false);
+  const [errorVehiculo, setErrorVehiculo] = useState("");
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -181,6 +213,47 @@ export default function ClientePortal() {
       .limit(1)
       .maybeSingle();
     setSolicitud(data || null);
+  };
+
+  const abrirAgregarVehiculo = () => {
+    setFormVehiculo(emptyVehiculoForm);
+    setErrorVehiculo("");
+    setAgregandoVehiculo(true);
+  };
+
+  const cerrarAgregarVehiculo = () => {
+    setAgregandoVehiculo(false);
+    setFormVehiculo(emptyVehiculoForm);
+    setErrorVehiculo("");
+  };
+
+  const guardarVehiculo = async (e) => {
+    e.preventDefault();
+    setGuardandoVehiculo(true);
+    setErrorVehiculo("");
+
+    const payload = {
+      id_cliente: cliente.id,
+      placa: formVehiculo.placa.trim().toUpperCase(),
+      marca: formVehiculo.marca || null,
+      modelo: formVehiculo.modelo || null,
+      año: formVehiculo.año ? Number(formVehiculo.año) : null,
+      color: formVehiculo.color || null,
+      kilometraje: formVehiculo.kilometraje ? Number(formVehiculo.kilometraje) : null,
+      ultima_revision_tecnica: formVehiculo.ultima_revision_tecnica || null,
+    };
+
+    const { error } = await supabase.from("vehiculos").insert(payload);
+
+    setGuardandoVehiculo(false);
+
+    if (error) {
+      setErrorVehiculo(error.message);
+      return;
+    }
+
+    cerrarAgregarVehiculo();
+    cargarDatos();
   };
 
   return (
@@ -517,6 +590,17 @@ export default function ClientePortal() {
               )}
             </div>
 
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-foreground">Tus vehículos</h3>
+              <button
+                onClick={abrirAgregarVehiculo}
+                className="flex items-center gap-2 rounded-xl border border-foreground/10 bg-card/60 px-3 py-2 text-sm text-foreground hover:bg-foreground/5 transition"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Agregar vehículo
+              </button>
+            </div>
+
             {(cliente.vehiculos || []).length === 0 ? (
               <div className="rounded-3xl border border-foreground/10 bg-card/60 p-10 text-center text-muted-foreground/70 text-sm">
                 Todavía no tienes vehículos registrados en el taller.
@@ -547,47 +631,104 @@ export default function ClientePortal() {
                       Sin órdenes de trabajo registradas.
                     </p>
                   ) : (
-                    <div className="space-y-3">
-                      {vehiculo.ordenes.map((orden) => (
-                        <div
-                          key={orden.id}
-                          className="rounded-2xl border border-foreground/10 p-4"
-                        >
-                          <div className="flex items-center justify-between gap-3 mb-2">
-                            <p className="font-semibold text-foreground">
-                              #TG-{orden.id}
-                            </p>
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                                estadoBadge[orden.estado] ||
-                                "bg-foreground/5 text-muted-foreground"
-                              }`}
-                            >
-                              {orden.estado}
-                            </span>
+                    <div className="space-y-4">
+                      {vehiculo.ordenes.map((orden) => {
+                        const EstadoIcon = estadoIcon[orden.estado] || ClipboardList;
+                        return (
+                          <div
+                            key={orden.id}
+                            className="rounded-2xl border border-foreground/10 bg-gradient-to-br from-foreground/[0.04] to-transparent p-5"
+                          >
+                            <div className="flex items-center justify-between gap-3 mb-4">
+                              <div className="flex items-center gap-2.5">
+                                <div className="h-9 w-9 rounded-xl bg-accent/15 border border-accent/30 flex items-center justify-center shrink-0">
+                                  <ClipboardList className="h-4 w-4 text-accent" />
+                                </div>
+                                <p className="font-bold text-foreground">
+                                  Orden #TG-{orden.id}
+                                </p>
+                              </div>
+                              <span
+                                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${
+                                  estadoBadge[orden.estado] ||
+                                  "bg-foreground/5 text-muted-foreground border-foreground/10"
+                                }`}
+                              >
+                                <EstadoIcon className="h-3.5 w-3.5" />
+                                {orden.estado}
+                              </span>
+                            </div>
+
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              {orden.descripcion && (
+                                <div className="flex items-start gap-3 rounded-xl bg-foreground/5 p-3.5 sm:col-span-2">
+                                  <ClipboardList className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                      Descripción
+                                    </p>
+                                    <p className="text-sm font-medium text-foreground mt-0.5">
+                                      {orden.descripcion}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {orden.diagnostico && (
+                                <div className="flex items-start gap-3 rounded-xl bg-foreground/5 p-3.5 sm:col-span-2">
+                                  <Stethoscope className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                      Diagnóstico
+                                    </p>
+                                    <p className="text-sm font-medium text-foreground mt-0.5">
+                                      {orden.diagnostico}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {(orden.costo_estimado || orden.costo_final) && (
+                                <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3.5">
+                                  <Banknote className="h-4 w-4 text-emerald-600 dark:text-emerald-300 shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                      {orden.costo_final ? "Costo final" : "Costo estimado"}
+                                    </p>
+                                    <p className="text-sm font-bold text-foreground mt-0.5">
+                                      {formatoColones(
+                                        orden.costo_final || orden.costo_estimado
+                                      )}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {(orden.fecha_ingreso || orden.fecha_entrega) && (
+                                <div className="flex items-center gap-3 rounded-xl bg-foreground/5 p-3.5">
+                                  <CalendarClock className="h-4 w-4 text-primary shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                      Fechas
+                                    </p>
+                                    <p className="text-sm font-medium text-foreground mt-0.5">
+                                      {orden.fecha_ingreso &&
+                                        `Ingreso ${new Date(
+                                          orden.fecha_ingreso
+                                        ).toLocaleDateString("es-CR")}`}
+                                      {orden.fecha_ingreso && orden.fecha_entrega && " · "}
+                                      {orden.fecha_entrega &&
+                                        `Entrega ${new Date(
+                                          orden.fecha_entrega
+                                        ).toLocaleDateString("es-CR")}`}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
-
-                          {orden.descripcion && (
-                            <p className="text-sm text-muted-foreground mb-1">
-                              {orden.descripcion}
-                            </p>
-                          )}
-
-                          {orden.diagnostico && (
-                            <p className="text-sm text-muted-foreground">
-                              Diagnóstico: {orden.diagnostico}
-                            </p>
-                          )}
-
-                          {(orden.costo_estimado || orden.costo_final) && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {orden.costo_final
-                                ? `Costo final: ${orden.costo_final}`
-                                : `Costo estimado: ${orden.costo_estimado}`}
-                            </p>
-                          )}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -596,6 +737,163 @@ export default function ClientePortal() {
           </>
         )}
       </main>
+
+      {agregandoVehiculo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={cerrarAgregarVehiculo}
+          />
+
+          <div className="relative w-full max-w-lg rounded-3xl border border-foreground/10 bg-card p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <Car className="h-5 w-5 text-primary" />
+                Agregar vehículo
+              </h3>
+              <button
+                onClick={cerrarAgregarVehiculo}
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-foreground/5 hover:text-foreground transition"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={guardarVehiculo} className="space-y-4">
+              {errorVehiculo && (
+                <div className="flex items-center gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-accent">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {errorVehiculo}
+                </div>
+              )}
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+                    <Car className="h-4 w-4 text-accent" />
+                    Placa
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formVehiculo.placa}
+                    onChange={(e) =>
+                      setFormVehiculo({ ...formVehiculo, placa: e.target.value })
+                    }
+                    placeholder="Ej. CL-123456"
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl text-foreground focus:outline-none focus:border-accent uppercase"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Marca</label>
+                  <input
+                    type="text"
+                    value={formVehiculo.marca}
+                    onChange={(e) =>
+                      setFormVehiculo({ ...formVehiculo, marca: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl text-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Modelo</label>
+                  <input
+                    type="text"
+                    value={formVehiculo.modelo}
+                    onChange={(e) =>
+                      setFormVehiculo({ ...formVehiculo, modelo: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl text-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Año</label>
+                  <input
+                    type="number"
+                    value={formVehiculo.año}
+                    onChange={(e) =>
+                      setFormVehiculo({ ...formVehiculo, año: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl text-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+                    <Palette className="h-4 w-4 text-accent" />
+                    Color
+                  </label>
+                  <input
+                    type="text"
+                    value={formVehiculo.color}
+                    onChange={(e) =>
+                      setFormVehiculo({ ...formVehiculo, color: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl text-foreground focus:outline-none focus:border-accent"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+                    <Gauge className="h-4 w-4 text-primary" />
+                    Kilometraje
+                  </label>
+                  <input
+                    type="number"
+                    value={formVehiculo.kilometraje}
+                    onChange={(e) =>
+                      setFormVehiculo({ ...formVehiculo, kilometraje: e.target.value })
+                    }
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl text-foreground focus:outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <label className="text-sm font-medium flex items-center gap-2 text-foreground">
+                    <CalendarClock className="h-4 w-4 text-accent" />
+                    Última revisión técnica (DEKRA)
+                  </label>
+                  <input
+                    type="date"
+                    value={formVehiculo.ultima_revision_tecnica}
+                    onChange={(e) =>
+                      setFormVehiculo({
+                        ...formVehiculo,
+                        ultima_revision_tecnica: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl text-foreground focus:outline-none focus:border-accent"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Si no la has hecho todavía, puedes dejar este campo vacío.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={guardandoVehiculo}
+                  className="flex-1 py-3 bg-gradient-to-r from-red-600 to-blue-600 text-white rounded-xl font-semibold hover:from-red-700 hover:to-blue-700 transition-all disabled:opacity-60"
+                >
+                  {guardandoVehiculo ? "Guardando..." : "Guardar vehículo"}
+                </button>
+                <button
+                  type="button"
+                  onClick={cerrarAgregarVehiculo}
+                  className="px-5 py-3 rounded-xl border border-foreground/10 text-foreground hover:bg-foreground/5 transition flex items-center gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

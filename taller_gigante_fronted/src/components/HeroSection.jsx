@@ -4,6 +4,7 @@ import { ParticleField } from "./ParticleField"
 import { GridOverlay } from "./GridOverlay"
 import { ChevronDown, Wrench, LogIn } from "lucide-react"
 import { supabase } from "../lib/supabaseClient"
+import { Logo } from "./Logo"
 
 export function HeroSection() {
     const ref = useRef(null)
@@ -65,29 +66,29 @@ export function HeroSection() {
         />
 
         {/* Main content */}
-        <motion.div style={{ opacity, scale }} className="relative z-10 text-center px-4 max-w-6xl mx-auto">
+        <motion.div style={{ opacity, scale }} className="relative z-10 text-center px-4 max-w-6xl mx-auto pt-36 sm:pt-40">
             {/* Badge */}
             <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="inline-flex justify-center px-4 py-2 mb-6 rounded-full bg-accent/15 border border-accent/40"
+            className="inline-flex justify-center px-4 py-2 mb-8 rounded-full bg-accent/15 border border-accent/40"
             >
             <span className="text-sm font-mono text-accent tracking-wider uppercase font-semibold">
                 Taller Mecánico Gigante
             </span>
             </motion.div>
 
-            {/* Main title */}
-            <motion.h1
+            {/* Main title (logo grande, texto accesible oculto visualmente) */}
+            <h1 className="sr-only">Taller Mecánico Gigante</h1>
+            <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
+            className="flex justify-center mb-6"
             >
-            <span className="block text-foreground">Taller Mecánico</span>
-            <span className="block text-accent text-shadow-red mt-2">Gigante</span>
-            </motion.h1>
+            <Logo className="h-40 sm:h-56 md:h-72 lg:h-96 w-auto" />
+            </motion.div>
 
             {/* Subtitle */}
             <motion.p

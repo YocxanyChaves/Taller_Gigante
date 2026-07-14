@@ -11,7 +11,10 @@ import {
   Gauge,
   Loader2,
   User,
+  CalendarClock,
+  AlertTriangle,
 } from "lucide-react";
+import { calcularEstadoDekra } from "../lib/dekra";
 
 const emptyForm = {
   id_cliente: "",
@@ -21,6 +24,7 @@ const emptyForm = {
   año: "",
   color: "",
   kilometraje: "",
+  ultima_revision_tecnica: "",
 };
 
 export default function Vehiculos() {
@@ -82,6 +86,9 @@ export default function Vehiculos() {
       año: vehiculo.año || "",
       color: vehiculo.color || "",
       kilometraje: vehiculo.kilometraje || "",
+      ultima_revision_tecnica: vehiculo.ultima_revision_tecnica
+        ? vehiculo.ultima_revision_tecnica.slice(0, 10)
+        : "",
     });
     setModalOpen(true);
   };
@@ -101,6 +108,7 @@ export default function Vehiculos() {
       ...form,
       id_cliente: form.id_cliente ? Number(form.id_cliente) : null,
       año: form.año ? Number(form.año) : null,
+      ultima_revision_tecnica: form.ultima_revision_tecnica || null,
     };
 
     const { error: submitError } = editingId
@@ -190,6 +198,7 @@ export default function Vehiculos() {
                   <th className="text-left p-4">Color</th>
                   <th className="text-left p-4">Kilometraje</th>
                   <th className="text-left p-4">Cliente</th>
+                  <th className="text-left p-4">DEKRA</th>
                   <th className="text-right p-4">Acciones</th>
                 </tr>
               </thead>
@@ -217,6 +226,38 @@ export default function Vehiculos() {
                     </td>
                     <td className="p-4 text-muted-foreground">
                       {vehiculo.clientes?.nombre || "—"}
+                    </td>
+                    <td className="p-4">
+                      {(() => {
+                        const estado = calcularEstadoDekra(
+                          vehiculo.placa,
+                          vehiculo.ultima_revision_tecnica
+                        );
+                        if (!estado) {
+                          return (
+                            <span className="text-muted-foreground">—</span>
+                          );
+                        }
+                        return (
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                              estado.dentroDeVentana
+                                ? "bg-red-500/15 text-accent"
+                                : "bg-foreground/5 text-muted-foreground"
+                            }`}
+                            title={
+                              estado.dentroDeVentana
+                                ? `Vence en ${estado.diasParaVencer} día(s)`
+                                : ""
+                            }
+                          >
+                            {estado.dentroDeVentana && (
+                              <AlertTriangle className="h-3 w-3" />
+                            )}
+                            {estado.nombreMes}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-2">
@@ -377,6 +418,46 @@ export default function Vehiculos() {
                   className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
                   placeholder="45000"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <CalendarClock className="h-4 w-4 text-primary" />
+                  Última revisión técnica (DEKRA)
+                </label>
+                <div
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    const input = e.currentTarget.querySelector("input");
+                    if (input?.showPicker) input.showPicker();
+                  }}
+                >
+                  <input
+                    type="date"
+                    value={form.ultima_revision_tecnica}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        ultima_revision_tecnica: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary cursor-pointer"
+                  />
+                </div>
+                {form.placa && (
+                  (() => {
+                    const estado = calcularEstadoDekra(form.placa, null);
+                    return estado ? (
+                      <p className="text-xs text-muted-foreground/70">
+                        Según la placa, este vehículo le corresponde{" "}
+                        <span className="capitalize font-semibold">
+                          {estado.nombreMes}
+                        </span>
+                        .
+                      </p>
+                    ) : null;
+                  })()
+                )}
               </div>
 
               <button

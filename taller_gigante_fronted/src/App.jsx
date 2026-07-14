@@ -28,6 +28,10 @@ export default function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, newSession) => {
         setSession(newSession);
+
+        if (_event === "SIGNED_IN") {
+          sessionStorage.removeItem("dekra_alerta_oculta");
+        }
       }
     );
 
