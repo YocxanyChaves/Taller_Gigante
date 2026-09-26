@@ -114,6 +114,13 @@ create table invitaciones (
 - RPC `aceptar_invitacion(token)` (security definer): valida vigencia y que no esté usada, vincula `auth.uid()` a la ficha, marca `usada_en`. Si la cuenta ya tenía otra ficha, no fusionar automáticamente: devolver error claro.
 - Cuando funcione y esté probado: proponer eliminar `solicitudes_vinculacion`, su UI y `fusionar_cliente_vinculado` (**confirmar**; revisar antes si hay solicitudes pendientes).
 
+**Decidido (26/09/2026): registro SOLO por invitación.**
+- El cierre se hace en la base, no solo en el frontend: `Register.jsx` manda el token en la metadata del `signUp` y `handle_new_user` valida la invitación, crea la fila en `usuarios` (rol `cliente`), vincula la ficha y marca `usada_en`. Sin invitación válida, el trigger lanza una excepción y Supabase rechaza el registro. Vale igual para OAuth (Google): el token se guarda antes de redirigir y se valida al volver; si no hay token, no se crea la cuenta.
+- `handle_new_user` deja de crear fichas nuevas y de buscar coincidencias por correo.
+- `/register` sin `?invitacion=` muestra "Pídale al taller su link de acceso" en lugar del formulario. En la página de inicio, el botón de registro pasa a "¿Ya es cliente? Ingrese aquí".
+- Los usuarios admin y demo se siguen creando a mano (dashboard/SQL); las cuentas existentes no se tocan.
+- Probar: registro sin token (rechazado), con token vencido o ya usado (rechazado), con token válido (queda vinculado a la ficha correcta), y por la API directa sin token (rechazado).
+
 ### 2.2 Aprobación de cotización
 Agregar a `ordenes`: `aprobada_en timestamptz`, `aprobada_por uuid`, `rechazada_en timestamptz`, `motivo_rechazo text`.
 - En "Esperando aprobación", el cliente ve los ítems y el total, y aprueba o rechaza desde el portal (RPC que valida que la orden sea suya y esté en ese estado).

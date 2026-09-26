@@ -20,18 +20,17 @@ Si una función no sirve a ninguno de esos tres puntos, probablemente no hace fa
 - Frontend: React + Vite + Tailwind. Backend: Supabase, proyecto `TallerMecánicoGigante` (id `kwaurgcbtjesaswmladd`), Postgres 17. Los ids de las tablas son `bigint` identity.
 - Roles: `admin` (todo, cambia roles), `demo` (sandbox: lee y escribe solo filas `es_demo = true`), `cliente` (solo lo suyo, entra a `/portal`). La función `get_my_role()` devuelve el rol y la usan todas las políticas. Todo registro nuevo es `cliente`; el trigger `proteger_rol_usuario` protege los roles.
 - Tablas: `usuarios`, `clientes`, `vehiculos`, `ordenes`, `solicitudes_vinculacion`.
-- Ficha de cliente ≠ cuenta de usuario. Hoy se vinculan de dos formas: automática al registrarse (`handle_new_user`, por correo/teléfono, **insegura**) y por solicitud + aprobación del admin + fusión (`fusionar_cliente_vinculado`).
+- Ficha de cliente ≠ cuenta de usuario. Hoy se vinculan de dos formas: automática al registrarse (`handle_new_user`, solo por correo verificado por OAuth; si no, crea ficha nueva) y por solicitud + aprobación del admin + fusión (`fusionar_cliente_vinculado`). En la fase 2 se reemplaza por registro solo por invitación (ver "Decisiones tomadas").
+- La documentación de la base (tablas, funciones, triggers, roles) está en `supabase/README.md`; las migraciones, en `supabase/migrations/`.
 - Órdenes: Pendiente → En proceso → Completado. Historial por cliente/placa. Dashboard con ingresos y gráfico semanal.
 - `lib/dekra.js`: calcula el mes de revisión técnica según el último dígito de la placa y alerta 15 días antes.
 - Problemas conocidos: README es la plantilla de Vite; `Clientes.jsx` (~1200 líneas) y `ClientePortal.jsx` (~900) son gigantes; el rol se consulta en 4 lugares (App, Sidebar, Topbar, Dashboard); la lógica de Supabase no está versionada en el repo.
 
 ## ⚠️ Primero lo primero: arreglos urgentes de Supabase
 
-Antes de cualquier fase, lee `references/supabase-arreglos.md`, sección A. Hay dos huecos de seguridad en producción:
-1. **Cualquiera puede registrarse como admin** (el rol se toma de la metadata del registro).
-2. **Cualquiera que sepa el teléfono de un cliente puede ver sus datos** (vinculación automática por teléfono no verificado).
+✅ **Sección A de `references/supabase-arreglos.md`: hecha el 26/09/2026** (migración `20260926202646_seguridad_registro_y_roles`, probada). Ya nadie puede registrarse como admin ni quedar vinculado a otra ficha por teléfono. Si en una revisión vuelves a ver esos huecos, avisa de inmediato.
 
-Propón la migración de la sección A apenas empiece la sesión, aunque te pidan otra cosa, y explica el riesgo en una línea. El resto de ese archivo (B–F) se reparte entre la fase 0 y la fase 1, como indica `references/fases.md`.
+El resto de ese archivo (B–F) se reparte entre la fase 0 y la fase 1, como indica `references/fases.md`.
 
 ## Cómo trabajar con esta skill
 
@@ -58,12 +57,19 @@ El detalle de cada fase (tareas, modelo de datos, criterios de "listo") está en
 | 3 | Retención y visibilidad | Recordatorios de mantenimiento, PDF de la orden, página pública |
 | 4 | Extras | Inventario de repuestos, mecánico asignado, reportes |
 
+## Decisiones tomadas
+
+- **26/09/2026 — Registro solo por invitación (opción A).** En la fase 2 se cierra el registro abierto: solo se crea cuenta con el link de invitación que manda el taller (por WhatsApp, `wa.me`). Quien entre a `/register` sin link ve "Pídale al taller su link de acceso". Las cuentas existentes (2 clientes, admin, demo) no se tocan. Al terminar se eliminan las solicitudes de vinculación y la fusión manual (confirmar antes de borrar). Motivo: el portal solo sirve si el taller ya recibió el carro, y así no hay fichas dobles ni cuentas basura.
+- **26/09/2026 — Los datos actuales (no demo) son de prueba.** Se pueden limpiar con criterio.
+- **26/09/2026 — Placa `DSF456`:** se borró el Honda duplicado; queda el Toyota Hilux. Los kilometrajes raros (500000, 456000) son datos de prueba y se dejan.
+- **26/09/2026 — Montos con punto** ("20.222") se leen con el punto como separador de miles (₡20 222).
+- **26/09/2026 — `fecha_entrega`:** se vació en las órdenes no completadas.
+
 ## Decisiones pendientes (preguntar antes de tocarlas)
 
 Estas dependen de lo que el tío realmente necesita. No las implementes ni las borres sin preguntar:
 
 - ¿El rol **demo** sigue siendo sandbox editable (con reinicio nocturno de datos) o pasa a solo lectura?
-- ¿Qué pasa con la **placa duplicada** `DSF456` y con kilometrajes dudosos como `500000 KM`?
 - ¿Se renombra la columna **`año` → `anio`**?
 - ¿Se elimina **bloquear cliente**? (propuesta: sí, casi no se usa en un taller pequeño)
 - ¿Se quita que el **cliente agregue vehículos** desde el portal? (propuesta: sí, que lo haga el taller)
