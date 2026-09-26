@@ -91,13 +91,22 @@ alguien inicia sesión); se unen con `clientes.user_id`. Detalle completo en
 
 ## Hoja de ruta
 
+**Plan nuevo (26/09/2026):** la base de datos se queda (se limpia y se amplía) y el
+frontend se hace de nuevo en la rama `v2`, con un flujo y un diseño nuevos. Los
+clientes ya no tienen cuenta: cada trabajo tiene un link único donde ven cómo va
+su carro y aprueban o rechazan el precio. Los avisos se mandan por WhatsApp con
+el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-roadmap/`.
+
 | Fase | Objetivo | Estado |
 |---|---|---|
-| 0 | Ordenar la casa: seguridad, rendimiento, tipos de datos, código más pequeño y documentación | ✅ Hecha (falta la prueba manual) |
-| 1 | Núcleo del taller: recepción del carro con fotos, órdenes con ítems, estados reales y pagos | ⬜ |
-| 2 | Portal: registro solo por invitación (link por WhatsApp) y aprobar cotizaciones | ⬜ |
-| 3 | Retención: recordatorios de mantenimiento, correos, PDF de la orden y página pública | ⬜ |
-| 4 | Extras: inventario, mecánicos y reportes (solo si el taller lo pide) | ⬜ |
+| 0 | Seguridad y limpieza de la base de datos | ✅ Hecha (falta apagar el registro público) |
+| 1 | Modelo de datos nuevo: estados del taller, ítems, pagos, historial y link público | ⬜ Sigue |
+| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ⬜ |
+| 3 | Trabajos: asistente "Nuevo trabajo", tablero por etapa y botón de siguiente paso | ⬜ |
+| 4 | Link del cliente y WhatsApp | ⬜ |
+| 5 | Cobros (contado o cuotas) e Inicio con el gráfico de plata | ⬜ |
+| 6 | Clientes: buscador y ficha | ⬜ |
+| 7 | Extras, solo si el taller los pide: fotos, PDF, recordatorios, inventario | ⬜ |
 
 ### Fase 0: qué se hizo (26/09/2026)
 
@@ -116,10 +125,13 @@ alguien inicia sesión); se unen con `clientes.user_id`. Detalle completo en
 
 ### Pendiente
 
-- Probar a mano los flujos principales con admin, demo y cliente (entrar y salir, Clientes, Vehículos, Órdenes, Configuración y el portal).
-- Decisiones abiertas con el taller: ¿el demo sigue editable (con reinicio nocturno) o
-  pasa a solo lectura?, ¿renombrar la columna `año` → `anio`?, ¿se quita *bloquear cliente*?,
-  ¿el cliente puede agregar vehículos desde el portal?, estados finales de las órdenes,
-  ¿hay más de un mecánico? y métodos de pago.
-- En el dashboard de Supabase: activar la protección contra contraseñas filtradas y
-  confirmar que la confirmación de correo está activa.
+- En el dashboard de Supabase: apagar el registro público (*Authentication → Sign In /
+  Providers → Allow new users to sign up*), activar la protección contra contraseñas
+  filtradas y confirmar que la confirmación de correo está activa.
+- Decisiones antes de la fase 1: pasar los estados viejos a los nuevos, quitar el rol
+  `cliente` y lo que depende de él (incluidas las 2 cuentas de clientes), métodos de
+  pago, si se cobra la revisión cuando el cliente no aprueba, renombrar `año` → `anio`
+  y dónde probar las migraciones (Supabase local o una rama de Supabase).
+- Otras decisiones con el taller: tonos exactos del rojo y el azul, datos del taller para
+  la página pública y los mensajes, y si el demo sigue editable (con reinicio nocturno)
+  o pasa a solo lectura.
