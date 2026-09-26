@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 // Único lugar que sabe quién inició sesión y con qué rol. El rol sale de la
@@ -71,20 +71,14 @@ export function AuthProvider({ children }) {
 
   const user = session?.user ?? null;
   const perfilActual = perfil.userId === userId ? perfil.datos : null;
-  const rol = user ? perfilActual?.rol || "cliente" : null;
+  // Sin fila o sin rol conocido = 'pendiente': no ve nada.
+  const rol = user ? perfilActual?.rol || "pendiente" : null;
   const loading =
     session === undefined || (userId !== null && perfil.userId !== userId);
 
-  // Para cuando la persona cambia su nombre (Configuración).
-  const refrescarPerfil = useCallback(async () => {
-    if (!userId) return;
-    const datos = await consultarPerfil(userId);
-    setPerfil({ userId, datos });
-  }, [userId]);
-
   const cerrarSesion = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/";
+    window.location.href = "/login";
   };
 
   const value = {
@@ -94,8 +88,7 @@ export function AuthProvider({ children }) {
     loading,
     esAdmin: rol === "admin",
     esDemo: rol === "demo",
-    esCliente: rol === "cliente",
-    refrescarPerfil,
+    tieneAcceso: rol === "admin" || rol === "demo",
     cerrarSesion,
   };
 
