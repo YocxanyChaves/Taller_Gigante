@@ -39,6 +39,7 @@ export default function Vehiculos() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const fetchVehiculos = async () => {
     setLoading(true);
@@ -75,6 +76,7 @@ export default function Vehiculos() {
   const openCreateModal = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setFormError("");
     setModalOpen(true);
   };
 
@@ -92,6 +94,7 @@ export default function Vehiculos() {
         ? vehiculo.ultima_revision_tecnica.slice(0, 10)
         : "",
     });
+    setFormError("");
     setModalOpen(true);
   };
 
@@ -121,7 +124,7 @@ export default function Vehiculos() {
     setSaving(false);
 
     if (submitError) {
-      setError(mensajeError(submitError));
+      setFormError(mensajeError(submitError));
       return;
     }
 
@@ -307,6 +310,13 @@ export default function Vehiculos() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {formError && (
+                <div className="flex items-center gap-2 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-accent">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  {formError}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <User className="h-4 w-4 text-accent" />

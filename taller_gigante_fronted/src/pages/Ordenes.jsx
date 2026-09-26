@@ -18,6 +18,7 @@ import {
   fechaInputAISO,
   isoAFechaInput,
 } from "../lib/formato";
+import { mensajeError } from "../lib/errores";
 
 const ESTADOS = ["Pendiente", "En proceso", "Completado"];
 
@@ -47,6 +48,7 @@ export default function Ordenes() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const fetchOrdenes = async () => {
     setLoading(true);
@@ -83,6 +85,7 @@ export default function Ordenes() {
   const openCreateModal = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setFormError("");
     setModalOpen(true);
   };
 
@@ -97,6 +100,7 @@ export default function Ordenes() {
       costo_final: orden.costo_final ?? "",
       fecha_entrega: isoAFechaInput(orden.fecha_entrega),
     });
+    setFormError("");
     setModalOpen(true);
   };
 
@@ -126,7 +130,7 @@ export default function Ordenes() {
     setSaving(false);
 
     if (submitError) {
-      setError(submitError.message);
+      setFormError(mensajeError(submitError));
       return;
     }
 
@@ -299,6 +303,12 @@ export default function Ordenes() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {formError && (
+                <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-accent">
+                  {formError}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Car className="h-4 w-4 text-accent" />
