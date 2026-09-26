@@ -38,22 +38,30 @@ lo compilado) y `npm run lint`.
 
 ## Roles
 
-| Rol | Entra a | Puede |
-|---|---|---|
-| `admin` | `/dashboard` | Todo con los datos reales, y cambiar roles en *Usuarios* |
-| `demo` | `/dashboard` | Lo mismo que admin, pero solo con datos de prueba (`es_demo = true`), separados de los reales |
-| `cliente` | `/portal` | Ver sus carros y órdenes, editar su contacto y agregar vehículos |
+| Rol | Puede |
+|---|---|
+| `admin` | Todo con los datos reales, y cambiar roles en *Usuarios* |
+| `demo` | Lo mismo que admin, pero solo con datos de prueba (`es_demo = true`), separados de los reales |
+| `pendiente` | Nada. Es el rol de toda cuenta nueva hasta que un admin le asigne otro |
 
-Toda cuenta nueva es `cliente`. Los roles admin y demo los asigna un admin.
+Los clientes no tienen cuenta: ven su trabajo con un link único, sin registrarse.
 
 ## Flujo
 
-1. El taller registra al **cliente** (ficha), su **vehículo** y abre una **orden** de trabajo.
-2. La orden avanza: `Pendiente → En proceso → Completado`. Las completadas pasan al **Historial**.
-3. El **Dashboard** resume vehículos, órdenes, clientes, ingresos del mes y avisa de la
-   **revisión técnica (DEKRA)** que se acerca según el último dígito de la placa (`src/lib/dekra.js`).
-4. El cliente entra al **portal** y ve el estado de sus carros. Su cuenta se une a su ficha
-   del taller con *Clientes → Vincular cuenta* (en la fase 2 se reemplaza por una invitación por link).
+1. **Cita**: el cliente llama o escribe y el tío le da un día.
+2. **En revisión**: llega el carro y el tío lo examina.
+3. **Esperando respuesta**: se anota el diagnóstico y el precio (repuestos y mano de obra)
+   y se le manda al cliente su link por WhatsApp. Desde ahí aprueba o rechaza.
+   Si no aprueba, se lleva el carro (con cobro de revisión opcional).
+4. **Esperando repuestos** → **En reparación** → **Listo** (se le avisa al cliente).
+5. **Entregado**: se cobra de contado o en cuotas (abonos hasta saldar).
+
+Inicio también avisa de la **revisión técnica (DEKRA)** que se acerca según el último
+dígito de la placa (`src/lib/dekra.js`).
+
+> **Ojo:** la base ya está en el modelo nuevo (fase 1), pero las pantallas todavía son las
+> viejas. Varias ya no funcionan (órdenes, portal, vincular cuentas) hasta que se hagan
+> las nuevas en las fases 2 a 6.
 
 ## Estructura
 
@@ -84,10 +92,9 @@ Convenciones:
 
 ## Base de datos
 
-Cinco tablas: `usuarios`, `clientes`, `vehiculos`, `ordenes` y `solicitudes_vinculacion`.
-Una **ficha de cliente** (lo que conoce el taller) es distinta de una **cuenta** (con la que
-alguien inicia sesión); se unen con `clientes.user_id`. Detalle completo en
-[`supabase/README.md`](supabase/README.md).
+Siete tablas: `usuarios` (cuentas de login), `clientes`, `vehiculos`, `ordenes` (los
+trabajos), `orden_items` (detalle del precio), `pagos` y `orden_estados_historial`.
+Detalle completo en [`supabase/README.md`](supabase/README.md).
 
 ## Hoja de ruta
 
@@ -100,8 +107,8 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 | Fase | Objetivo | Estado |
 |---|---|---|
 | 0 | Seguridad y limpieza de la base de datos | ✅ Hecha (falta apagar el registro público) |
-| 1 | Modelo de datos nuevo: estados del taller, ítems, pagos, historial y link público | ⬜ Sigue |
-| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ⬜ |
+| 1 | Modelo de datos nuevo: estados del taller, ítems, pagos, historial y link público | ✅ Hecha |
+| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ⬜ Sigue |
 | 3 | Trabajos: asistente "Nuevo trabajo", tablero por etapa y botón de siguiente paso | ⬜ |
 | 4 | Link del cliente y WhatsApp | ⬜ |
 | 5 | Cobros (contado o cuotas) e Inicio con el gráfico de plata | ⬜ |
@@ -123,15 +130,30 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 - ✅ Arreglos de paso: los errores de los formularios se ven dentro de la ventana, y
   "marcar revisión DEKRA como hecha" ya no guarda la fecha de mañana después de las 6 p. m.
 
+### Fase 1: qué se hizo (26/09/2026)
+
+- ✅ Respaldo de los datos antes de empezar (`supabase/respaldos/`, fuera de git).
+- ✅ Sin cuentas de clientes: se quitaron el rol `cliente` (y sus 3 cuentas de prueba), la
+  vinculación cuenta↔ficha, las solicitudes, la fusión de fichas y el bloqueo de clientes.
+  Las cuentas nuevas quedan como `pendiente` y no ven nada.
+- ✅ Estados del flujo real (cita → … → entregado) con los pasos validados en la base.
+  Los viejos pasaron así: Pendiente → en revisión, En proceso → en reparación, Completado → entregado.
+- ✅ Datos de cita y recepción, link único por trabajo y respuesta del cliente.
+- ✅ Tablas nuevas: ítems del precio, pagos (efectivo, SINPE Móvil o transferencia; de
+  contado o en cuotas) e historial de estados. Los costos viejos pasaron a un ítem y los
+  trabajos entregados viejos quedaron como pagados de contado.
+- ✅ Funciones: ver y responder el trabajo desde el link sin login, avanzar estado,
+  regenerar link, tarjetas de Inicio y plata por mes (cobrado, por cobrar y ganancia).
+- ✅ `año` → `anio`.
+
 ### Pendiente
 
 - En el dashboard de Supabase: apagar el registro público (*Authentication → Sign In /
   Providers → Allow new users to sign up*), activar la protección contra contraseñas
   filtradas y confirmar que la confirmación de correo está activa.
-- Decisiones antes de la fase 1: pasar los estados viejos a los nuevos, quitar el rol
-  `cliente` y lo que depende de él (incluidas las 2 cuentas de clientes), métodos de
-  pago, si se cobra la revisión cuando el cliente no aprueba, renombrar `año` → `anio`
-  y dónde probar las migraciones (Supabase local o una rama de Supabase).
+- Probar un trabajo completo (cita → entregado con cuotas) y el link del cliente. Se va a
+  hacer con el usuario demo cuando existan las pantallas nuevas; no se prueba escribiendo
+  datos a mano en la base real.
 - Otras decisiones con el taller: tonos exactos del rojo y el azul, datos del taller para
   la página pública y los mensajes, y si el demo sigue editable (con reinicio nocturno)
   o pasa a solo lectura.

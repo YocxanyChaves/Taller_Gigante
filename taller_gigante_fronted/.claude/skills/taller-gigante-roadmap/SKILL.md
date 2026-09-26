@@ -68,11 +68,14 @@ Si la sección A de `references/supabase-arreglos.md` no está aplicada todavía
 ## Decisiones pendientes (preguntar, no suponer)
 
 - Tonos exactos del rojo y azul del taller (logo o rótulo). Mientras tanto, usar los de `diseno.md`.
-- Métodos de pago que usa el taller (propuesta: efectivo, SINPE Móvil, tarjeta, transferencia).
-- ¿Se cobra la revisión cuando el cliente no aprueba? ¿Cuánto por defecto?
-- Qué hacer con la placa duplicada `DSF456` y kilometrajes dudosos (`500000 KM`).
-- Qué pasa con las 2 cuentas de rol `cliente` que existen (propuesta: borrarlas al quitar el rol).
 - Nombre y datos del taller para la página pública y los mensajes (nombre, teléfono, dirección, horario).
+
+## Decisiones ya tomadas (26/09/2026)
+
+- Métodos de pago: efectivo, SINPE Móvil y transferencia. **Sin tarjeta.**
+- Cobro de revisión cuando no aprueba: opcional, sin monto por defecto (depende del cliente).
+- Los datos actuales de la base son inventados. Antes de una migración grande se saca un respaldo en `supabase/respaldos/` (fuera de git) y se aplica directo en producción; no hace falta Supabase local ni otro proyecto.
+- La fase 1 ya está aplicada: rol `cliente` eliminado (cuentas nuevas quedan `pendiente`), estados nuevos, `anio`, tablas `orden_items`/`pagos`/`orden_estados_historial`. Ver `supabase/README.md`.
 
 ## Fuera de alcance
 
