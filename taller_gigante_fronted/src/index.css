@@ -1,70 +1,77 @@
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/700.css";
+@import "@fontsource/barlow-condensed/600.css";
+@import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource/jetbrains-mono/500.css";
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* Paleta del landing page: retro/vintage en claro, técnica en oscuro */
+/* Sistema de diseño "retrofuturista de taller" (ver la skill, references/diseno.md):
+   formas de Windows 98 (ventanas cuadradas, sombra dura, campos hundidos) con
+   letra moderna y los colores de la marca. Si llegan los tonos exactos del
+   taller, cambiar solo --color-rojo y --color-azul. */
 @theme {
-  --color-background: #f3e7d2;
-  --color-cream: #eeddb8;
-  --color-muted: #e1caa0;
-  --color-card: #faf3e3;
-  --color-foreground: #3a2b1d;
-  --color-muted-foreground: #6f5c43;
-  --color-accent: #a8460f;
-  --color-primary: #3d5a52;
-  --color-vignette: oklch(0.96 0.01 80 / 0.6);
+  --color-fondo: #0a0f1a;
+  --color-panel: #101828;
+  --color-panel-hundido: #0c1322;
+  --color-linea: #22314d;
+  --color-acero: #8b97ab;
+  --color-texto: #eef2f8;
+  --color-texto-2: #aeb9cc;
+  --color-rojo: #d7262e;
+  --color-rojo-vivo: #ff4040;
+  --color-azul: #1f5fe0;
+  --color-azul-vivo: #3b8bff;
+  --color-cromo: #e6ebf2;
+  --color-sombra: #000;
+
+  --font-sans: "Barlow", system-ui, sans-serif;
+  --font-titulo: "Barlow Condensed", "Barlow", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-dura: 6px 6px 0 var(--color-sombra);
+  --shadow-boton: 4px 4px 0 var(--color-sombra);
+  --shadow-boton-hundido: 2px 2px 0 var(--color-sombra);
+  --shadow-hundido: inset 2px 2px 0 #05080f;
 }
 
-.dark {
-  --color-background: #05070b;
-  --color-cream: #0b0e14;
-  --color-muted: #0f1420;
-  --color-card: #18181b;
-  --color-foreground: #ffffff;
-  --color-muted-foreground: #9ca3af;
-  --color-accent: #ef4444;
-  --color-primary: #3b82f6;
-  --color-vignette: oklch(0.09 0.02 260 / 0.55);
+/* Base de 18px: todo el sistema (rem) crece junto, y nada queda por debajo de 16px. */
+html {
+  font-size: 112.5%;
+  color-scheme: dark;
 }
 
-.glass {
-    background: rgba(244, 233, 216, 0.85);
-    backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(58, 43, 29, 0.08);
+body {
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
 }
 
-.dark .glass {
-    background: rgba(10, 10, 10, 0.72);
-    backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+/* Títulos y etiquetas cortas: mayúscula condensada, tipo placa de taller. */
+.rotulo {
+  font-family: var(--font-titulo);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.paper-texture {
-    background-image:
-        radial-gradient(rgba(120, 90, 50, 0.06) 1px, transparent 1px),
-        radial-gradient(rgba(120, 90, 50, 0.045) 1px, transparent 1px);
-    background-size: 3px 3px, 7px 7px;
-    background-position: 0 0, 2px 3px;
+/* El único degradado del sistema: la barra de título de las ventanas. */
+.barra-titulo {
+  background: linear-gradient(90deg, var(--color-rojo), #6b1f3f 45%, var(--color-azul));
 }
 
-.dark .paper-texture {
-    background-image: none;
+/* Franja de advertencia, con moderación: login y encima del botón de siguiente paso. */
+.franja-peligro {
+  height: 6px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-rojo) 0 10px,
+    #000 10px 20px
+  );
 }
 
-.text-shadow-red {
-    text-shadow: 0 3px 20px rgba(168, 70, 15, 0.35);
-}
-
-.dark .text-shadow-red {
-    text-shadow: none;
-}
-
-/* Que el selector de fecha nativo (calendarito) se vea bien en ambos temas */
-input[type="date"] {
-    color-scheme: light;
-    cursor: pointer;
-}
-
-.dark input[type="date"] {
-    color-scheme: dark;
+:focus-visible {
+  outline: 3px solid var(--color-azul-vivo);
+  outline-offset: 2px;
 }
