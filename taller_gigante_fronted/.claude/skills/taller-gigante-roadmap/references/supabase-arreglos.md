@@ -33,7 +33,7 @@ El match por **correo** también se hace al insertar en `auth.users`, antes de q
 Arreglo inmediato (hasta que exista la invitación por link de la fase 2):
 - Quitar por completo el match por teléfono.
 - Match por correo solo si `new.email_confirmed_at is not null` (caso OAuth). Si no, crear la ficha nueva como hoy y dejar que el admin vincule.
-Arreglo definitivo (fase 2): `handle_new_user` solo crea la fila en `usuarios` con rol `cliente`; la vinculación ocurre únicamente con `aceptar_invitacion(token)`.
+Arreglo definitivo (fase 1 del plan nuevo): los clientes ya no tienen cuenta. Se apaga el registro público, `handle_new_user` solo crea la fila en `usuarios` y se elimina toda la vinculación cuenta↔ficha (ver `datos.md`).
 
 ### A3. `proteger_rol_usuario` con rol nulo
 `public.get_my_role() <> 'admin'` da NULL si no hay rol y el trigger deja pasar el cambio. Usar `coalesce(public.get_my_role(), '') <> 'admin'`.
@@ -42,7 +42,7 @@ Arreglo definitivo (fase 2): `handle_new_user` solo crea la fila en `usuarios` c
 
 ## B. Seguridad (importante)
 
-- **Bloqueo solo en el frontend:** `clientes.bloqueado` no aparece en ninguna política. Un cliente bloqueado puede leer sus datos igual llamando a la API. Si la función se queda (decisión pendiente), agregar `and not bloqueado` en las políticas SELECT de cliente en `clientes`, `vehiculos` y `ordenes`. Si se elimina, quitar columna, trigger `proteger_bloqueo_cliente` y UI (confirmar).
+- **Bloqueo solo en el frontend:** `clientes.bloqueado` no aparece en ninguna política. Un cliente bloqueado puede leer sus datos igual llamando a la API. En el plan nuevo el bloqueo desaparece junto con el rol cliente (fase 1): quitar columna, trigger `proteger_bloqueo_cliente` y UI (confirmar).
 - **Demo compartido y editable:** el rol demo puede insertar/editar/borrar filas `es_demo = true` (no es solo lectura). Si las credenciales demo se publican en el portafolio, cualquiera puede vaciar o ensuciar los datos demo. Propuesta: función `reset_datos_demo()` + `pg_cron` que la corra cada noche con datos semilla (confirmar si se prefiere hacer demo solo lectura).
 - **Funciones SECURITY DEFINER expuestas** (avisos del linter): `eliminar_cliente_completo` y `fusionar_cliente_vinculado` validan el rol adentro, están bien, pero documentarlo. `get_stats_publicas` la puede llamar `anon`: es intencional, porque la usa la página de inicio. Se deja así. `get_my_role` expuesto a `authenticated` es aceptable (devuelve el rol propio).
 - **`eliminar_cliente_completo`** tiene los estados escritos a mano (`'Pendiente','En proceso'`): actualizarla cuando cambien los estados (fase 1).
