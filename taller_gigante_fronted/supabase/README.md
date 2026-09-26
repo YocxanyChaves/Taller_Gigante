@@ -16,6 +16,7 @@ mano en el dashboard. El nombre es `AAAAMMDDHHMMSS_descripcion.sql`.
 | `20260926202645_esquema_base.sql` | Foto completa del esquema al 26/09/2026. Consolida todo lo anterior (las tablas originales se crearon a mano). Sirve para levantar una base nueva desde cero. |
 | `20260926202646_seguridad_registro_y_roles.sql` | Cierra dos huecos: registrarse como admin y quedar vinculado a la ficha de otro cliente por su teléfono. |
 | `20260926203615_rendimiento_politicas_e_indices.sql` | Índices en llaves foráneas y políticas RLS optimizadas (misma lógica, una política por acción). |
+| `20260926203757_tipos_de_datos.sql` | Costos y kilometraje pasan a número, `fecha_entrega` es opcional y con zona horaria, y la placa es única. |
 
 > **Si algún día se usa el CLI de Supabase:** el historial remoto tiene 23
 > migraciones de julio 2026 que no están como archivos (quedaron dentro del
@@ -35,8 +36,8 @@ auth.users ──1:1── usuarios (rol: admin | demo | cliente)
 
 - **usuarios**: una fila por cuenta de login. La crea el trigger `on_auth_user_created`.
 - **clientes**: la ficha del cliente en el taller. Puede existir sin cuenta (`user_id` nulo).
-- **vehiculos**: pertenecen a un cliente. `id_cliente` puede quedar nulo si se borró el cliente conservando el historial.
-- **ordenes**: trabajos hechos a un vehículo. Estados: `Pendiente`, `En proceso`, `Completado`.
+- **vehiculos**: pertenecen a un cliente. `id_cliente` puede quedar nulo si se borró el cliente conservando el historial. `kilometraje` es un entero. La placa es única entre vehículos reales, sin importar mayúsculas, guiones ni espacios (índice `vehiculos_placa_unica`).
+- **ordenes**: trabajos hechos a un vehículo. Estados: `Pendiente`, `En proceso`, `Completado`. `costo_estimado` y `costo_final` son `numeric` en colones (nulos si no se saben). `fecha_entrega` es `timestamptz` y queda nula hasta que el carro se entrega; el frontend guarda las fechas de los formularios como medianoche en hora local (`src/lib/formato.js`).
 - **solicitudes_vinculacion**: un cliente pide que conecten su cuenta con su ficha; el admin aprueba o rechaza.
 
 ## Roles y seguridad (RLS)

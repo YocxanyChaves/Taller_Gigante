@@ -15,6 +15,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { calcularEstadoDekra } from "../lib/dekra";
+import { formatoKm, numeroONull } from "../lib/formato";
+import { mensajeError } from "../lib/errores";
 
 const emptyForm = {
   id_cliente: "",
@@ -85,7 +87,7 @@ export default function Vehiculos() {
       modelo: vehiculo.modelo || "",
       año: vehiculo.año || "",
       color: vehiculo.color || "",
-      kilometraje: vehiculo.kilometraje || "",
+      kilometraje: vehiculo.kilometraje ?? "",
       ultima_revision_tecnica: vehiculo.ultima_revision_tecnica
         ? vehiculo.ultima_revision_tecnica.slice(0, 10)
         : "",
@@ -108,6 +110,7 @@ export default function Vehiculos() {
       ...form,
       id_cliente: form.id_cliente ? Number(form.id_cliente) : null,
       año: form.año ? Number(form.año) : null,
+      kilometraje: numeroONull(form.kilometraje),
       ultima_revision_tecnica: form.ultima_revision_tecnica || null,
     };
 
@@ -118,7 +121,7 @@ export default function Vehiculos() {
     setSaving(false);
 
     if (submitError) {
-      setError(submitError.message);
+      setError(mensajeError(submitError));
       return;
     }
 
@@ -222,7 +225,9 @@ export default function Vehiculos() {
                       {vehiculo.color || "—"}
                     </td>
                     <td className="p-4 text-muted-foreground">
-                      {vehiculo.kilometraje || "—"}
+                      {vehiculo.kilometraje != null
+                        ? formatoKm(vehiculo.kilometraje)
+                        : "—"}
                     </td>
                     <td className="p-4 text-muted-foreground">
                       {vehiculo.clientes?.nombre || "—"}
@@ -410,7 +415,8 @@ export default function Vehiculos() {
                   Kilometraje
                 </label>
                 <input
-                  type="text"
+                  type="number"
+                  min="0"
                   value={form.kilometraje}
                   onChange={(e) =>
                     setForm({ ...form, kilometraje: e.target.value })

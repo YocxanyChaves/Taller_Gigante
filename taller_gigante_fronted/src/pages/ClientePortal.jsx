@@ -31,6 +31,8 @@ import {
 import { supabase } from "../lib/supabaseClient";
 import { useTheme } from "../context/ThemeContext";
 import { Logo } from "../components/Logo";
+import { formatoColones } from "../lib/formato";
+import { mensajeError } from "../lib/errores";
 
 const estadoBadge = {
   Completado:
@@ -44,9 +46,6 @@ const estadoIcon = {
   "En proceso": Wrench,
   Pendiente: Clock,
 };
-
-const formatoColones = (valor) =>
-  `₡${Number(valor).toLocaleString("es-CR")}`;
 
 const emptyForm = { nombre: "", telefono: "", correo: "", direccion: "" };
 
@@ -248,7 +247,7 @@ export default function ClientePortal() {
     setGuardandoVehiculo(false);
 
     if (error) {
-      setErrorVehiculo(error.message);
+      setErrorVehiculo(mensajeError(error));
       return;
     }
 
@@ -688,16 +687,16 @@ export default function ClientePortal() {
                                 </div>
                               )}
 
-                              {(orden.costo_estimado || orden.costo_final) && (
+                              {(orden.costo_estimado != null || orden.costo_final != null) && (
                                 <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3.5">
                                   <Banknote className="h-4 w-4 text-emerald-600 dark:text-emerald-300 shrink-0" />
                                   <div className="min-w-0">
                                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                      {orden.costo_final ? "Costo final" : "Costo estimado"}
+                                      {orden.costo_final != null ? "Costo final" : "Costo estimado"}
                                     </p>
                                     <p className="text-sm font-bold text-foreground mt-0.5">
                                       {formatoColones(
-                                        orden.costo_final || orden.costo_estimado
+                                        orden.costo_final ?? orden.costo_estimado
                                       )}
                                     </p>
                                   </div>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Layout } from "../components/layout/Layout";
 import { supabase } from "../lib/supabaseClient";
 import { History, Search, Loader2, CheckCircle2 } from "lucide-react";
+import { formatoColones } from "../lib/formato";
 
 export default function Historial() {
   const [ordenes, setOrdenes] = useState([]);
@@ -131,7 +132,9 @@ export default function Historial() {
                       {orden.descripcion || "—"}
                     </td>
                     <td className="p-4 text-muted-foreground">
-                      {orden.costo_final || "—"}
+                      {orden.costo_final != null
+                        ? formatoColones(orden.costo_final)
+                        : "—"}
                     </td>
                     <td className="p-4">
                       <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-300">

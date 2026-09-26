@@ -12,6 +12,12 @@ import {
   CalendarClock,
   Loader2,
 } from "lucide-react";
+import {
+  formatoColones,
+  numeroONull,
+  fechaInputAISO,
+  isoAFechaInput,
+} from "../lib/formato";
 
 const ESTADOS = ["Pendiente", "En proceso", "Completado"];
 
@@ -87,11 +93,9 @@ export default function Ordenes() {
       descripcion: orden.descripcion || "",
       diagnostico: orden.diagnostico || "",
       estado: orden.estado || "Pendiente",
-      costo_estimado: orden.costo_estimado || "",
-      costo_final: orden.costo_final || "",
-      fecha_entrega: orden.fecha_entrega
-        ? orden.fecha_entrega.slice(0, 10)
-        : "",
+      costo_estimado: orden.costo_estimado ?? "",
+      costo_final: orden.costo_final ?? "",
+      fecha_entrega: isoAFechaInput(orden.fecha_entrega),
     });
     setModalOpen(true);
   };
@@ -110,7 +114,9 @@ export default function Ordenes() {
     const payload = {
       ...form,
       id_vehiculo: form.id_vehiculo ? Number(form.id_vehiculo) : null,
-      fecha_entrega: form.fecha_entrega || null,
+      costo_estimado: numeroONull(form.costo_estimado),
+      costo_final: numeroONull(form.costo_final),
+      fecha_entrega: fechaInputAISO(form.fecha_entrega),
     };
 
     const { error: submitError } = editingId
@@ -235,7 +241,13 @@ export default function Ordenes() {
                       </span>
                     </td>
                     <td className="p-4 text-muted-foreground">
-                      {orden.costo_estimado || "—"} / {orden.costo_final || "—"}
+                      {orden.costo_estimado != null
+                        ? formatoColones(orden.costo_estimado)
+                        : "—"}{" "}
+                      /{" "}
+                      {orden.costo_final != null
+                        ? formatoColones(orden.costo_final)
+                        : "—"}
                     </td>
                     <td className="p-4 text-muted-foreground">
                       {orden.fecha_entrega
@@ -367,13 +379,14 @@ export default function Ordenes() {
                     Costo estimado
                   </label>
                   <input
-                    type="text"
+                    type="number"
+                    min="0"
                     value={form.costo_estimado}
                     onChange={(e) =>
                       setForm({ ...form, costo_estimado: e.target.value })
                     }
                     className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-primary"
-                    placeholder="₡50,000"
+                    placeholder="50000"
                   />
                 </div>
 
@@ -383,13 +396,14 @@ export default function Ordenes() {
                     Costo final
                   </label>
                   <input
-                    type="text"
+                    type="number"
+                    min="0"
                     value={form.costo_final}
                     onChange={(e) =>
                       setForm({ ...form, costo_final: e.target.value })
                     }
                     className="w-full px-4 py-3 bg-foreground/5 border border-foreground/10 rounded-xl focus:outline-none focus:border-accent"
-                    placeholder="₡55,000"
+                    placeholder="55000"
                   />
                 </div>
               </div>

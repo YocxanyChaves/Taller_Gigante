@@ -23,6 +23,7 @@ import {
   Tooltip,
 } from "recharts";
 import { calcularEstadoDekra } from "../lib/dekra";
+import { formatoColones } from "../lib/formato";
 
 const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
@@ -31,17 +32,6 @@ const estadoBadge = {
   "En proceso": "bg-blue-500/15 text-blue-600 dark:text-blue-300",
   Pendiente: "bg-red-500/15 text-red-600 dark:text-red-300",
 };
-
-function parseMonto(valor) {
-  if (!valor) return 0;
-  const limpio = String(valor).replace(/[^0-9.-]/g, "");
-  const numero = parseFloat(limpio);
-  return Number.isNaN(numero) ? 0 : numero;
-}
-
-function formatMonto(numero) {
-  return `₡${numero.toLocaleString("es-CR", { maximumFractionDigits: 0 })}`;
-}
 
 function firmaDeAlertas(alertas) {
   return alertas
@@ -169,7 +159,7 @@ export default function Dashboard() {
       ]);
 
       const ingresosMes = (ordenesDelMes || []).reduce(
-        (acc, o) => acc + parseMonto(o.costo_final),
+        (acc, o) => acc + Number(o.costo_final ?? 0),
         0
       );
 
@@ -197,7 +187,7 @@ export default function Dashboard() {
         },
         {
           title: "Ingresos del mes",
-          value: formatMonto(ingresosMes),
+          value: formatoColones(ingresosMes),
           change: `${(ordenesDelMes || []).length} órdenes entregadas`,
           icon: DollarSign,
           color: "red",
