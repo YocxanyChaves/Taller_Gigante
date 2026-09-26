@@ -27,3 +27,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Respaldos de la base (tienen datos personales)
+supabase/respaldos/
