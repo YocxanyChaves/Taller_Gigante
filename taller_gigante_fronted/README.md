@@ -7,7 +7,8 @@ sistema funcionando sin exponer datos reales.
 
 ## Stack
 
-- **Frontend:** React 19 + Vite + Tailwind CSS 4, React Router, Recharts y Framer Motion.
+- **Frontend:** React 19 + Vite + Tailwind CSS 4, React Router e íconos Lucide. Letras
+  Barlow, Barlow Condensed y JetBrains Mono (instaladas, no dependen de internet).
 - **Backend:** [Supabase](https://supabase.com): Postgres, login (Auth) y seguridad por fila (RLS).
   No hay servidor propio: la lógica sensible vive en la base (políticas, triggers y funciones).
 
@@ -59,26 +60,22 @@ Los clientes no tienen cuenta: ven su trabajo con un link único, sin registrars
 Inicio también avisa de la **revisión técnica (DEKRA)** que se acerca según el último
 dígito de la placa (`src/lib/dekra.js`).
 
-> **Ojo:** la base ya está en el modelo nuevo (fase 1), pero las pantallas todavía son las
-> viejas. Varias ya no funcionan (órdenes, portal, vincular cuentas) hasta que se hagan
-> las nuevas en las fases 2 a 6.
+> **Ojo:** el frontend se está rehaciendo. Ya están el login, la estructura y las piezas
+> de diseño (fase 2); las pantallas de Inicio, Trabajos, Clientes y Cobros se llenan en
+> las fases 3 a 6. El sistema viejo sigue en la rama `main`.
 
 ## Estructura
 
 ```
 src/
-├─ pages/            una pantalla por ruta (Dashboard, Clientes, Vehiculos, Ordenes, ClientePortal…)
+├─ pages/            una pantalla por ruta (Login, Inicio, Trabajos, Clientes, Cobros, Estilos…)
 ├─ components/
-│  ├─ layout/        Sidebar, Topbar y Layout del panel
-│  ├─ clientes/      tabla y ventanas de la página Clientes
-│  ├─ portal/        piezas del portal del cliente
-│  ├─ dashboard/     tarjetas del Dashboard
-│  └─ Modal.jsx      marco común de las ventanas emergentes
+│  ├─ ui/            piezas del sistema de diseño: Ventana, Boton, Campo, TarjetaNumero,
+│  │                 Insignia, Asistente, Confirmar y Vacio (todas se ven en /estilos)
+│  └─ layout/        Marco (barra lateral en compu, barra de abajo en celular) y Encabezado
 ├─ context/
-│  ├─ AuthContext    quién inició sesión y con qué rol → useAuth()
-│  └─ ThemeContext   modo claro / oscuro → useTheme()
-├─ services/         consultas a Supabase agrupadas por pantalla
-└─ lib/              supabaseClient, formato (₡, km, fechas), errores, dekra
+│  └─ AuthContext    quién inició sesión y con qué rol → useAuth()
+└─ lib/              supabaseClient, estados, formato (₡, km, fechas), errores, dekra
 supabase/
 ├─ migrations/       todos los cambios a la base, en orden
 └─ README.md         tablas, funciones, triggers y políticas explicados
@@ -86,6 +83,9 @@ supabase/
 
 Convenciones:
 - Nadie consulta la sesión o el rol por su cuenta: se usa `useAuth()`.
+- Los colores, letras y sombras están como variables en `src/index.css` (`bg-panel`,
+  `text-rojo-vivo`, `shadow-dura`…). Nada de colores sueltos en los componentes.
+- Todo botón e ícono lleva texto; un solo botón rojo por pantalla.
 - Las fechas de los formularios se guardan con `fechaInputAISO` y se leen con
   `isoAFechaInput` (`src/lib/formato.js`); si no, se ven un día antes en Costa Rica.
 - Todo cambio a la base es una migración nueva en `supabase/migrations/`, nunca a mano en el dashboard.
@@ -108,7 +108,7 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 |---|---|---|
 | 0 | Seguridad y limpieza de la base de datos | ✅ Hecha (falta apagar el registro público) |
 | 1 | Modelo de datos nuevo: estados del taller, ítems, pagos, historial y link público | ✅ Hecha |
-| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ⬜ Sigue |
+| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | 🟨 Falta que la dueña apruebe `/estilos` |
 | 3 | Trabajos: asistente "Nuevo trabajo", tablero por etapa y botón de siguiente paso | ⬜ |
 | 4 | Link del cliente y WhatsApp | ⬜ |
 | 5 | Cobros (contado o cuotas) e Inicio con el gráfico de plata | ⬜ |
