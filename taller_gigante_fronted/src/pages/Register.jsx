@@ -51,7 +51,6 @@ import {
             data: {
             nombre: `${nombre} ${apellido}`.trim(),
             telefono,
-            rol: "cliente",
             },
         },
         })
