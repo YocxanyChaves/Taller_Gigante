@@ -5,33 +5,35 @@
 @import "@fontsource/jetbrains-mono/500.css";
 @import "tailwindcss";
 
-/* Sistema de diseño "retrofuturista de taller" (ver la skill, references/diseno.md):
-   formas de Windows 98 (ventanas cuadradas, sombra dura, campos hundidos) con
-   letra moderna y los colores de la marca. Si llegan los tonos exactos del
-   taller, cambiar solo --color-rojo y --color-azul. */
+/* Sistema de diseño "vintage moderno": un homenaje a las computadoras viejas
+   sin copiarlas. De ellas quedan las esquinas rectas, el orden y el
+   minimalismo, las etiquetas tipo rótulo y la barra de progreso en bloques.
+   Lo demás es plano y limpio: bordes finos, sombras cortas y suaves, sin
+   degradados. Si llegan los tonos exactos del taller, cambiar solo
+   --color-rojo y --color-azul. */
 @theme {
-  --color-fondo: #0a0f1a;
-  --color-panel: #101828;
-  --color-panel-hundido: #0c1322;
-  --color-linea: #22314d;
-  --color-acero: #8b97ab;
+  --color-fondo: #0b0f17;
+  --color-panel: #121824;
+  --color-panel-hundido: #0e131d;
+  --color-linea: #232e42;
+  --color-acero: #8792a6;
   --color-texto: #eef2f8;
-  --color-texto-2: #aeb9cc;
+  --color-texto-2: #aab5c8;
   --color-rojo: #d7262e;
-  --color-rojo-vivo: #ff4040;
+  --color-rojo-vivo: #ff4d4d;
   --color-azul: #1f5fe0;
-  --color-azul-vivo: #3b8bff;
+  --color-azul-vivo: #4b93ff;
   --color-cromo: #e6ebf2;
-  --color-sombra: #000;
+  --color-sombra: #05070b;
 
   --font-sans: "Barlow", system-ui, sans-serif;
   --font-titulo: "Barlow Condensed", "Barlow", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --shadow-dura: 6px 6px 0 var(--color-sombra);
-  --shadow-boton: 4px 4px 0 var(--color-sombra);
-  --shadow-boton-hundido: 2px 2px 0 var(--color-sombra);
-  --shadow-hundido: inset 2px 2px 0 #05080f;
+  /* Sombra corta y sin difuminar: el guiño a las ventanas de antes. */
+  --shadow-dura: 4px 4px 0 var(--color-sombra);
+  --shadow-boton: 3px 3px 0 var(--color-sombra);
+  --shadow-boton-hundido: 1px 1px 0 var(--color-sombra);
 }
 
 /* Base de 18px: todo el sistema (rem) crece junto, y nada queda por debajo de 16px. */
@@ -40,8 +42,11 @@ html {
   color-scheme: dark;
 }
 
+/* Fondo con una cuadrícula de puntos muy tenue, como papel técnico. */
 body {
-  background: var(--color-fondo);
+  background-color: var(--color-fondo);
+  background-image: radial-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 22px 22px;
   color: var(--color-texto);
   font-family: var(--font-sans);
   font-weight: 500;
@@ -53,25 +58,10 @@ body {
   font-family: var(--font-titulo);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-/* El único degradado del sistema: la barra de título de las ventanas. */
-.barra-titulo {
-  background: linear-gradient(90deg, var(--color-rojo), #6b1f3f 45%, var(--color-azul));
-}
-
-/* Franja de advertencia, con moderación: login y encima del botón de siguiente paso. */
-.franja-peligro {
-  height: 6px;
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--color-rojo) 0 10px,
-    #000 10px 20px
-  );
+  letter-spacing: 0.05em;
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-azul-vivo);
+  outline: 2px solid var(--color-azul-vivo);
   outline-offset: 2px;
 }

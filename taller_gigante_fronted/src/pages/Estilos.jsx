@@ -122,15 +122,15 @@ export default function Estilos() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
             {COLORES.map(([nombre, clase]) => (
               <div key={nombre}>
-                <div className={`h-16 border-2 border-linea ${clase}`} />
+                <div className={`h-16 border border-linea ${clase}`} />
                 <p className="mt-1 font-mono text-base text-texto-2">{nombre}</p>
               </div>
             ))}
           </div>
-          <div className="barra-titulo mt-6 h-10" />
-          <p className="mt-1 text-base text-texto-2">Degradado de las barras de título (el único del sistema).</p>
-          <div className="franja-peligro mt-6" />
-          <p className="mt-1 text-base text-texto-2">Franja de advertencia (solo en el login y el botón de siguiente paso).</p>
+          <p className="mt-6 text-base text-texto-2">
+            Rojo para la acción principal y lo urgente; azul para navegar y lo que está en proceso.
+            Sin degradados.
+          </p>
         </Ventana>
 
         <Ventana titulo="Letras">

@@ -2,7 +2,8 @@ import { useId } from "react";
 import { AlertTriangle } from "lucide-react";
 
 // Campo de formulario: etiqueta arriba siempre visible (nunca solo el
-// placeholder), caja "hundida" y el error debajo en palabras claras.
+// placeholder), caja plana un poco más oscura que el panel y el error debajo
+// en palabras claras.
 // Con `multilinea` es un <textarea>. El resto de props van al input.
 
 export default function Campo({
@@ -20,8 +21,8 @@ export default function Campo({
   const describe = [ayuda && idAyuda, error && idError].filter(Boolean).join(" ") || undefined;
 
   const clasesCaja =
-    "w-full border-2 bg-panel-hundido px-4 text-lg text-texto shadow-hundido placeholder:text-acero " +
-    "focus:border-azul-vivo focus:outline-none " +
+    "w-full border bg-panel-hundido px-4 text-lg text-texto placeholder:text-acero/80 " +
+    "transition-colors focus:border-azul-vivo focus:outline-none focus:ring-2 focus:ring-azul-vivo/25 " +
     (error ? "border-rojo" : "border-linea");
 
   const Control = multilinea ? "textarea" : "input";

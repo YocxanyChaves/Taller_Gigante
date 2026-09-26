@@ -58,13 +58,15 @@ export default function Login() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <img src={logo} alt="Taller Mecánico Gigante" className="mx-auto mb-6 w-72" />
+        <img src={logo} alt="Taller Mecánico Gigante" className="mx-auto mb-8 w-64" />
 
-        <section className="border-2 border-linea bg-panel shadow-dura">
-          <h1 className="barra-titulo rotulo px-4 py-2 text-lg text-white">Entrar al sistema</h1>
-          <div className="franja-peligro" />
+        <section className="border border-linea bg-panel shadow-dura">
+          <h1 className="rotulo flex items-center gap-3 border-b border-linea px-5 py-3 text-lg text-texto-2">
+            <span aria-hidden="true" className="size-2.5 bg-rojo" />
+            Entrar al sistema
+          </h1>
 
-          <form onSubmit={entrar} className="flex flex-col gap-5 p-5" noValidate>
+          <form onSubmit={entrar} className="flex flex-col gap-5 p-5 sm:p-6" noValidate>
             <Campo
               etiqueta="Correo"
               type="email"
@@ -93,7 +95,7 @@ export default function Login() {
             </div>
 
             {error && (
-              <p role="alert" className="border-2 border-rojo bg-rojo/15 p-3 text-lg text-texto">
+              <p role="alert" className="border border-rojo/60 border-l-4 border-l-rojo bg-rojo/10 p-3 text-lg text-texto">
                 {error}
               </p>
             )}

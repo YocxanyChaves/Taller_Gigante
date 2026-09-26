@@ -31,21 +31,25 @@ export default function Confirmar({
   if (!abierto) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirmar-titulo"
         aria-describedby="confirmar-mensaje"
-        className="w-full max-w-lg border-2 border-linea bg-panel shadow-dura"
+        className="w-full max-w-lg border border-linea bg-panel shadow-dura"
       >
-        <h2 id="confirmar-titulo" className="barra-titulo rotulo px-4 py-2 text-lg text-white">
+        <h2
+          id="confirmar-titulo"
+          className="rotulo flex items-center gap-3 border-b border-linea px-5 py-3 text-lg text-texto-2"
+        >
+          <span aria-hidden="true" className={`size-2.5 shrink-0 ${peligro ? "bg-rojo" : "bg-azul-vivo"}`} />
           {titulo}
         </h2>
         <div id="confirmar-mensaje" className="p-5 text-lg text-texto">
           {children}
         </div>
-        <div className="flex flex-col-reverse gap-4 border-t-2 border-linea p-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-4 border-t border-linea p-5 sm:flex-row sm:justify-end">
           <Boton ref={refCancelar} variante="secundario" onClick={alCancelar}>
             {textoCancelar}
           </Boton>
