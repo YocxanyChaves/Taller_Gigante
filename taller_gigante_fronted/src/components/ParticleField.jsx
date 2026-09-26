@@ -1,21 +1,20 @@
 import { motion } from "framer-motion"
-import { useMemo } from "react"
 import { useTheme } from "../context/ThemeContext"
+
+// Se generan una sola vez al cargar la página (fuera del componente, para que
+// el render no dependa de Math.random).
+const particles = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 4 + 2,
+    duration: Math.random() * 10 + 15,
+    delay: Math.random() * 5,
+    moveX: Math.random() * 15 - 7.5,
+}))
 
 export function ParticleField() {
     const { theme } = useTheme()
-
-    const particles = useMemo(() => {
-        return Array.from({ length: 30 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: Math.random() * 4 + 2,
-        duration: Math.random() * 10 + 15,
-        delay: Math.random() * 5,
-        moveX: Math.random() * 15 - 7.5,
-        }))
-    }, [])
 
     const color = theme === "dark" ? "59, 130, 246" : "168, 70, 15"
 

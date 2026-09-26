@@ -32,31 +32,34 @@ export default function Clientes() {
   const [ordenesPendientes, setOrdenesPendientes] = useState(null); // { cliente, ordenes, cantidadVehiculos }
   const [eliminacion, setEliminacion] = useState(null); // { cliente, cantidadVehiculos }
 
-  const recargarClientes = async () => {
-    setLoading(true);
-    setError("");
-
-    const { data, error: fetchError } = await listarClientes();
-
+  const aplicarClientes = ({ data, error: fetchError }) => {
     if (fetchError) {
       setError(fetchError.message);
     } else {
+      setError("");
       setClientes(data);
     }
-
     setLoading(false);
   };
 
-  const recargarSolicitudes = async () => {
-    setLoadingSolicitudes(true);
-    const { data, error: fetchError } = await listarSolicitudesPendientes();
+  const aplicarSolicitudes = ({ data, error: fetchError }) => {
     if (!fetchError) setSolicitudes(data || []);
     setLoadingSolicitudes(false);
   };
 
+  const recargarClientes = () => {
+    setLoading(true);
+    listarClientes().then(aplicarClientes);
+  };
+
+  const recargarSolicitudes = () => {
+    setLoadingSolicitudes(true);
+    listarSolicitudesPendientes().then(aplicarSolicitudes);
+  };
+
   useEffect(() => {
-    recargarClientes();
-    recargarSolicitudes();
+    listarClientes().then(aplicarClientes);
+    listarSolicitudesPendientes().then(aplicarSolicitudes);
   }, []);
 
   const recargarTodo = () => {
