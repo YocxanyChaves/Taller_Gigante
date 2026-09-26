@@ -93,7 +93,7 @@ alguien inicia sesión); se unen con `clientes.user_id`. Detalle completo en
 
 | Fase | Objetivo | Estado |
 |---|---|---|
-| 0 | Ordenar la casa: seguridad, rendimiento, tipos de datos, código más pequeño y documentación | 🟡 En curso |
+| 0 | Ordenar la casa: seguridad, rendimiento, tipos de datos, código más pequeño y documentación | ✅ Hecha (falta la prueba manual) |
 | 1 | Núcleo del taller: recepción del carro con fotos, órdenes con ítems, estados reales y pagos | ⬜ |
 | 2 | Portal: registro solo por invitación (link por WhatsApp) y aprobar cotizaciones | ⬜ |
 | 3 | Retención: recordatorios de mantenimiento, correos, PDF de la orden y página pública | ⬜ |
@@ -107,12 +107,16 @@ alguien inicia sesión); se unen con `clientes.user_id`. Detalle completo en
 - ✅ Políticas RLS optimizadas e índices nuevos (el linter de Supabase queda sin advertencias de rendimiento).
 - ✅ Costos y kilometraje como números, fecha de entrega opcional y placa única.
 - ✅ Un solo `useAuth` en lugar de siete consultas de sesión y rol repartidas.
-- ✅ `Clientes.jsx` (1183 → 235 líneas) y `ClientePortal.jsx` (870 → 103) partidos en componentes y servicios.
+- ✅ Páginas partidas en componentes y servicios: `Clientes` (1183 → 235 líneas),
+  `ClientePortal` (870 → 103), `Dashboard` (525 → 146), `Vehiculos` (496 → 102),
+  `Ordenes` (461 → 102) y `Register` (419 → 294). Ningún archivo pasa de 400 líneas.
+- ✅ `npm run lint` sin errores (había 12).
+- ✅ Arreglos de paso: los errores de los formularios se ven dentro de la ventana, y
+  "marcar revisión DEKRA como hecha" ya no guarda la fecha de mañana después de las 6 p. m.
 
 ### Pendiente
 
-- Archivos que todavía pasan de ~400 líneas: `Dashboard.jsx`, `Vehiculos.jsx`, `Ordenes.jsx` y `Register.jsx`.
-- 11 errores del linter heredados (sobre todo `setState` dentro de `useEffect` y `Math.random` en `ParticleField`).
+- Probar a mano los flujos principales con admin, demo y cliente (entrar y salir, Clientes, Vehículos, Órdenes, Configuración y el portal).
 - Decisiones abiertas con el taller: ¿el demo sigue editable (con reinicio nocturno) o
   pasa a solo lectura?, ¿renombrar la columna `año` → `anio`?, ¿se quita *bloquear cliente*?,
   ¿el cliente puede agregar vehículos desde el portal?, estados finales de las órdenes,
