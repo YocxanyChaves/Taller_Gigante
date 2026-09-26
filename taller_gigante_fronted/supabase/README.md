@@ -15,6 +15,7 @@ mano en el dashboard. El nombre es `AAAAMMDDHHMMSS_descripcion.sql`.
 |---|---|
 | `20260926202645_esquema_base.sql` | Foto completa del esquema al 26/09/2026. Consolida todo lo anterior (las tablas originales se crearon a mano). Sirve para levantar una base nueva desde cero. |
 | `20260926202646_seguridad_registro_y_roles.sql` | Cierra dos huecos: registrarse como admin y quedar vinculado a la ficha de otro cliente por su teléfono. |
+| `20260926203615_rendimiento_politicas_e_indices.sql` | Índices en llaves foráneas y políticas RLS optimizadas (misma lógica, una política por acción). |
 
 > **Si algún día se usa el CLI de Supabase:** el historial remoto tiene 23
 > migraciones de julio 2026 que no están como archivos (quedaron dentro del
@@ -40,7 +41,11 @@ auth.users ──1:1── usuarios (rol: admin | demo | cliente)
 
 ## Roles y seguridad (RLS)
 
-Todas las tablas tienen RLS. Las políticas preguntan el rol con `get_my_role()`.
+Todas las tablas tienen RLS, con una política por acción (`<tabla>_select`,
+`_insert`, `_update`, `_delete`) y solo para `authenticated`: sin sesión no se
+ve nada. Las políticas preguntan el rol con `(select public.get_my_role())` y el
+usuario con `(select auth.uid())`; el `select` hace que se calcule una vez por
+consulta y no por fila. Usa ese mismo formato en tablas nuevas.
 
 | Rol | Ve | Puede cambiar |
 |---|---|---|
