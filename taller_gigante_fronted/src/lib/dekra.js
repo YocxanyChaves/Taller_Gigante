@@ -76,8 +76,14 @@ export function calcularEstadoDekra(placa, ultimaRevision, hoy = new Date()) {
     ({ inicio, fin } = construirVentana(hoy.getFullYear() + 1));
   }
 
+  // Una revisión solo cuenta como "ya hecha" si de verdad ya ocurrió. Si
+  // alguien guardó una fecha futura por error (o como un recordatorio de
+  // una cita agendada), todavía no cuenta como completada y la alerta debe
+  // seguir activa hasta que la fecha ya haya pasado.
   const yaHechaEsteCiclo =
-    ultimaRevision && new Date(ultimaRevision) >= inicio;
+    ultimaRevision &&
+    new Date(ultimaRevision) >= inicio &&
+    new Date(ultimaRevision) <= hoy;
 
   const dentroDeVentana = hoy >= inicio && hoy <= fin && !yaHechaEsteCiclo;
 

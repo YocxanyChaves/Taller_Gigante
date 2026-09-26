@@ -43,6 +43,13 @@ function formatMonto(numero) {
   return `₡${numero.toLocaleString("es-CR", { maximumFractionDigits: 0 })}`;
 }
 
+function firmaDeAlertas(alertas) {
+  return alertas
+    .map((a) => a.id)
+    .sort((a, b) => a - b)
+    .join(",");
+}
+
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([]);
@@ -51,13 +58,31 @@ export default function Dashboard() {
   const [actividad, setActividad] = useState([]);
   const [nombre, setNombre] = useState("");
   const [alertasDekra, setAlertasDekra] = useState([]);
-  const [alertaDekraOculta, setAlertaDekraOculta] = useState(
-    () => sessionStorage.getItem("dekra_alerta_oculta") === "1"
+  const [firmaAlertaCerrada, setFirmaAlertaCerrada] = useState(
+    () => sessionStorage.getItem("dekra_firma_cerrada") || ""
   );
+  const [marcandoDekraId, setMarcandoDekraId] = useState(null);
 
   const cerrarAlertaDekra = () => {
-    sessionStorage.setItem("dekra_alerta_oculta", "1");
-    setAlertaDekraOculta(true);
+    const firma = firmaDeAlertas(alertasDekra);
+    sessionStorage.setItem("dekra_firma_cerrada", firma);
+    setFirmaAlertaCerrada(firma);
+  };
+
+  const marcarDekraHecha = async (vehiculoId) => {
+    setMarcandoDekraId(vehiculoId);
+
+    const hoyISO = new Date().toISOString().slice(0, 10);
+    const { error } = await supabase
+      .from("vehiculos")
+      .update({ ultima_revision_tecnica: hoyISO })
+      .eq("id", vehiculoId);
+
+    setMarcandoDekraId(null);
+
+    if (error) return;
+
+    setAlertasDekra((prev) => prev.filter((v) => v.id !== vehiculoId));
   };
 
   useEffect(() => {
@@ -270,7 +295,9 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {!loading && alertasDekra.length > 0 && !alertaDekraOculta && (
+        {!loading &&
+          alertasDekra.length > 0 &&
+          firmaDeAlertas(alertasDekra) !== firmaAlertaCerrada && (
           <section className="relative rounded-2xl border border-red-500/15 bg-red-500/[0.04] p-4">
             <button
               onClick={cerrarAlertaDekra}
@@ -300,8 +327,21 @@ export default function Dashboard() {
               {alertasDekra.map((v) => (
                 <div
                   key={v.id}
-                  className="rounded-xl border border-red-500/10 bg-card/40 px-3.5 py-2.5"
+                  className="relative rounded-xl border border-red-500/10 bg-card/40 px-3.5 py-2.5 pr-9"
                 >
+                  <button
+                    onClick={() => marcarDekraHecha(v.id)}
+                    disabled={marcandoDekraId === v.id}
+                    title="Marcar revisión como hecha"
+                    className="absolute top-2 right-2 rounded-md p-1 text-muted-foreground hover:bg-emerald-500/15 hover:text-emerald-600 dark:hover:text-emerald-300 transition disabled:opacity-50"
+                  >
+                    {marcandoDekraId === v.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+
                   <p className="text-sm font-semibold text-foreground">
                     {v.placa}
                     {(v.marca || v.modelo) && (

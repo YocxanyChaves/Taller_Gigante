@@ -30,7 +30,7 @@ export default function App() {
         setSession(newSession);
 
         if (_event === "SIGNED_IN") {
-          sessionStorage.removeItem("dekra_alerta_oculta");
+          sessionStorage.removeItem("dekra_firma_cerrada");
         }
       }
     );
