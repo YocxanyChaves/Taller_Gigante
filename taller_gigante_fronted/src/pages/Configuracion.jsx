@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Layout } from "../components/layout/Layout";
 import { supabase } from "../lib/supabaseClient";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import {
   Settings,
   User,
@@ -17,16 +18,14 @@ import {
 
 const rolLabels = {
   admin: "Administrador",
-  demo: "Demo (solo lectura, datos enmascarados)",
+  demo: "Demo (datos de prueba separados de los reales)",
   cliente: "Cliente",
 };
 
 export default function Configuracion() {
   const { theme, toggleTheme } = useTheme();
 
-  const [usuario, setUsuario] = useState(null);
-  const [perfil, setPerfil] = useState(null);
-  const [cargandoUsuario, setCargandoUsuario] = useState(true);
+  const { user: usuario, rol, nombre, refrescarPerfil } = useAuth();
 
   const [editandoCuenta, setEditandoCuenta] = useState(false);
   const [nombreEdit, setNombreEdit] = useState("");
@@ -41,33 +40,8 @@ export default function Configuracion() {
   const [errorPassword, setErrorPassword] = useState("");
   const [exitoPassword, setExitoPassword] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      setUsuario(data.user);
-
-      if (data.user) {
-        const { data: fila } = await supabase
-          .from("usuarios")
-          .select("nombre, rol")
-          .eq("id", data.user.id)
-          .maybeSingle();
-        setPerfil(fila || null);
-      }
-
-      setCargandoUsuario(false);
-    });
-  }, []);
-
-  const rol = perfil?.rol || usuario?.user_metadata?.rol || "—";
-  const nombre =
-    perfil?.nombre ||
-    usuario?.user_metadata?.nombre ||
-    usuario?.user_metadata?.full_name ||
-    usuario?.user_metadata?.name ||
-    "—";
-
   const abrirEdicionCuenta = () => {
-    setNombreEdit(nombre === "—" ? "" : nombre);
+    setNombreEdit(nombre);
     setCorreoEdit(usuario?.email || "");
     setErrorCuenta("");
     setExitoCuenta("");
@@ -95,7 +69,7 @@ export default function Configuracion() {
         return;
       }
 
-      setPerfil((prev) => ({ ...(prev || {}), nombre: nombreEdit.trim() }));
+      await refrescarPerfil();
     }
 
     if (correoCambio) {
@@ -174,7 +148,7 @@ export default function Configuracion() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-foreground">Tu cuenta</h2>
 
-            {puedeEditarCuenta && !cargandoUsuario && !editandoCuenta && (
+            {puedeEditarCuenta && !editandoCuenta && (
               <button
                 onClick={abrirEdicionCuenta}
                 className="flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
@@ -199,9 +173,7 @@ export default function Configuracion() {
             </div>
           )}
 
-          {cargandoUsuario ? (
-            <p className="text-sm text-muted-foreground">Cargando...</p>
-          ) : editandoCuenta ? (
+          {editandoCuenta ? (
             <form onSubmit={handleGuardarCuenta} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">

@@ -24,6 +24,7 @@ import {
 } from "recharts";
 import { calcularEstadoDekra } from "../lib/dekra";
 import { formatoColones } from "../lib/formato";
+import { useAuth } from "../context/AuthContext";
 
 const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
@@ -46,7 +47,8 @@ export default function Dashboard() {
   const [ordenesRecientes, setOrdenesRecientes] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [actividad, setActividad] = useState([]);
-  const [nombre, setNombre] = useState("");
+  const { nombre: nombreCompleto } = useAuth();
+  const nombre = nombreCompleto.split(" ")[0] || nombreCompleto;
   const [alertasDekra, setAlertasDekra] = useState([]);
   const [firmaAlertaCerrada, setFirmaAlertaCerrada] = useState(
     () => sessionStorage.getItem("dekra_firma_cerrada") || ""
@@ -75,28 +77,6 @@ export default function Dashboard() {
     setAlertasDekra((prev) => prev.filter((v) => v.id !== vehiculoId));
   };
 
-  useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      const user = data.user;
-      if (!user) return;
-
-      const { data: perfil } = await supabase
-        .from("usuarios")
-        .select("nombre")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const meta = user.user_metadata;
-      const nombreCompleto =
-        perfil?.nombre ||
-        meta?.nombre ||
-        meta?.full_name ||
-        meta?.name ||
-        user.email ||
-        "";
-      setNombre(nombreCompleto.split(" ")[0] || nombreCompleto);
-    });
-  }, []);
 
   useEffect(() => {
     const cargarDashboard = async () => {

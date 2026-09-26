@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "../Logo";
-import { supabase } from "../../lib/supabaseClient";
+import { useAuth } from "../../context/AuthContext";
 import {
     LayoutDashboard,
     Users,
@@ -24,22 +23,10 @@ import {
 
     export function Sidebar({ open = false, onClose = () => {} }) {
     const location = useLocation();
-    const [rol, setRol] = useState(null);
-
-    useEffect(() => {
-        supabase.auth.getUser().then(async ({ data }) => {
-        if (!data.user) return;
-        const { data: fila } = await supabase
-            .from("usuarios")
-            .select("rol")
-            .eq("id", data.user.id)
-            .maybeSingle();
-        setRol(fila?.rol || null);
-        });
-    }, []);
+    const { esAdmin } = useAuth();
 
     const menuItems =
-        rol === "admin"
+        esAdmin
         ? [
             ...baseMenuItems,
             { name: "Usuarios", icon: UserCog, path: "/usuarios" },

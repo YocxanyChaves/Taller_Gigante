@@ -2,42 +2,35 @@ import { useEffect, useState } from "react";
 import { Layout } from "../components/layout/Layout";
 import { supabase } from "../lib/supabaseClient";
 import { UserCog, AlertCircle } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const rolLabels = {
   admin: "Administrador",
-  demo: "Demo (solo lectura, datos enmascarados)",
+  demo: "Demo (datos de prueba separados de los reales)",
   cliente: "Cliente",
 };
 
 export default function Usuarios() {
-  const [usuarioActual, setUsuarioActual] = useState(null);
+  const { user: usuarioActual } = useAuth();
   const [listaUsuarios, setListaUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [cambiandoRolId, setCambiandoRolId] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      setUsuarioActual(data.user);
-      await fetchListaUsuarios();
-      setCargando(false);
-    });
-  }, []);
-
-  const fetchListaUsuarios = async () => {
-    setError("");
-
-    const { data, error: fetchError } = await supabase
+    supabase
       .from("usuarios")
       .select("id, nombre, correo, rol")
-      .order("nombre");
-
-    if (fetchError) {
-      setError(fetchError.message);
-    } else {
-      setListaUsuarios(data || []);
-    }
-  };
+      .order("nombre")
+      .then(({ data, error: fetchError }) => {
+        if (fetchError) {
+          setError(fetchError.message);
+        } else {
+          setListaUsuarios(data || []);
+        }
+        setCargando(false);
+      });
+  }, []);
 
   const handleCambiarRol = async (usuarioId, nuevoRol) => {
     setError("");

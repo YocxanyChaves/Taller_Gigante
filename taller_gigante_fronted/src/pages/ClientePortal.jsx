@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
 import { Logo } from "../components/Logo";
 import { formatoColones } from "../lib/formato";
 import { mensajeError } from "../lib/errores";
@@ -61,8 +62,8 @@ const emptyVehiculoForm = {
 
 export default function ClientePortal() {
   const { theme, toggleTheme } = useTheme();
-  const [userId, setUserId] = useState(null);
-  const [nombre, setNombre] = useState("");
+  const { user, nombre, cerrarSesion: handleLogout } = useAuth();
+  const userId = user?.id ?? null;
   const [menuOpen, setMenuOpen] = useState(false);
   const [cargando, setCargando] = useState(true);
   const [cliente, setCliente] = useState(null);
@@ -83,30 +84,6 @@ export default function ClientePortal() {
   const [formVehiculo, setFormVehiculo] = useState(emptyVehiculoForm);
   const [guardandoVehiculo, setGuardandoVehiculo] = useState(false);
   const [errorVehiculo, setErrorVehiculo] = useState("");
-
-  useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      const user = data.user;
-      if (!user) return;
-      setUserId(user.id);
-
-      const { data: perfil } = await supabase
-        .from("usuarios")
-        .select("nombre")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const meta = user.user_metadata;
-      setNombre(
-        perfil?.nombre ||
-          meta?.nombre ||
-          meta?.full_name ||
-          meta?.name ||
-          user.email ||
-          ""
-      );
-    });
-  }, []);
 
   const cargarDatos = async () => {
     setCargando(true);
@@ -145,11 +122,6 @@ export default function ClientePortal() {
 
     cargarSolicitud();
   }, [cargando, cliente, userId]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/";
-  };
 
   const abrirEdicion = () => {
     setFormEdit({

@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Home from "./pages/Home";
@@ -14,47 +13,12 @@ import Historial from "./pages/Historial";
 import Configuracion from "./pages/Configuracion";
 import Usuarios from "./pages/Usuarios";
 import ClientePortal from "./pages/ClientePortal";
-import { supabase } from "./lib/supabaseClient";
+import { useAuth } from "./context/AuthContext";
 
 export default function App() {
-  const [session, setSession] = useState(undefined); // undefined = cargando
-  const [rol, setRol] = useState(undefined); // undefined = no cargado aún
+  const { user, rol, loading } = useAuth();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, newSession) => {
-        setSession(newSession);
-
-        if (_event === "SIGNED_IN") {
-          sessionStorage.removeItem("dekra_firma_cerrada");
-        }
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!session) {
-      setRol(undefined);
-      return;
-    }
-
-    supabase
-      .from("usuarios")
-      .select("rol")
-      .eq("id", session.user.id)
-      .single()
-      .then(({ data }) => {
-        setRol(data?.rol || "cliente");
-      });
-  }, [session]);
-
-  if (session === undefined || (session && rol === undefined)) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-zinc-400">
         Cargando...
@@ -63,19 +27,19 @@ export default function App() {
   }
 
   const protectAdmin = (element) => {
-    if (!session) return <Login />;
+    if (!user) return <Login />;
     if (rol === "cliente") return <Navigate to="/portal" replace />;
     return element;
   };
 
   const protectCliente = (element) => {
-    if (!session) return <Login />;
+    if (!user) return <Login />;
     if (rol !== "cliente") return <Navigate to="/dashboard" replace />;
     return element;
   };
 
   const protectSoloAdmin = (element) => {
-    if (!session) return <Login />;
+    if (!user) return <Login />;
     if (rol !== "admin") return <Navigate to="/dashboard" replace />;
     return element;
   };

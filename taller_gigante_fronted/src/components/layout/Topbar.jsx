@@ -1,40 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, Search, UserCircle, LogOut, Sun, Moon, ChevronDown } from "lucide-react";
-import { supabase } from "../../lib/supabaseClient";
 import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
 
 export function Topbar({ onMenuClick = () => {} }) {
-  const [nombre, setNombre] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
-
-  useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      const user = data.user;
-      if (!user) return;
-
-      const { data: perfil } = await supabase
-        .from("usuarios")
-        .select("nombre")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const meta = user.user_metadata;
-      setNombre(
-        perfil?.nombre ||
-          meta?.nombre ||
-          meta?.full_name ||
-          meta?.name ||
-          user.email ||
-          ""
-      );
-    });
-  }, []);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/";
-  };
+  const { nombre, cerrarSesion: handleLogout } = useAuth();
 
   return (
     <header className="sticky top-0 z-20 h-20 border-b border-foreground/10 bg-card/70 backdrop-blur-xl flex items-center justify-between px-4 sm:px-8 gap-3 transition-colors duration-300">
