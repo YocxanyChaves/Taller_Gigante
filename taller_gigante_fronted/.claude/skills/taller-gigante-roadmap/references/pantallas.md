@@ -45,15 +45,15 @@ Teléfono normalizado a `506` + 8 dígitos. Texto con `encodeURIComponent`. Siem
 
 ## Cobros
 
+Arriba: tarjetas Cobrado este mes · Por cobrar · Ganancia del mes (cuentan hacia arriba) y el gráfico de plata (ver `diseno.md`) con selector [Últimos 6 meses] [Este año]. Debajo:
 Lista de quién debe: cliente, carro, saldo grande, desde cuándo, último abono. Botones: [Registrar abono] (monto + método, sugiere el saldo) [Recordar por WhatsApp]. Total por cobrar arriba.
 
-## Inicio
+## Inicio (hecho en la fase 2)
 
-1. Saludo corto + botón "Nuevo trabajo".
-2. Cuatro tarjetas: En el taller · Esperando respuesta · Listos para recoger · Por cobrar (₡). Cada una lleva a su lista.
-3. Gráfico de plata (ver `diseno.md`), con selector: [Últimos 6 meses] [Este año].
-4. Aviso de DEKRA si hay carros por pasar revisión.
-Nada más.
+1. Fecha, saludo según la hora y "¿Qué desea hacer?".
+2. Menú de 4 opciones grandes: Recibir un carro (rojo) · Carros en el taller · Buscar un cliente · Cobrar y entregar.
+3. "Para hoy": carros listos para recoger, clientes que no han respondido el precio y (fase 5) carros por pasar DEKRA, cada uno con su semaforito.
+Nada más. Las tarjetas de plata y el gráfico van en Cobros.
 
 ## Clientes
 

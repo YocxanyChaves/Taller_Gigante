@@ -8,7 +8,7 @@ Orden pensado para que cada fase deje algo usable. No mezclar fases. Cada una ci
 - Fase 2 — Base del frontend nuevo (diseño + estructura)
 - Fase 3 — Trabajos: nuevo trabajo, tablero y siguiente paso
 - Fase 4 — Link del cliente y WhatsApp
-- Fase 5 — Cobros e Inicio (dashboard con plata)
+- Fase 5 — Cobros (con el gráfico de plata) y el resto de Inicio
 - Fase 6 — Clientes
 - Fase 7 — Extras
 
@@ -42,7 +42,7 @@ Listo cuando: se puede simular por SQL un trabajo completo de cita a entregado c
 En rama `v2`. Detalle visual en `diseno.md`.
 1. Tokens de diseño (CSS variables) + fuentes.
 2. Componentes base: `Ventana`, `Boton` (primario/secundario/peligro), `Campo` (input con etiqueta), `Tarjeta` de número, `Insignia` de estado, `Asistente` (pasos), `Confirmar` (diálogo), `Vacio` (estado sin datos con instrucción).
-3. Estructura: barra lateral o superior con 4 botones grandes con texto (Inicio, Trabajos, Clientes, Cobros) + botón rojo fijo "+ Nuevo trabajo" visible en todas las pantallas.
+3. Estructura (hecha): Inicio es un menú "¿Qué desea hacer?" con 4 opciones grandes; las demás pantallas tienen "← Inicio" y el botón rojo "Recibir un carro" arriba.
 4. Login nuevo (solo correo y contraseña, mensajes de error en español claro).
 5. `AuthContext` + `useAuth()` único.
 6. Página `/estilos` (solo admin) que muestre todos los componentes, para revisar el diseño con la dueña antes de seguir.
@@ -68,12 +68,12 @@ Listo cuando: el tío (o la dueña haciendo de tío) puede llevar un carro de ci
 
 Listo cuando: desde un celular sin sesión se abre el link, se aprueba, y el trabajo avanza solo a "Esperando repuestos" en la pantalla del tío.
 
-## Fase 5 — Cobros e Inicio
+## Fase 5 — Cobros y el resto de Inicio
 
 1. Entregar y cobrar: contado o cuotas; registrar abonos; saldo.
 2. Pantalla Cobros: quién debe, cuánto, desde cuándo, botón "Registrar abono" y "Recordar por WhatsApp".
-3. Inicio: 4 tarjetas + gráfico de plata (ver `diseno.md` y `datos.md`) + botón "Nuevo trabajo". Sin tablas de órdenes recientes ni actividad reciente.
-4. Alertas de DEKRA (reusar `lib/dekra.js`) como aviso pequeño en Inicio.
+3. Cobros lleva arriba las tarjetas de plata y el gráfico (ver `diseno.md` y `datos.md`). Inicio se queda como menú + "Para hoy" (ya muestra listos y esperando respuesta con `resumen_inicio()`). Sin tablas de órdenes recientes ni actividad reciente.
+4. Alertas de DEKRA (reusar `lib/dekra.js`) como una línea más en el "Para hoy" de Inicio.
 
 ## Fase 6 — Clientes
 

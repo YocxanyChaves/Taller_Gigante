@@ -8,7 +8,7 @@ sistema funcionando sin exponer datos reales.
 ## Stack
 
 - **Frontend:** React 19 + Vite + Tailwind CSS 4, React Router e íconos Lucide. Letras
-  Barlow, Chakra Petch y JetBrains Mono (instaladas, no dependen de internet).
+  Atkinson Hyperlegible (instalada, no depende de internet).
 - **Backend:** [Supabase](https://supabase.com): Postgres, login (Auth) y seguridad por fila (RLS).
   No hay servidor propio: la lógica sensible vive en la base (políticas, triggers y funciones).
 
@@ -69,13 +69,15 @@ dígito de la placa (`src/lib/dekra.js`).
 ```
 src/
 ├─ pages/            una pantalla por ruta (Login, Inicio, Trabajos, Clientes, Cobros, Estilos…)
+├─ services/         consultas a Supabase por pantalla
 ├─ components/
-│  ├─ ui/            piezas del sistema de diseño: Ventana, Boton, Campo, TarjetaNumero,
-│  │                 Insignia, Asistente, Confirmar y Vacio (todas se ven en /estilos)
-│  └─ layout/        Marco (barra lateral en compu, barra de abajo en celular) y Encabezado
+│  ├─ ui/            piezas del sistema de diseño: Ventana, Boton, Campo, Placa, Semaforo,
+│  │                 Insignia, TarjetaNumero, OpcionMenu, Asistente, Confirmar, Confeti y
+│  │                 Vacio (todas se ven en /estilos)
+│  └─ layout/        Marco ("← Inicio" y "Recibir un carro" arriba) y Encabezado
 ├─ context/
 │  └─ AuthContext    quién inició sesión y con qué rol → useAuth()
-└─ lib/              supabaseClient, estados, formato (₡, km, fechas), errores, dekra
+└─ lib/              supabaseClient, estados (semáforo), formato, useContar, errores, dekra
 supabase/
 ├─ migrations/       todos los cambios a la base, en orden
 └─ README.md         tablas, funciones, triggers y políticas explicados

@@ -1,6 +1,6 @@
 ---
 name: taller-gigante-roadmap
-description: Plan completo para reconstruir el sistema "Taller Mecánico Gigante" (React + Vite + Supabase) — flujo del taller, base de datos, diseño tecnológico futurista (rojo principal, azul secundario) y fases de trabajo. Úsala SIEMPRE que se trabaje en este proyecto — base de datos, seguridad, pantallas, componentes, estilos, trabajos/órdenes, cotizaciones, WhatsApp, cobros, cuotas, dashboard, gráfico, clientes, link del cliente, DEKRA — aunque no se mencione el plan ni las fases.
+description: Plan completo para reconstruir el sistema "Taller Mecánico Gigante" (React + Vite + Supabase) — flujo del taller, base de datos, diseño claro y vivo (rojo del logo, semáforo para el proceso, animaciones) y fases de trabajo. Úsala SIEMPRE que se trabaje en este proyecto — base de datos, seguridad, pantallas, componentes, estilos, trabajos/órdenes, cotizaciones, WhatsApp, cobros, cuotas, dashboard, gráfico, clientes, link del cliente, DEKRA — aunque no se mencione el plan ni las fases.
 ---
 
 # Taller Gigante — plan de reconstrucción
@@ -36,8 +36,8 @@ Principios de uso (no negociables):
 
 - **Sin cuentas de clientes.** Solo inician sesión el tío/admin y el demo. Cada trabajo tiene un **link único** (token) que el cliente abre sin registrarse: ve el estado, el diagnóstico, el detalle del precio, y **aprueba o rechaza** ahí mismo. Se eliminan: rol `cliente`, portal con login, `solicitudes_vinculacion`, `fusionar_cliente_vinculado`, vinculación automática, bloqueo de clientes (confirmar cada borrado).
 - **WhatsApp gratis:** botón que abre `https://wa.me/506XXXXXXXX?text=<mensaje codificado>` con el mensaje ya escrito (el tío solo da enviar) + botón **"Copiar mensaje"** al lado. Nada de WhatsApp API (cuesta).
-- **Pocas pantallas:** Inicio, Trabajos, Clientes, Cobros. Más la página pública del link del cliente y el login.
-- **Diseño tecnológico futurista**: panel de mando con vidrio, luces y brillos (lo retro y lo vintage ya se descartaron). Rojo (del logo) como principal, azul solo secundario. Ver `references/diseno.md` — obligatorio leerlo antes de tocar cualquier componente o estilo.
+- **Pocas pantallas:** Inicio (menú), Carros en el taller, Buscar un cliente, Cobrar y entregar (con el gráfico de plata). Más la página pública del link del cliente y el login.
+- **Diseño claro y vivo**: fondo hueso, tarjetas blancas, letra Atkinson Hyperlegible, rojo del logo, el proceso del carro con colores de semáforo y animaciones divertidas. Inicio es un menú "¿Qué desea hacer?". (Retro, vintage y futurista oscuro ya se descartaron.) Ver `references/diseno.md` — obligatorio leerlo antes de tocar cualquier componente o estilo.
 
 ## Referencias (léelas cuando toque)
 
