@@ -1,44 +1,52 @@
-# Sistema de diseño — "vintage moderno de taller"
+# Sistema de diseño — "tecnológico de otro mundo"
 
-Idea: **un homenaje a las computadoras viejas (Windows 95/98), no una copia.** De ellas quedan las esquinas rectas, el orden y el minimalismo, las etiquetas en mayúscula tipo rótulo, un cuadrito de color en el título de las ventanas y la barra de progreso en bloques. Todo lo demás es **plano y actual**: bordes de 1px, sombras cortas, sin degradados, sin campos "hundidos", sin franjas de advertencia. Tono **varonil, sobrio y de taller**. Nada pastel, nada redondeado, nada "de Pinterest".
+Idea: **un panel de mando futurista.** Fondo espacial casi negro con dos luces grandes de la marca (roja arriba a la izquierda, azul abajo a la derecha) y una cuadrícula fina que se desvanece. Paneles de **vidrio translúcido** (desenfoque del fondo, borde de luz de 1px, sombra profunda), esquinas redondeadas, **brillos** rojos y azules solo en lo importante (botón principal, números, luces de estado). Tono varonil, sobrio y tecnológico. Nada pastel, nada "de Pinterest".
 
-> **Decisión de la dueña (26/09/2026):** la primera versión (barras con degradado, sombras negras de 6px, bordes de 2px, franja rojo/negro) se veía "demasiado anticuada". No volver a ese estilo. Los tokens reales viven en `src/index.css` (`@theme` de Tailwind); `/estilos` muestra todo.
+> **Historial de decisiones de la dueña (26/09/2026):**
+> 1. Retro Windows 98 (degradado en barras, sombras negras de 6px, bordes de 2px, franja rojo/negro): "demasiado anticuado".
+> 2. Vintage moderno (plano, bordes finos, cuadritos): "lo vintage ya vi que no".
+> 3. **Tecnológico futurista (actual).** No volver a lo retro/vintage.
+>
+> Los tokens reales viven en `src/index.css` (`@theme` de Tailwind + clases `.vidrio`, `.luz`, `.numero-brillo`, `.latido`, `.rotulo`); `/estilos` muestra todo.
 
-## Colores (tokens en `@theme`, `src/index.css`)
+## Colores (`@theme`, `src/index.css`)
 
 ```css
---color-fondo: #0b0f17;         /* azul marino casi negro, con cuadrícula de puntos tenue */
---color-panel: #121824;         /* ventanas */
---color-panel-hundido: #0e131d; /* fondo de los campos */
---color-linea: #232e42;         /* bordes (1px) */
---color-acero: #8792a6;         /* texto de apoyo, íconos */
---color-texto: #eef2f8;
---color-texto-2: #aab5c8;
---color-rojo: #d7262e;          /* marca (el logo es rojo): acción principal, urgente, por cobrar */
---color-rojo-vivo: #ff4d4d;     /* rojo sobre fondo oscuro para números/líneas */
---color-azul: #1f5fe0;          /* secundario (el logo no tiene azul): navegación, en proceso */
---color-azul-vivo: #4b93ff;     /* cobrado, enlaces, foco */
---color-cromo: #e6ebf2;         /* ganancia, "listo" */
+--color-fondo: #05070d;        /* casi negro, con luces roja/azul y cuadrícula */
+--color-panel: #0f1522;
+--color-panel-hundido: #0a0f19;
+--color-linea: #1f2a3f;
+--color-acero: #8a96ab;        /* texto de apoyo, íconos */
+--color-texto: #f1f5fb;
+--color-texto-2: #aeb9cc;
+--color-rojo: #e02a33;         /* marca (el logo es rojo): acción principal, urgente, por cobrar */
+--color-rojo-vivo: #ff4d57;
+--color-azul: #2563eb;         /* secundario (el logo no tiene azul): navegación, en proceso */
+--color-azul-vivo: #4f9dff;    /* cobrado, enlaces, foco */
+--color-cromo: #e8eef7;        /* ganancia, "listo" */
 ```
-Rojo = principal; azul = solo secundario (decidido por la dueña). Si llegan los tonos exactos, cambiar solo `--color-rojo` y `--color-azul`.
+Radios: `--radius-panel` 1.25rem (paneles) y `--radius-control` 0.875rem (botones, campos). Sombras: `shadow-panel`, `shadow-brillo-rojo`, `shadow-brillo-azul`.
+Rojo = principal; azul = solo secundario (decidido por la dueña). Si llegan los tonos exactos, cambiar rojo/azul y sus "vivo".
 
 ## Letras
 
-- Títulos y etiquetas cortas (clase `.rotulo`): **Barlow Condensed** 600, MAYÚSCULAS, `letter-spacing: .05em`.
-- Texto normal y botones: **Barlow** 500; base del sitio **18px** (`html { font-size: 112.5% }`), nunca menos de 16px.
-- Números y plata: **JetBrains Mono** 500.
+- Títulos y etiquetas cortas (clase `.rotulo`): **Chakra Petch** 600, MAYÚSCULAS, `letter-spacing: .08em` (futurista pero legible).
+- Texto normal y botones: **Barlow** 500; base del sitio **18px** (`html { font-size: 112.5% }`). **Nunca `text-sm`/`text-xs`** (quedan bajo 16px).
+- Números y plata: **JetBrains Mono** 500, con `.numero-brillo` en tarjetas.
 - Montos: `₡540 mil` en gráficos y tarjetas; `₡540 000` en detalles y cobros.
 
 ## Componentes (`src/components/ui/`)
 
-- **Ventana:** fondo panel, borde 1px línea, sombra `4px 4px 0` casi negra, radio 0. Título: fila con borde inferior, cuadrito rojo de 10px + texto `.rotulo` gris claro. **Sin botones falsos de minimizar/cerrar.**
-- **Botón primario:** rojo plano, texto blanco, sombra `3px 3px 0`, alto mínimo ~56px, ícono + texto siempre. Al tocar se hunde 2px. Uno solo por pantalla.
-- **Secundario:** transparente con borde azul-vivo; **peligro:** borde y texto rojo, siempre con `<Confirmar>`; **gris:** sin sombra, para acciones de poco uso.
-- **Campo:** etiqueta arriba siempre visible, caja plana `panel-hundido` con borde 1px, foco con borde azul-vivo + anillo suave. Error debajo con ícono.
-- **Tarjeta de número:** panel con borde 1px, rayita de 32px arriba con el color del dato, etiqueta `.rotulo`, número grande mono.
-- **Insignia de estado:** rectángulo sin redondeo, fondo tenue del color, cuadrito de color + texto `.rotulo`. Activos azul, esperando respuesta y por cobrar rojo, listo cromo, terminado acero.
-- **Asistente:** "Paso X de Y" + barra de progreso en 20 bloques (el homenaje más claro).
-- **Navegación activa:** rayita azul de 4px al lado (compu) o arriba (celular) y fondo azul tenue.
+- **Ventana:** `.vidrio` + título con una luz roja encendida (`.luz`) y texto `.rotulo`. Sin botones falsos de minimizar/cerrar.
+- **Botón principal:** degradado rojo-vivo → rojo, brillo rojo, radio control, alto ~56px, ícono + texto siempre; al tocar se encoge un poco (`scale .97`). Uno solo por pantalla.
+- **Secundario:** vidrio azul con borde azul-vivo; **peligro:** vidrio rojo con texto rojo, siempre con `<Confirmar>`; **gris:** vidrio neutro.
+- **Campo:** etiqueta arriba siempre visible, caja oscura translúcida; al escribir se enciende en azul (borde + halo). Error debajo con ícono.
+- **Tarjeta de número:** vidrio con una luz del color del dato asomándose en la esquina y el número brillando.
+- **Insignia de estado:** píldora con luz de color + texto. Activos azul, esperando respuesta rojo (la luz late), listo cromo, terminado acero.
+- **Asistente:** "Paso X de Y", un punto encendido por paso y barra azul con brillo.
+- **Navegación:** panel lateral de vidrio flotante; sección activa con fondo azul degradado y una rayita azul encendida. En celular, barra de vidrio flotante abajo con "Nuevo" en rojo.
+- **Login:** tarjeta con borde de luz rojo→azul y cuatro esquinas encendidas tipo visor; luz verde "En línea".
+- Animaciones mínimas y siempre apagadas con `prefers-reduced-motion`.
 
 ## Gráfico de plata (Chart.js)
 
