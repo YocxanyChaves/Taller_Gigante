@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, List, Search, Wallet } from "lucide-react";
+import { Plus, List, Search, Wallet, CalendarDays } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { obtenerResumenInicio } from "../services/inicio";
 import OpcionMenu from "../components/ui/OpcionMenu";
@@ -68,48 +68,70 @@ export default function Inicio() {
         ))}
       </nav>
 
-      {resumen && (
-        <section
-          aria-label="Para hoy"
-          className="animar-entrada mt-8 flex flex-col gap-3 border-t border-linea pt-6"
-          style={{ "--retraso": "420ms" }}
-        >
-          <p className="etiqueta">Para hoy</p>
-          <ResumenLinea
-            luz="verde"
-            texto={
-              resumen.listos > 0
-                ? `${plural(resumen.listos, "carro listo", "carros listos")} para recoger`
-                : "Ningún carro listo para recoger todavía"
-            }
-            apagado={resumen.listos === 0}
-          />
-          <ResumenLinea
-            luz="rojo"
-            texto={
-              resumen.esperando_respuesta > 0
-                ? `${plural(resumen.esperando_respuesta, "cliente no ha", "clientes no han")} respondido el precio`
-                : "Nadie tiene pendiente responder un precio"
-            }
-            apagado={resumen.esperando_respuesta === 0}
-          />
-          <Link
-            to="/trabajos"
-            className="self-start py-2 text-lg font-bold text-rojo underline-offset-4 hover:underline"
-          >
-            Ver los carros en el taller
-          </Link>
-        </section>
-      )}
+      {resumen && <ParaHoy resumen={resumen} />}
     </div>
   );
 }
 
-function ResumenLinea({ luz, texto, apagado = false }) {
+// Lo pendiente, del más urgente al menos urgente. Solo salen las líneas que
+// tienen algo, cada una con su luz del semáforo encendida (o un calendario
+// para las citas). Si no hay nada, se dice.
+function ParaHoy({ resumen }) {
+  const lineas = [
+    resumen.esperando_respuesta > 0 && {
+      clave: "respuesta",
+      marca: <Semaforo luz="rojo" />,
+      texto: `${plural(resumen.esperando_respuesta, "cliente no ha", "clientes no han")} respondido el precio`,
+    },
+    resumen.listos > 0 && {
+      clave: "listos",
+      marca: <Semaforo luz="verde" />,
+      texto: `${plural(resumen.listos, "carro listo", "carros listos")} para recoger`,
+    },
+    resumen.en_taller > 0 && {
+      clave: "taller",
+      marca: <Semaforo luz="amarillo" />,
+      texto: `${plural(resumen.en_taller, "carro", "carros")} en el taller`,
+    },
+    resumen.citas > 0 && {
+      clave: "citas",
+      marca: (
+        <span className="grid h-[1.125rem] w-[3.125rem] place-items-center rounded-full bg-tinta text-white">
+          <CalendarDays aria-hidden="true" size={14} strokeWidth={2.6} />
+        </span>
+      ),
+      texto:
+        `${plural(resumen.citas, "cita", "citas")}` +
+        (resumen.citas_hoy > 0 ? `: ${resumen.citas_hoy} para hoy` : ", ninguna para hoy"),
+    },
+  ].filter(Boolean);
+
   return (
-    <p className="flex items-center gap-3 text-lg">
-      <Semaforo luz={apagado ? null : luz} />
-      {texto}
-    </p>
+    <section
+      aria-label="Para hoy"
+      className="animar-entrada mt-8 flex flex-col gap-3 border-t border-linea pt-6"
+      style={{ "--retraso": "420ms" }}
+    >
+      <p className="etiqueta">Para hoy</p>
+      {lineas.length === 0 ? (
+        <p className="text-lg text-gris">Todo tranquilo por ahora: no hay carros en el taller ni citas.</p>
+      ) : (
+        lineas.map(({ clave, marca, texto }, i) => (
+          <p
+            key={clave}
+            style={{ "--retraso": `${480 + i * 70}ms` }}
+            className="animar-entrada flex items-center gap-3 text-lg"
+          >
+            {marca}
+            {texto}
+          </p>
+        ))
+      )}
+      {lineas.length > 0 && (
+        <Link to="/trabajos" className="self-start py-2 text-lg font-bold text-rojo underline-offset-4 hover:underline">
+          Ver los carros en el taller
+        </Link>
+      )}
+    </section>
   );
 }
