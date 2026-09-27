@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "../context/AuthContext";
 import Campo from "../components/ui/Campo";
 import Boton from "../components/ui/Boton";
-import logo from "../assets/logo-claro.png";
+import logo from "../assets/logo-oscuro.png";
 
 // Solo correo y contraseña. Nadie se registra solo: las cuentas las crea la
 // dueña desde Supabase.
@@ -58,77 +58,59 @@ export default function Login() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-        <div className="relative mx-auto mb-10 w-64">
-          <span aria-hidden="true" className="absolute inset-0 -z-10 scale-125 rounded-full bg-rojo/25 blur-3xl" />
-          <img src={logo} alt="Taller Mecánico Gigante" className="w-full" />
-        </div>
+        <img
+          src={logo}
+          alt="Taller Mecánico Gigante"
+          className="animar-entrada mx-auto mb-10 w-64"
+        />
 
-        {/* Borde de luz rojo → azul alrededor del panel. */}
-        <div className="relative rounded-panel bg-gradient-to-br from-rojo-vivo/60 via-white/10 to-azul-vivo/60 p-px shadow-[0_30px_80px_-20px_rgb(0_0_0/0.8)]">
-          <EsquinasMando />
-          <section className="rounded-[calc(var(--radius-panel)-1px)] bg-panel/95 backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-6 py-4">
-              <h1 className="rotulo text-lg text-texto">Entrar al sistema</h1>
-              <span className="hidden items-center gap-2 text-base text-texto-2 sm:flex">
-                <span aria-hidden="true" className="luz latido size-2 bg-emerald-400 text-emerald-400" />
-                En línea
-              </span>
+        <section
+          className="animar-entrada rounded-tarjeta border border-linea bg-tarjeta shadow-elevada"
+          style={{ "--retraso": "120ms" }}
+        >
+          <h1 className="px-7 pt-7 text-3xl font-bold">Entrar</h1>
+          <p className="px-7 pt-1 text-lg text-gris">Escriba su correo y su contraseña.</p>
+
+          <form onSubmit={entrar} className="flex flex-col gap-5 p-7" noValidate>
+            <Campo
+              etiqueta="Correo"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+            />
+
+            <div>
+              <Campo
+                etiqueta="Contraseña"
+                type={verContrasena ? "text" : "password"}
+                autoComplete="current-password"
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setVerContrasena((v) => !v)}
+                className="mt-2 flex min-h-12 items-center gap-2 text-lg font-bold text-rojo underline-offset-4 hover:underline"
+              >
+                {verContrasena ? <EyeOff aria-hidden="true" size={20} /> : <Eye aria-hidden="true" size={20} />}
+                {verContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
+              </button>
             </div>
 
-            <form onSubmit={entrar} className="flex flex-col gap-5 p-6" noValidate>
-              <Campo
-                etiqueta="Correo"
-                type="email"
-                autoComplete="email"
-                inputMode="email"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-              />
+            {error && (
+              <p role="alert" className="aparecer rounded-control border-2 border-rojo/30 bg-rojo/5 p-4 text-lg font-bold text-rojo">
+                {error}
+              </p>
+            )}
 
-              <div>
-                <Campo
-                  etiqueta="Contraseña"
-                  type={verContrasena ? "text" : "password"}
-                  autoComplete="current-password"
-                  value={contrasena}
-                  onChange={(e) => setContrasena(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setVerContrasena((v) => !v)}
-                  className="mt-2 flex min-h-12 items-center gap-2 text-base font-bold text-azul-vivo"
-                >
-                  {verContrasena ? <EyeOff aria-hidden="true" size={20} /> : <Eye aria-hidden="true" size={20} />}
-                  {verContrasena ? "Ocultar contraseña" : "Mostrar contraseña"}
-                </button>
-              </div>
-
-              {error && (
-                <p role="alert" className="rounded-control border border-rojo-vivo/40 bg-rojo/15 p-4 text-lg text-texto">
-                  {error}
-                </p>
-              )}
-
-              <Boton type="submit" icono={LogIn} anchoCompleto disabled={cargando}>
-                {cargando ? "Entrando…" : "Entrar"}
-              </Boton>
-            </form>
-          </section>
-        </div>
+            <Boton type="submit" icono={LogIn} anchoCompleto disabled={cargando}>
+              {cargando ? "Entrando…" : "Entrar"}
+            </Boton>
+          </form>
+        </section>
       </div>
     </main>
-  );
-}
-
-// Cuatro esquinas encendidas, como el visor de una pantalla de mando.
-function EsquinasMando() {
-  const base = "pointer-events-none absolute size-5 border-azul-vivo/80";
-  return (
-    <div aria-hidden="true">
-      <span className={`${base} -top-2 -left-2 rounded-tl-lg border-t-2 border-l-2`} />
-      <span className={`${base} -top-2 -right-2 rounded-tr-lg border-t-2 border-r-2`} />
-      <span className={`${base} -bottom-2 -left-2 rounded-bl-lg border-b-2 border-l-2`} />
-      <span className={`${base} -right-2 -bottom-2 rounded-br-lg border-r-2 border-b-2`} />
-    </div>
   );
 }

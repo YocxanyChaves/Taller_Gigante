@@ -5,8 +5,8 @@ import Vacio from "../components/ui/Vacio";
 export default function Trabajos() {
   return (
     <>
-      <Encabezado titulo="Trabajos">
-        Todos los carros que están en el taller, ordenados por etapa.
+      <Encabezado titulo="Carros en el taller">
+        Todos los carros que están en el taller y en qué va cada uno.
       </Encabezado>
       <Vacio icono={Wrench} titulo="En construcción">
         El tablero de trabajos y el botón de siguiente paso se construyen en la fase 3.

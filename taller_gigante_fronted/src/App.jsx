@@ -30,7 +30,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="rotulo flex min-h-screen items-center justify-center text-2xl text-texto-2">
+      <div className="flex min-h-screen items-center justify-center text-2xl text-gris">
         Cargando…
       </div>
     );

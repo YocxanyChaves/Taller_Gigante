@@ -31,25 +31,21 @@ export default function Confirmar({
   if (!abierto) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
+    <div className="oscurecer fixed inset-0 z-50 flex items-center justify-center bg-tinta/40 p-4 backdrop-blur-sm">
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirmar-titulo"
         aria-describedby="confirmar-mensaje"
-        className="vidrio w-full max-w-lg overflow-hidden"
+        className="aparecer w-full max-w-lg rounded-tarjeta bg-tarjeta shadow-elevada"
       >
-        <h2
-          id="confirmar-titulo"
-          className="rotulo flex items-center gap-3 border-b border-white/[0.06] px-6 py-4 text-base text-texto-2"
-        >
-          <span aria-hidden="true" className={`luz size-2 shrink-0 ${peligro ? "bg-rojo-vivo text-rojo-vivo" : "bg-azul-vivo text-azul-vivo"}`} />
+        <h2 id="confirmar-titulo" className="px-6 pt-6 text-2xl font-bold">
           {titulo}
         </h2>
-        <div id="confirmar-mensaje" className="p-6 text-lg text-texto">
+        <div id="confirmar-mensaje" className="px-6 pt-3 pb-6 text-lg text-gris">
           {children}
         </div>
-        <div className="flex flex-col-reverse gap-4 border-t border-white/[0.06] p-6 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-linea p-5 sm:flex-row sm:justify-end">
           <Boton ref={refCancelar} variante="secundario" onClick={alCancelar}>
             {textoCancelar}
           </Boton>

@@ -5,7 +5,7 @@ import Vacio from "../components/ui/Vacio";
 export default function Clientes() {
   return (
     <>
-      <Encabezado titulo="Clientes">
+      <Encabezado titulo="Buscar un cliente">
         Busque a un cliente por nombre, teléfono o placa para ver sus carros y lo que debe.
       </Encabezado>
       <Vacio icono={Users} titulo="En construcción">

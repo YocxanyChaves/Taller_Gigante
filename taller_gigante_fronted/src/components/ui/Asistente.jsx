@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Boton from "./Boton";
 
-// Formulario de una pregunta por pantalla, con "Paso 2 de 4" y barra de
-// progreso. Es controlado: la pantalla que lo usa guarda el paso y las
-// respuestas, así que "Atrás" nunca borra lo escrito.
+// Formulario de una pregunta por pantalla, con "Paso 2 de 4" y una barra
+// roja que se va llenando. Cada paso entra deslizándose (desde la derecha al
+// avanzar, desde la izquierda al volver). Es controlado: la pantalla que lo
+// usa guarda el paso y las respuestas, así que "Atrás" nunca borra lo escrito.
 
 export default function Asistente({
   paso,
@@ -17,55 +19,47 @@ export default function Asistente({
   puedeSeguir = true,
   cargando = false,
 }) {
+  // Hacia dónde se movió el último cambio de paso (estado derivado del prop).
+  const [ultimoPaso, setUltimoPaso] = useState(paso);
+  const [direccion, setDireccion] = useState("derecha");
+  if (paso !== ultimoPaso) {
+    setDireccion(paso > ultimoPaso ? "derecha" : "izquierda");
+    setUltimoPaso(paso);
+  }
+
   const esUltimo = paso === total;
 
   return (
     <form
-      className="vidrio overflow-hidden"
+      className="overflow-hidden rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta"
       onSubmit={(e) => {
         e.preventDefault();
         if (puedeSeguir && !cargando) alSiguiente();
       }}
     >
-      <div className="border-b border-white/[0.06] px-6 py-5 sm:px-8">
-        <div className="flex items-center justify-between gap-4">
-          <p className="rotulo text-base text-texto-2">
-            Paso {paso} de {total}
-          </p>
-          {/* Un punto por paso: los hechos encendidos. */}
-          <div aria-hidden="true" className="flex gap-2">
-            {Array.from({ length: total }, (_, i) => (
-              <span
-                key={i}
-                className={`size-2.5 rounded-full ${i < paso ? "luz bg-azul-vivo text-azul-vivo" : "bg-white/15"}`}
-              />
-            ))}
-          </div>
-        </div>
-        <div
-          className="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.06]"
-          role="progressbar"
-          aria-valuemin={1}
-          aria-valuemax={total}
-          aria-valuenow={paso}
-          aria-label={`Paso ${paso} de ${total}`}
-        >
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-azul to-azul-vivo shadow-[0_0_16px_rgb(79_157_255/0.8)] transition-[width] duration-500"
-            style={{ width: `${(paso / total) * 100}%` }}
-          />
-        </div>
+      <div
+        className="h-1.5 bg-suave"
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-valuenow={paso}
+        aria-label={`Paso ${paso} de ${total}`}
+      >
+        <div className="barra-progreso h-full bg-rojo" style={{ width: `${(paso / total) * 100}%` }} />
       </div>
 
-      <div className="p-6 sm:p-8">
-        <h2 className="rotulo text-3xl text-texto">{pregunta}</h2>
-        {ayuda && <p className="mt-2 text-lg text-texto-2">{ayuda}</p>}
-        <div className="mt-6">{children}</div>
+      <div key={paso} className={`px-6 pt-8 pb-6 sm:px-10 ${direccion === "derecha" ? "deslizar-derecha" : "deslizar-izquierda"}`}>
+        <p className="etiqueta">
+          Paso {paso} de {total}
+        </p>
+        <h2 className="mt-2 text-3xl font-bold">{pregunta}</h2>
+        {ayuda && <p className="mt-2 text-lg text-gris">{ayuda}</p>}
+        <div className="mt-7">{children}</div>
       </div>
 
-      <div className="flex flex-col-reverse gap-4 border-t border-white/[0.06] p-6 sm:flex-row sm:justify-between sm:px-8">
+      <div className="flex flex-col-reverse gap-3 border-t border-linea px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-10">
         {paso > 1 ? (
-          <Boton variante="secundario" icono={ArrowLeft} onClick={alAtras}>
+          <Boton variante="gris" icono={ArrowLeft} onClick={alAtras}>
             Atrás
           </Boton>
         ) : (

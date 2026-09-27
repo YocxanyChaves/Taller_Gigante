@@ -5,8 +5,8 @@ import Vacio from "../components/ui/Vacio";
 export default function NuevoTrabajo() {
   return (
     <>
-      <Encabezado titulo="Nuevo trabajo">
-        Anote un carro nuevo: el teléfono del cliente, la placa y qué le pasa.
+      <Encabezado titulo="Recibir un carro">
+        Anote el carro en tres pasos: el teléfono del cliente, la placa y qué le pasa.
       </Encabezado>
       <Vacio icono={ClipboardPlus} titulo="En construcción">
         El asistente paso a paso para anotar un trabajo se construye en la fase 3.
