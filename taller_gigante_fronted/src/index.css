@@ -1,39 +1,39 @@
 @import "@fontsource/barlow/500.css";
 @import "@fontsource/barlow/700.css";
-@import "@fontsource/barlow-condensed/600.css";
-@import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource/chakra-petch/600.css";
+@import "@fontsource/chakra-petch/700.css";
 @import "@fontsource/jetbrains-mono/500.css";
 @import "tailwindcss";
 
-/* Sistema de diseño "vintage moderno": un homenaje a las computadoras viejas
-   sin copiarlas. De ellas quedan las esquinas rectas, el orden y el
-   minimalismo, las etiquetas tipo rótulo y la barra de progreso en bloques.
-   Lo demás es plano y limpio: bordes finos, sombras cortas y suaves, sin
-   degradados. Si llegan los tonos exactos del taller, cambiar solo
-   --color-rojo y --color-azul. */
+/* Sistema de diseño "tecnológico": panel de mando futurista. Fondo espacial
+   con luces de la marca, paneles de vidrio translúcido, brillos rojos y
+   azules, esquinas redondeadas. Rojo (del logo) es el color principal; azul,
+   el secundario. Si llegan los tonos exactos, cambiar --color-rojo y
+   --color-azul (y sus versiones "vivo"). */
 @theme {
-  --color-fondo: #0b0f17;
-  --color-panel: #121824;
-  --color-panel-hundido: #0e131d;
-  --color-linea: #232e42;
-  --color-acero: #8792a6;
-  --color-texto: #eef2f8;
-  --color-texto-2: #aab5c8;
-  --color-rojo: #d7262e;
-  --color-rojo-vivo: #ff4d4d;
-  --color-azul: #1f5fe0;
-  --color-azul-vivo: #4b93ff;
-  --color-cromo: #e6ebf2;
-  --color-sombra: #05070b;
+  --color-fondo: #05070d;
+  --color-panel: #0f1522;
+  --color-panel-hundido: #0a0f19;
+  --color-linea: #1f2a3f;
+  --color-acero: #8a96ab;
+  --color-texto: #f1f5fb;
+  --color-texto-2: #aeb9cc;
+  --color-rojo: #e02a33;
+  --color-rojo-vivo: #ff4d57;
+  --color-azul: #2563eb;
+  --color-azul-vivo: #4f9dff;
+  --color-cromo: #e8eef7;
 
   --font-sans: "Barlow", system-ui, sans-serif;
-  --font-titulo: "Barlow Condensed", "Barlow", system-ui, sans-serif;
+  --font-titulo: "Chakra Petch", "Barlow", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* Sombra corta y sin difuminar: el guiño a las ventanas de antes. */
-  --shadow-dura: 4px 4px 0 var(--color-sombra);
-  --shadow-boton: 3px 3px 0 var(--color-sombra);
-  --shadow-boton-hundido: 1px 1px 0 var(--color-sombra);
+  --radius-panel: 1.25rem;
+  --radius-control: 0.875rem;
+
+  --shadow-panel: 0 24px 60px -20px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.06);
+  --shadow-brillo-rojo: 0 0 0 1px rgb(255 77 87 / 0.35), 0 8px 28px -6px rgb(224 42 51 / 0.65);
+  --shadow-brillo-azul: 0 0 0 1px rgb(79 157 255 / 0.35), 0 8px 28px -8px rgb(37 99 235 / 0.6);
 }
 
 /* Base de 18px: todo el sistema (rem) crece junto, y nada queda por debajo de 16px. */
@@ -42,26 +42,77 @@ html {
   color-scheme: dark;
 }
 
-/* Fondo con una cuadrícula de puntos muy tenue, como papel técnico. */
+/* Fondo: dos luces grandes (roja arriba, azul abajo) sobre azul casi negro,
+   y una cuadrícula fina que se desvanece hacia los bordes. */
 body {
+  min-height: 100vh;
   background-color: var(--color-fondo);
-  background-image: radial-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background-image:
+    radial-gradient(60rem 40rem at 0% -10%, rgb(224 42 51 / 0.18), transparent 60%),
+    radial-gradient(60rem 45rem at 110% 110%, rgb(37 99 235 / 0.2), transparent 60%);
+  background-attachment: fixed;
   color: var(--color-texto);
   font-family: var(--font-sans);
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Títulos y etiquetas cortas: mayúscula condensada, tipo placa de taller. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+/* Títulos y etiquetas cortas. */
 .rotulo {
   font-family: var(--font-titulo);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+}
+
+/* Panel de vidrio: translúcido, borde de luz fino y sombra profunda. */
+.vidrio {
+  background: linear-gradient(180deg, rgb(22 30 48 / 0.72), rgb(12 17 28 / 0.72));
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* Punto encendido (títulos de panel, estados). */
+.luz {
+  border-radius: 9999px;
+  box-shadow: 0 0 10px 1px currentColor;
+}
+
+/* Números que brillan con su color. */
+.numero-brillo {
+  text-shadow: 0 0 18px currentColor;
+}
+
+@keyframes latido {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.latido {
+  animation: latido 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .latido { animation: none; }
+  * { transition-duration: 0s !important; }
 }
 
 :focus-visible {
   outline: 2px solid var(--color-azul-vivo);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }

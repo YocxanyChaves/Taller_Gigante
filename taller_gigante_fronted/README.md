@@ -8,7 +8,7 @@ sistema funcionando sin exponer datos reales.
 ## Stack
 
 - **Frontend:** React 19 + Vite + Tailwind CSS 4, React Router e íconos Lucide. Letras
-  Barlow, Barlow Condensed y JetBrains Mono (instaladas, no dependen de internet).
+  Barlow, Chakra Petch y JetBrains Mono (instaladas, no dependen de internet).
 - **Backend:** [Supabase](https://supabase.com): Postgres, login (Auth) y seguridad por fila (RLS).
   No hay servidor propio: la lógica sensible vive en la base (políticas, triggers y funciones).
 

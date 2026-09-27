@@ -122,23 +122,23 @@ export default function Estilos() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
             {COLORES.map(([nombre, clase]) => (
               <div key={nombre}>
-                <div className={`h-16 border border-linea ${clase}`} />
+                <div className={`h-16 rounded-control border border-white/10 ${clase}`} />
                 <p className="mt-1 font-mono text-base text-texto-2">{nombre}</p>
               </div>
             ))}
           </div>
           <p className="mt-6 text-base text-texto-2">
             Rojo para la acción principal y lo urgente; azul para navegar y lo que está en proceso.
-            Sin degradados.
+            Los brillos solo en lo importante.
           </p>
         </Ventana>
 
         <Ventana titulo="Letras">
-          <p className="rotulo text-4xl">Títulos: Barlow Condensed</p>
+          <p className="rotulo text-4xl">Títulos: Chakra Petch</p>
           <p className="mt-3 text-lg">
             Texto normal: Barlow, 18 px. El carro llegó con ruido en los frenos delanteros.
           </p>
-          <p className="mt-3 font-mono text-3xl text-azul-vivo">₡540 000</p>
+          <p className="numero-brillo mt-3 font-mono text-3xl text-azul-vivo">₡540 000</p>
           <p className="text-base text-texto-2">Números y plata: JetBrains Mono.</p>
         </Ventana>
 
@@ -155,7 +155,7 @@ export default function Estilos() {
             <Boton disabled>Desactivado</Boton>
           </div>
           <p className="mt-4 text-base text-texto-2">
-            Tóquelos: se hunden. Solo un botón rojo por pantalla.
+            Solo un botón rojo por pantalla: la acción más importante.
           </p>
         </Ventana>
 

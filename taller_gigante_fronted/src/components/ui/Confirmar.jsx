@@ -31,25 +31,25 @@ export default function Confirmar({
   if (!abierto) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md">
       <div
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirmar-titulo"
         aria-describedby="confirmar-mensaje"
-        className="w-full max-w-lg border border-linea bg-panel shadow-dura"
+        className="vidrio w-full max-w-lg overflow-hidden"
       >
         <h2
           id="confirmar-titulo"
-          className="rotulo flex items-center gap-3 border-b border-linea px-5 py-3 text-lg text-texto-2"
+          className="rotulo flex items-center gap-3 border-b border-white/[0.06] px-6 py-4 text-base text-texto-2"
         >
-          <span aria-hidden="true" className={`size-2.5 shrink-0 ${peligro ? "bg-rojo" : "bg-azul-vivo"}`} />
+          <span aria-hidden="true" className={`luz size-2 shrink-0 ${peligro ? "bg-rojo-vivo text-rojo-vivo" : "bg-azul-vivo text-azul-vivo"}`} />
           {titulo}
         </h2>
-        <div id="confirmar-mensaje" className="p-5 text-lg text-texto">
+        <div id="confirmar-mensaje" className="p-6 text-lg text-texto">
           {children}
         </div>
-        <div className="flex flex-col-reverse gap-4 border-t border-linea p-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-4 border-t border-white/[0.06] p-6 sm:flex-row sm:justify-end">
           <Boton ref={refCancelar} variante="secundario" onClick={alCancelar}>
             {textoCancelar}
           </Boton>

@@ -2,8 +2,8 @@ import { useId } from "react";
 import { AlertTriangle } from "lucide-react";
 
 // Campo de formulario: etiqueta arriba siempre visible (nunca solo el
-// placeholder), caja plana un poco más oscura que el panel y el error debajo
-// en palabras claras.
+// placeholder), caja oscura que se enciende en azul al escribir y el error
+// debajo en palabras claras.
 // Con `multilinea` es un <textarea>. El resto de props van al input.
 
 export default function Campo({
@@ -21,15 +21,16 @@ export default function Campo({
   const describe = [ayuda && idAyuda, error && idError].filter(Boolean).join(" ") || undefined;
 
   const clasesCaja =
-    "w-full border bg-panel-hundido px-4 text-lg text-texto placeholder:text-acero/80 " +
-    "transition-colors focus:border-azul-vivo focus:outline-none focus:ring-2 focus:ring-azul-vivo/25 " +
-    (error ? "border-rojo" : "border-linea");
+    "w-full rounded-control border bg-black/30 px-4 text-lg text-texto placeholder:text-acero/70 " +
+    "transition-[border-color,box-shadow] focus:border-azul-vivo focus:outline-none " +
+    "focus:shadow-[0_0_0_4px_rgb(79_157_255/0.15),0_0_24px_-4px_rgb(79_157_255/0.5)] " +
+    (error ? "border-rojo-vivo/70" : "border-white/10");
 
   const Control = multilinea ? "textarea" : "input";
 
   return (
     <div className={className}>
-      <label htmlFor={id} className="rotulo mb-1.5 block text-base text-texto-2">
+      <label htmlFor={id} className="rotulo mb-2 block text-base text-texto-2">
         {etiqueta}
         {opcional && <span className="ml-2 normal-case tracking-normal text-acero">(opcional)</span>}
       </label>
