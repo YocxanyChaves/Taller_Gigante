@@ -7,6 +7,7 @@ import Inicio from "./pages/Inicio";
 import Trabajos from "./pages/Trabajos";
 import NuevoTrabajo from "./pages/NuevoTrabajo";
 import Trabajo from "./pages/Trabajo";
+import TrabajoPublico from "./pages/TrabajoPublico";
 import Clientes from "./pages/Clientes";
 import Cobros from "./pages/Cobros";
 import Estilos from "./pages/Estilos";
@@ -41,6 +42,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        {/* Página del cliente: sin cuenta, desde el link que le manda el taller. */}
+        <Route path="/t/:token" element={<TrabajoPublico />} />
 
         <Route element={<ConSesion />}>
           <Route element={<Marco />}>
