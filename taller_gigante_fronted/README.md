@@ -187,6 +187,7 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 
 - Probar la fase 4 desde un celular con el usuario demo: mandar el precio por WhatsApp, abrir el
   link en el celular, aprobar y ver que la ficha cambia sola a "Esperando repuestos" o "En reparación".
+- Hacer la guía de uso del sistema (pantalla "¿Cómo se usa?" y versión para imprimir) antes de publicarlo.
 - Publicar el sistema (Vercel, gratis) para que los links le abran al cliente fuera de la casa.
 - Cambiar el WhatsApp del taller por el número real (`src/lib/taller.js`).
 - En el dashboard de Supabase: activar la protección contra contraseñas filtradas si algún día

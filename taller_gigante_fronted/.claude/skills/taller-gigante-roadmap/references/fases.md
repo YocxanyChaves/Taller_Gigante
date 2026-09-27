@@ -79,6 +79,13 @@ Listo cuando: desde un celular sin sesión se abre el link, se aprueba, y el tra
 
 Buscador único (nombre, teléfono o placa) → ficha del cliente: datos, carros, historial de trabajos por carro, lo que debe, botón "Nuevo trabajo para este cliente".
 
+## Guía de uso (antes de publicar)
+
+Pedida por la dueña el 27/09/2026. Cuando las pantallas principales estén (después de la fase 6):
+1. Pantalla "¿Cómo se usa?" dentro del sistema (una opción más en Inicio): el recorrido de un carro de cita a entregado, paso a paso, con capturas o dibujos de cada pantalla y en el mismo lenguaje sencillo.
+2. Versión para imprimir (una hoja por tema: recibir un carro, mandar el precio, cobrar) para dejar en el taller.
+3. Una línea de ayuda en cada pantalla que no la tenga.
+
 ## Fase 7 — Extras (solo si el taller lo pide)
 
 Fotos de recepción (Supabase Storage privado), comprobante PDF, recordatorios de mantenimiento, página pública del taller, reinicio nocturno de datos demo, inventario.
