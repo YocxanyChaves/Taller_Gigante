@@ -29,6 +29,11 @@ VITE_SUPABASE_URL=https://<id-del-proyecto>.supabase.co
 VITE_SUPABASE_ANON_KEY=<clave pública anon>
 ```
 
+Para probar desde el celular (mismo Wi-Fi): `npm run dev:celular` y abrir en la compu y en el
+celular la dirección "Network" que muestra (por ejemplo `http://192.168.1.12:5173`). Los links
+del cliente se arman con la dirección desde la que se abrió el sistema; al publicarlo, se fija
+con `VITE_URL_PUBLICA` en el `.env`.
+
 Otros comandos: `npm run build` (compila a `dist/`), `npm run preview` (sirve
 lo compilado) y `npm run lint`.
 
@@ -111,8 +116,8 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 | 0 | Seguridad y limpieza de la base de datos | ✅ Hecha |
 | 1 | Modelo de datos nuevo: estados del taller, ítems, pagos, historial y link público | ✅ Hecha |
 | 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ✅ Hecha |
-| 3 | Trabajos: asistente "Recibir un carro", lista de carros y botón de siguiente paso | 🟨 Falta probarla con el usuario demo |
-| 4 | Link del cliente y WhatsApp | ⬜ |
+| 3 | Trabajos: asistente "Recibir un carro", lista de carros y botón de siguiente paso | ✅ Hecha |
+| 4 | Link del cliente y WhatsApp | 🟨 Falta probarla desde un celular |
 | 5 | Cobros (contado o cuotas) y el dashboard "Cómo va el taller" con el gráfico de plata | ⬜ |
 | 6 | Clientes: buscador y ficha | ⬜ |
 | 7 | Extras, solo si el taller los pide: fotos, PDF, recordatorios, inventario | ⬜ |
@@ -167,10 +172,23 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
   precio, el cliente respondió, llegaron los repuestos, el carro está listo), precio con
   repuestos, mano de obra y "Me costó", línea de tiempo, volver un paso y cancelar.
 
+### Fase 4: qué se hizo (27/09/2026)
+
+- ✅ Página del cliente `/t/<token>`, sin cuenta y pensada para celular: cómo va su carro (pasos
+  con palomitas y la luz del semáforo), lo que tiene y cuánto cuesta, y "Sí, hágale" / "No, gracias"
+  con confirmación (confeti si aprueba). Botón para escribirle al taller por WhatsApp.
+- ✅ WhatsApp gratis (wa.me) con el mensaje ya escrito y "Copiar mensaje": "Mandar precio por
+  WhatsApp" (luego "Ya lo mandé" y el carro queda esperando respuesta) y aviso de "listo".
+- ✅ Sección "Link del cliente" en la ficha: mandarlo, copiarlo, verlo o hacer uno nuevo.
+- ✅ La ficha y la lista se actualizan solas (cada 20 y 60 segundos y al volver a la pestaña).
+- ⚠️ El WhatsApp del taller es temporal: el número de la dueña (`src/lib/taller.js`).
+
 ### Pendiente
 
-- Probar la fase 3 con el usuario demo: recibir un carro nuevo y uno conocido, anotar el precio y
-  llevarlo hasta "Listo para recoger". Después, un trabajo completo con cuotas (fase 5).
+- Probar la fase 4 desde un celular con el usuario demo: mandar el precio por WhatsApp, abrir el
+  link en el celular, aprobar y ver que la ficha cambia sola a "Esperando repuestos" o "En reparación".
+- Publicar el sistema (Vercel, gratis) para que los links le abran al cliente fuera de la casa.
+- Cambiar el WhatsApp del taller por el número real (`src/lib/taller.js`).
 - En el dashboard de Supabase: activar la protección contra contraseñas filtradas si algún día
   se pasa al plan Pro (en el plan gratis no existe) y dejar contraseñas largas en las 2 cuentas.
 - El demo todavía puede, llamando a la API a mano, colgar un carro o un trabajo nuevo de un

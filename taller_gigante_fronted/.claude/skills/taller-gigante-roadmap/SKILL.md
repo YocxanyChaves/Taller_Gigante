@@ -68,10 +68,12 @@ Si la sección A de `references/supabase-arreglos.md` no está aplicada todavía
 ## Decisiones pendientes (preguntar, no suponer)
 
 - Tonos exactos del rojo y azul del taller (logo o rótulo). Mientras tanto, usar los de `diseno.md`.
-- Nombre y datos del taller para la página pública y los mensajes (nombre, teléfono, dirección, horario).
+- Número de WhatsApp real del taller, dirección y horario (por ahora se usa el número de la dueña y no se muestra horario).
 
 ## Decisiones ya tomadas (26/09/2026)
 
+- WhatsApp del taller: por ahora el número de la dueña (83931634) en `src/lib/taller.js`, hasta tener el del taller. Sin horario en la página del cliente (no se sabe todavía).
+- Publicar en Vercel (gratis) cuando el taller lo vaya a usar; para probar los links en el celular basta `npm run dev:celular` en el mismo Wi-Fi.
 - Métodos de pago: efectivo, SINPE Móvil y transferencia. **Sin tarjeta.**
 - Cobro de revisión cuando no aprueba: opcional, sin monto por defecto (depende del cliente).
 - Los datos actuales de la base son inventados. Antes de una migración grande se saca un respaldo en `supabase/respaldos/` (fuera de git) y se aplica directo en producción; no hace falta Supabase local ni otro proyecto.
