@@ -3,6 +3,7 @@ import { Car, RotateCw } from "lucide-react";
 import { listarTrabajosActivos } from "../services/trabajos";
 import { ESTADOS } from "../lib/estados";
 import { mensajeError } from "../lib/errores";
+import useRefrescar from "../lib/useRefrescar";
 import Encabezado from "../components/layout/Encabezado";
 import Pestanas from "../components/ui/Pestanas";
 import Aviso from "../components/ui/Aviso";
@@ -52,6 +53,9 @@ export default function Trabajos() {
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+  // Las respuestas de los clientes (desde su link) aparecen solas.
+  useRefrescar(cargar, 60000);
 
   const opciones = FILTROS.map(({ valor, texto, cumple }) => ({
     valor,

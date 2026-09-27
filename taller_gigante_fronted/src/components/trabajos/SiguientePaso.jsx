@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { CarFront, ClipboardPen, MessageCircleReply, PackageCheck, Sparkles, Send } from "lucide-react";
+import { CarFront, ClipboardPen, MessageCircle, MessageCircleReply, PackageCheck, Sparkles } from "lucide-react";
 import { avanzarEstado, registrarLlegada } from "../../services/trabajos";
 import { mensajeError } from "../../lib/errores";
+import { linkCliente } from "../../lib/taller";
+import { mensajeCotizacion, mensajeListo } from "../../lib/whatsapp";
 import Boton from "../ui/Boton";
 import Confeti from "../ui/Confeti";
 import DialogoLlegada from "./DialogoLlegada";
 import DialogoRespuesta from "./DialogoRespuesta";
+import DialogoWhatsApp from "../ui/DialogoWhatsApp";
 
 // El botón rojo grande de cada trabajo: dice cuál es el siguiente paso y qué
 // pasa al tocarlo. Es la única acción principal de la ficha.
@@ -23,10 +26,10 @@ function pasoPara(trabajo) {
     case "en_revision":
       return tienePrecio
         ? {
-            boton: "Ya le avisé el precio al cliente",
-            frase: "Toque aquí cuando le haya dicho el precio. El carro queda esperando su respuesta.",
-            icono: Send,
-            accion: "esperando_aprobacion",
+            boton: "Mandar precio por WhatsApp",
+            frase: "Se abre WhatsApp con el precio y un link para que el cliente responda desde su celular.",
+            icono: MessageCircle,
+            accion: "whatsapp_precio",
           }
         : {
             boton: "Anotar diagnóstico y precio",
@@ -37,7 +40,7 @@ function pasoPara(trabajo) {
     case "esperando_aprobacion":
       return {
         boton: "El cliente respondió",
-        frase: "Anote si aprobó el trabajo o no (si le respondió por teléfono o en persona).",
+        frase: "El cliente puede responder desde su link. Si le respondió por teléfono o en persona, anótelo aquí.",
         icono: MessageCircleReply,
         accion: "respuesta",
       };
@@ -69,19 +72,19 @@ const SIN_PASO = {
 };
 
 export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
-  const [dialogo, setDialogo] = useState(null); // "llegada" | "respuesta" | null
+  const [dialogo, setDialogo] = useState(null); // "llegada" | "respuesta" | "whatsapp_precio" | "whatsapp_listo" | null
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [celebrando, setCelebrando] = useState(false);
 
   const paso = pasoPara(trabajo);
 
-  const ejecutar = async (hacer, { celebrar = false } = {}) => {
+  const ejecutar = async (hacer, { celebrar = false, luego = null } = {}) => {
     setGuardando(true);
     setError("");
     try {
       await hacer();
-      setDialogo(null);
+      setDialogo(luego);
       if (celebrar) {
         setCelebrando(true);
         setTimeout(() => setCelebrando(false), 1400);
@@ -96,18 +99,73 @@ export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
 
   const tocar = () => {
     if (paso.accion === "precio") return alEditarPrecio();
-    if (paso.accion === "llegada" || paso.accion === "respuesta") {
+    if (["llegada", "respuesta", "whatsapp_precio"].includes(paso.accion)) {
       setError("");
       return setDialogo(paso.accion);
     }
-    ejecutar(() => avanzarEstado(trabajo.id, paso.accion), { celebrar: paso.accion === "listo" });
+    // Al quedar listo: confeti y se ofrece avisarle al cliente por WhatsApp.
+    const listo = paso.accion === "listo";
+    ejecutar(() => avanzarEstado(trabajo.id, paso.accion), { celebrar: listo, luego: listo ? "whatsapp_listo" : null });
   };
+
+  const cliente = trabajo.vehiculo?.cliente;
+  const datosMensaje = {
+    cliente: cliente?.nombre,
+    vehiculo: trabajo.vehiculo ?? {},
+    diagnostico: trabajo.diagnostico,
+    items: trabajo.items,
+    total: trabajo.items.reduce((suma, i) => suma + Number(i.subtotal), 0),
+    link: linkCliente(trabajo.token_publico),
+  };
+
+  // Las ventanitas van fuera del botón: la de "avisar que está listo" se abre
+  // justo cuando el carro ya no tiene siguiente paso.
+  const dialogos = (
+    <>
+      <DialogoLlegada
+        abierto={dialogo === "llegada"}
+        guardando={guardando}
+        error={error}
+        alCerrar={() => setDialogo(null)}
+        alGuardar={(datos) => ejecutar(() => registrarLlegada(trabajo, datos))}
+      />
+      <DialogoRespuesta
+        abierto={dialogo === "respuesta"}
+        guardando={guardando}
+        error={error}
+        alCerrar={() => setDialogo(null)}
+        alGuardar={(estado) => ejecutar(() => avanzarEstado(trabajo.id, estado))}
+      />
+      <DialogoWhatsApp
+        abierto={dialogo === "whatsapp_precio"}
+        titulo="Mandar el precio al cliente"
+        telefono={cliente?.telefono}
+        nombre={cliente?.nombre}
+        mensaje={mensajeCotizacion(datosMensaje)}
+        textoListo="Ya lo mandé"
+        guardando={guardando}
+        error={error}
+        alListo={() => ejecutar(() => avanzarEstado(trabajo.id, "esperando_aprobacion"))}
+        alCerrar={() => setDialogo(null)}
+      />
+      <DialogoWhatsApp
+        abierto={dialogo === "whatsapp_listo"}
+        titulo="¡Listo! ¿Le avisamos al cliente?"
+        telefono={cliente?.telefono}
+        nombre={cliente?.nombre}
+        mensaje={mensajeListo(datosMensaje)}
+        alCerrar={() => setDialogo(null)}
+      />
+    </>
+  );
 
   if (!paso) {
     return (
-      <section className="rounded-tarjeta border border-linea bg-tarjeta p-6 shadow-tarjeta">
+      <section className="relative rounded-tarjeta border border-linea bg-tarjeta p-6 shadow-tarjeta">
+        {celebrando && <Confeti />}
         <p className="etiqueta">Siguiente paso</p>
         <p className="mt-2 text-lg text-gris">{SIN_PASO[trabajo.estado]}</p>
+        {dialogos}
       </section>
     );
   }
@@ -125,21 +183,7 @@ export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
           {error}
         </p>
       )}
-
-      <DialogoLlegada
-        abierto={dialogo === "llegada"}
-        guardando={guardando}
-        error={error}
-        alCerrar={() => setDialogo(null)}
-        alGuardar={(datos) => ejecutar(() => registrarLlegada(trabajo, datos))}
-      />
-      <DialogoRespuesta
-        abierto={dialogo === "respuesta"}
-        guardando={guardando}
-        error={error}
-        alCerrar={() => setDialogo(null)}
-        alGuardar={(estado) => ejecutar(() => avanzarEstado(trabajo.id, estado))}
-      />
+      {dialogos}
     </section>
   );
 }

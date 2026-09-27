@@ -6,8 +6,12 @@ import { Link } from "react-router-dom";
 //   secundario = otras acciones
 //   peligro    = borrar o cancelar; siempre con <Confirmar>
 //   gris       = acciones de poco uso, como un enlace
+//   whatsapp   = abrir WhatsApp (verde, el color que el tío ya reconoce)
+// `to` = pantalla del sistema; `href` = página de afuera (se abre en otra pestaña).
 
 const VARIANTES = {
+  whatsapp:
+    "bg-verde-texto text-white hover:bg-[#115c2f] hover:shadow-[0_8px_20px_-8px_rgb(23_112_58/0.6)] hover:-translate-y-0.5",
   principal:
     "bg-rojo text-white hover:bg-rojo-oscuro hover:shadow-boton-rojo hover:-translate-y-0.5",
   secundario:
@@ -45,6 +49,14 @@ export default function Boton({
       <Link to={to} className={clases} {...props}>
         {contenido}
       </Link>
+    );
+  }
+
+  if (props.href) {
+    return (
+      <a target="_blank" rel="noopener noreferrer" className={clases} {...props}>
+        {contenido}
+      </a>
     );
   }
 

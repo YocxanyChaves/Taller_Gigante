@@ -14,6 +14,8 @@ import Confirmar from "../components/ui/Confirmar";
 import SiguientePaso from "../components/trabajos/SiguientePaso";
 import Cotizacion from "../components/trabajos/Cotizacion";
 import DatosTrabajo from "../components/trabajos/DatosTrabajo";
+import LinkCliente from "../components/trabajos/LinkCliente";
+import useRefrescar from "../lib/useRefrescar";
 import LineaTiempo from "../components/trabajos/LineaTiempo";
 
 // Ficha de un trabajo: arriba el carro y su estado; al centro el botón del
@@ -44,6 +46,9 @@ export default function Trabajo() {
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+  // Si el cliente responde desde su link, la ficha se actualiza sola.
+  useRefrescar(cargar, 20000);
 
   if (error) {
     return (
@@ -139,6 +144,7 @@ export default function Trabajo() {
 
         <div className="flex flex-col gap-6">
           <DatosTrabajo trabajo={trabajo} />
+          {trabajo.estado !== "cancelado" && <LinkCliente trabajo={trabajo} alCambio={cargar} />}
           <LineaTiempo historial={trabajo.historial} />
 
           {activo && (

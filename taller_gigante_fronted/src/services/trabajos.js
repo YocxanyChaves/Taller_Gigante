@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabaseClient";
 
 const CAMPOS_TRABAJO = `
   id, estado, problema_reportado, diagnostico, fecha_ingreso, fecha_cita, fecha_entrega,
-  km_entrada, nivel_combustible, notas_recepcion, aprobada, respondida_en, comentario_cliente,
+  km_entrada, nivel_combustible, notas_recepcion, aprobada, respondida_en, comentario_cliente, token_publico,
   vehiculo:vehiculos ( id, placa, marca, modelo, anio, kilometraje,
     cliente:clientes ( id, nombre, telefono ) )
 `;
@@ -156,4 +156,11 @@ export async function guardarCotizacion(ordenId, diagnostico, filas, filasAntes)
     const { error } = await supabase.from("orden_items").insert(nuevas);
     if (error) throw error;
   }
+}
+
+// "Hacer un link nuevo": el link viejo deja de funcionar. Devuelve el token nuevo.
+export async function regenerarLink(id) {
+  const { data, error } = await supabase.rpc("regenerar_token", { p_orden_id: id });
+  if (error) throw error;
+  return data;
 }
