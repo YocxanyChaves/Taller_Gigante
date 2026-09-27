@@ -44,15 +44,17 @@ const CUANDO = [
 ];
 
 // La cita se guarda a las 8 a. m. del día escogido (el taller no maneja horas).
+// null si todavía no hay día (escogió "otro día" pero no ha puesto la fecha).
 function fechaCita(cuando, fecha) {
   const dia = new Date();
   if (cuando === "manana") dia.setDate(dia.getDate() + 1);
   if (cuando === "fecha") {
-    const [anio, mes, d] = fecha.split("-").map(Number);
+    const [anio, mes, d] = (fecha ?? "").split("-").map(Number);
+    if (!anio || !mes || !d) return null;
     dia.setFullYear(anio, mes - 1, d);
   }
   dia.setHours(8, 0, 0, 0);
-  return dia.toISOString();
+  return Number.isNaN(dia.getTime()) ? null : dia.toISOString();
 }
 
 function anioValido(anio) {
@@ -295,7 +297,7 @@ export default function NuevoTrabajo() {
 
     cuando: {
       pregunta: "¿Cuándo viene el carro?",
-      puedeSeguir: datos.cuando !== null && (datos.cuando !== "fecha" || datos.fecha !== ""),
+      puedeSeguir: datos.cuando !== null && (datos.cuando === "ya" || fechaCita(datos.cuando, datos.fecha) !== null),
       contenido: (
         <div className="flex flex-col gap-3">
           {CUANDO.map((opcion) => (
