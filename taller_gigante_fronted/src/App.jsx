@@ -6,6 +6,7 @@ import SinAcceso from "./pages/SinAcceso";
 import Inicio from "./pages/Inicio";
 import Trabajos from "./pages/Trabajos";
 import NuevoTrabajo from "./pages/NuevoTrabajo";
+import Trabajo from "./pages/Trabajo";
 import Clientes from "./pages/Clientes";
 import Cobros from "./pages/Cobros";
 import Estilos from "./pages/Estilos";
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/inicio" element={<Inicio />} />
             <Route path="/trabajos" element={<Trabajos />} />
             <Route path="/trabajos/nuevo" element={<NuevoTrabajo />} />
+            <Route path="/trabajos/:id" element={<Trabajo />} />
             <Route path="/clientes" element={<Clientes />} />
             <Route path="/cobros" element={<Cobros />} />
             <Route element={<SoloAdmin />}>
