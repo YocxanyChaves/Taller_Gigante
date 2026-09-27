@@ -156,3 +156,9 @@ body {
   outline: 3px solid var(--color-tinta);
   outline-offset: 3px;
 }
+
+/* Los campos ya se marcan solos al escribir (borde oscuro): sin doble contorno. */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
