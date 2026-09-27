@@ -46,7 +46,7 @@ Cada estado se muestra con un semaforito de 3 luces (la suya encendida) + el tex
 
 - **Inicio es un menú:** fecha, saludo según la hora, "¿Qué desea hacer?" y 4 opciones grandes (`<OpcionMenu>`): Recibir un carro (círculo rojo) · Carros en el taller · Buscar un cliente · Cobrar y entregar. Abajo, "Para hoy" con datos reales (`resumen_inicio()`).
 - Las demás pantallas: barra de arriba con **"← Inicio"** y el botón rojo **"Recibir un carro"** (en celular, "Recibir"). "Salir" solo en Inicio.
-- El gráfico de plata del plan original va en **Cobros** (fase 5), no en Inicio.
+- El gráfico de plata va en el dashboard **«Cómo va el taller»** (fase 5), una pestaña aparte desde el menú de Inicio.
 
 ## Componentes (`src/components/ui/`)
 
@@ -64,7 +64,7 @@ Cada estado se muestra con un semaforito de 3 luces (la suya encendida) + el tex
 
 `animar-entrada` (sube y aparece; `--retraso` para escalonar listas), `deslizar-derecha`/`-izquierda`, `aparecer`, `oscurecer`, `latido`, `flotar`, `menear` (en `.group:hover`), `dibujar`, `confeti`, `barra-progreso`. Cada pantalla entra con `animar-entrada` al cambiar de ruta. **Todo se apaga con `prefers-reduced-motion`.** El movimiento acompaña, nunca estorba: nada que haya que esperar para poder tocar.
 
-## Gráfico de plata (Chart.js, fase 5, en Cobros)
+## Gráfico de plata (Chart.js, fase 5, en «Cómo va el taller»)
 
 - Tres **líneas** por mes: Cobrado (`--color-tinta`, continua, puntos cuadrados), Por cobrar (`--color-rojo`, rayada 10/6, puntos circulares), Ganancia (`--color-verde`, punteada 3/5, puntos triangulares). Grosor 3px, `tension .3`, animación de entrada de Chart.js.
 - **Cada punto con su monto escrito encima** (`₡540`), 14px del color de la línea.

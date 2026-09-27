@@ -23,6 +23,7 @@ coincide con la versión que guarda Supabase.
 | `20260926225714_items_pagos_historial.sql` | Fase 1. Tablas `orden_items`, `pagos` y `orden_estados_historial`, y la vista `ordenes_totales`. Los costos viejos pasan a un ítem. |
 | `20260926225809_funciones_trabajos.sql` | Fase 1. Pasos permitidos, link público, regenerar link y cálculos del dashboard. |
 | `20260926225837_renombrar_anio.sql` | Fase 1. `vehiculos."año"` → `anio`. |
+| `20260927004208_recibir_carro.sql` | Fase 3. Buscar carro por placa y cliente por teléfono (como sea que se escriban) y `recibir_carro()`, que guarda cliente, carro y trabajo de una sola vez. |
 
 Antes de la fase 1 se sacó un respaldo de los datos en `respaldos/` (fuera de git).
 
@@ -105,6 +106,10 @@ La columna `es_demo` separa los datos de prueba de los reales y ya no se puede c
 | `resumen_inicio()` | admin, demo | Tarjetas de Inicio: carros en el taller, esperando respuesta, listos y total por cobrar. |
 | `resumen_plata(desde, hasta)` | admin, demo | Una fila por mes (hora de Costa Rica): `cobrado` (pagos del mes), `por_cobrar` (saldo de hoy de lo entregado ese mes), `ganancia` (total − costo de repuestos) y `ganancia_aproximada`. |
 | `etiqueta_estado(estado)` | admin, demo | El texto en pantalla de un estado. |
+| `buscar_vehiculo_por_placa(placa)` | admin, demo | El carro con esa placa ("dsf 456" = "DSF-456"), su dueño y si ya tiene un trabajo sin terminar. |
+| `buscar_cliente_por_telefono(tel)` | admin, demo | Clientes con ese teléfono (compara los últimos 8 números). |
+| `recibir_carro(...)` | admin, demo | Asistente "Recibir un carro": crea el cliente y el carro si son nuevos y el trabajo (en revisión si "ya está aquí", si no como cita). Todo o nada; se niega si el carro ya está en el taller. Devuelve el id del trabajo. |
+| `normalizar_placa(p)`, `normalizar_telefono(t)` | admin, demo | "dsf-456" → "DSF456"; "8888-1111" → "88881111". |
 | `get_trabajo_publico(token)` | **Sin login** | Lo que ve el cliente con su link: primer nombre, carro, estado e historial, problema, diagnóstico, ítems (sin costos del taller), total, pagado, saldo y si puede responder. Nunca teléfono, correo, dirección ni otros trabajos. Token que no existe → `null`. |
 | `responder_cotizacion(token, aprueba, comentario)` | **Sin login** | El cliente aprueba o rechaza. Solo si el trabajo espera respuesta; pasa a `esperando_repuestos` (si hay repuestos), `en_reparacion` o `no_aprobado`. Si ya respondió no cambia nada. |
 | `get_stats_publicas()` | Página de inicio (sin login) | Cuenta clientes, vehículos y trabajos entregados reales. |

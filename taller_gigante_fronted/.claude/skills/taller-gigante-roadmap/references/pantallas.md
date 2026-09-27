@@ -45,15 +45,18 @@ Teléfono normalizado a `506` + 8 dígitos. Texto con `encodeURIComponent`. Siem
 
 ## Cobros
 
-Arriba: tarjetas Cobrado este mes · Por cobrar · Ganancia del mes (cuentan hacia arriba) y el gráfico de plata (ver `diseno.md`) con selector [Últimos 6 meses] [Este año]. Debajo:
 Lista de quién debe: cliente, carro, saldo grande, desde cuándo, último abono. Botones: [Registrar abono] (monto + método, sugiere el saldo) [Recordar por WhatsApp]. Total por cobrar arriba.
+
+## Cómo va el taller (dashboard, fase 5)
+
+Pestaña para explorar, a la que se llega desde una quinta opción del menú de Inicio ("Cómo va el taller — La plata y los carros del mes"). Arriba: tarjetas Cobrado este mes · Por cobrar · Ganancia del mes (cuentan hacia arriba). Luego el gráfico de plata de 3 líneas (ver `diseno.md`) con selector [Últimos 6 meses] [Este año]. Debajo, datos útiles: carros por color del semáforo, trabajos recibidos y entregados en el mes, y el aviso de ganancia aproximada si faltan costos. Solo lectura: aquí no se cambia nada.
 
 ## Inicio (hecho en la fase 2)
 
 1. Fecha, saludo según la hora y "¿Qué desea hacer?".
 2. Menú de 4 opciones grandes: Recibir un carro (rojo) · Carros en el taller · Buscar un cliente · Cobrar y entregar.
 3. "Para hoy": carros listos para recoger, clientes que no han respondido el precio y (fase 5) carros por pasar DEKRA, cada uno con su semaforito.
-Nada más. Las tarjetas de plata y el gráfico van en Cobros.
+Nada más. Las tarjetas de plata y el gráfico van en «Cómo va el taller».
 
 ## Clientes
 

@@ -36,7 +36,7 @@ Principios de uso (no negociables):
 
 - **Sin cuentas de clientes.** Solo inician sesión el tío/admin y el demo. Cada trabajo tiene un **link único** (token) que el cliente abre sin registrarse: ve el estado, el diagnóstico, el detalle del precio, y **aprueba o rechaza** ahí mismo. Se eliminan: rol `cliente`, portal con login, `solicitudes_vinculacion`, `fusionar_cliente_vinculado`, vinculación automática, bloqueo de clientes (confirmar cada borrado).
 - **WhatsApp gratis:** botón que abre `https://wa.me/506XXXXXXXX?text=<mensaje codificado>` con el mensaje ya escrito (el tío solo da enviar) + botón **"Copiar mensaje"** al lado. Nada de WhatsApp API (cuesta).
-- **Pocas pantallas:** Inicio (menú), Carros en el taller, Buscar un cliente, Cobrar y entregar (con el gráfico de plata). Más la página pública del link del cliente y el login.
+- **Pocas pantallas:** Inicio (menú), Carros en el taller, Buscar un cliente, Cobrar y entregar, y el dashboard «Cómo va el taller» (tarjetas de plata y el gráfico de las 3 líneas). Más la página pública del link del cliente y el login.
 - **Diseño claro y vivo**: fondo hueso, tarjetas blancas, letra Atkinson Hyperlegible, rojo del logo, el proceso del carro con colores de semáforo y animaciones divertidas. Inicio es un menú "¿Qué desea hacer?". (Retro, vintage y futurista oscuro ya se descartaron.) Ver `references/diseno.md` — obligatorio leerlo antes de tocar cualquier componente o estilo.
 
 ## Referencias (léelas cuando toque)

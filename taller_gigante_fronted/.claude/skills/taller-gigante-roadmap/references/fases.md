@@ -52,8 +52,8 @@ Listo cuando: la dueña aprueba `/estilos` y el login.
 ## Fase 3 — Trabajos
 
 Detalle en `pantallas.md`.
-1. Asistente "Nuevo trabajo" (teléfono → cliente → placa → problema → cita).
-2. Pantalla Trabajos: tablero por etapa.
+1. Asistente "Recibir un carro" (hecho): placa → (si el carro es nuevo) teléfono → nombre → carro → problema → cuándo → resumen. Empieza por la placa porque casi siempre el carro ya vino.
+2. "Carros en el taller" (hecho): lista con pestañas por color del semáforo (Todos · Listos · En trabajo · Esperando · Citas), no un tablero de columnas.
 3. Ficha del trabajo con el botón de siguiente paso y la línea de tiempo.
 4. Cotización: agregar repuestos y mano de obra (con costo opcional), total automático.
 5. Recepción: km de entrada, combustible, notas (fotos quedan para fase 7).
@@ -68,11 +68,11 @@ Listo cuando: el tío (o la dueña haciendo de tío) puede llevar un carro de ci
 
 Listo cuando: desde un celular sin sesión se abre el link, se aprueba, y el trabajo avanza solo a "Esperando repuestos" en la pantalla del tío.
 
-## Fase 5 — Cobros y el resto de Inicio
+## Fase 5 — Cobros y el dashboard "Cómo va el taller"
 
 1. Entregar y cobrar: contado o cuotas; registrar abonos; saldo.
 2. Pantalla Cobros: quién debe, cuánto, desde cuándo, botón "Registrar abono" y "Recordar por WhatsApp".
-3. Cobros lleva arriba las tarjetas de plata y el gráfico (ver `diseno.md` y `datos.md`). Inicio se queda como menú + "Para hoy" (ya muestra listos y esperando respuesta con `resumen_inicio()`). Sin tablas de órdenes recientes ni actividad reciente.
+3. **Dashboard "Cómo va el taller"** (pedido por la dueña el 27/09/2026): pestaña aparte para que el tío explore, con una quinta opción en el menú de Inicio. Lleva las tarjetas de plata, el gráfico de las 3 líneas (cobrado, por cobrar, ganancia; ver `diseno.md` y `datos.md`, `resumen_plata()`) y otros datos útiles (carros por estado, trabajos del mes). Inicio se queda como menú + "Para hoy" (ya muestra listos y esperando respuesta con `resumen_inicio()`). Sin tablas de órdenes recientes ni actividad reciente.
 4. Alertas de DEKRA (reusar `lib/dekra.js`) como una línea más en el "Para hoy" de Inicio.
 
 ## Fase 6 — Clientes

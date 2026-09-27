@@ -85,8 +85,8 @@ supabase/
 
 Convenciones:
 - Nadie consulta la sesión o el rol por su cuenta: se usa `useAuth()`.
-- Los colores, letras y sombras están como variables en `src/index.css` (`bg-panel`,
-  `text-rojo-vivo`, `shadow-dura`…). Nada de colores sueltos en los componentes.
+- Los colores, letras y sombras están como variables en `src/index.css` (`bg-tarjeta`,
+  `text-gris`, `bg-verde`…). Nada de colores sueltos en los componentes.
 - Todo botón e ícono lleva texto; un solo botón rojo por pantalla.
 - Las fechas de los formularios se guardan con `fechaInputAISO` y se leen con
   `isoAFechaInput` (`src/lib/formato.js`); si no, se ven un día antes en Costa Rica.
@@ -108,12 +108,12 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 
 | Fase | Objetivo | Estado |
 |---|---|---|
-| 0 | Seguridad y limpieza de la base de datos | ✅ Hecha (falta apagar el registro público) |
+| 0 | Seguridad y limpieza de la base de datos | ✅ Hecha |
 | 1 | Modelo de datos nuevo: estados del taller, ítems, pagos, historial y link público | ✅ Hecha |
-| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | 🟨 Falta que la dueña apruebe `/estilos` |
-| 3 | Trabajos: asistente "Nuevo trabajo", tablero por etapa y botón de siguiente paso | ⬜ |
+| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ✅ Hecha |
+| 3 | Trabajos: asistente "Recibir un carro", lista de carros y botón de siguiente paso | 🟨 Falta probarla con el usuario demo |
 | 4 | Link del cliente y WhatsApp | ⬜ |
-| 5 | Cobros (contado o cuotas) e Inicio con el gráfico de plata | ⬜ |
+| 5 | Cobros (contado o cuotas) y el dashboard "Cómo va el taller" con el gráfico de plata | ⬜ |
 | 6 | Clientes: buscador y ficha | ⬜ |
 | 7 | Extras, solo si el taller los pide: fotos, PDF, recordatorios, inventario | ⬜ |
 
@@ -148,14 +148,34 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
   regenerar link, tarjetas de Inicio y plata por mes (cobrado, por cobrar y ganancia).
 - ✅ `año` → `anio`.
 
+### Fase 2: qué se hizo (26/09/2026)
+
+- ✅ Frontend viejo borrado (sigue en la rama `main`); login nuevo y pantalla para cuentas `pendiente`.
+- ✅ Diseño "claro y vivo" aprobado por la dueña (después de probar retro, vintage y futurista):
+  fondo hueso, letra Atkinson Hyperlegible, rojo del logo, semáforo para el proceso del carro y
+  animaciones. Todas las piezas en `/estilos`.
+- ✅ Inicio como menú "¿Qué desea hacer?" con "Para hoy" (datos reales de `resumen_inicio()`).
+
+### Fase 3: qué se hizo (27/09/2026)
+
+- ✅ Asistente "Recibir un carro": empieza por la placa (si el carro ya vino, se salta el
+  teléfono y los datos del carro), busca mientras se escribe y guarda cliente, carro y trabajo
+  de una sola vez (`recibir_carro()`). Termina con confeti.
+- ✅ "Carros en el taller": lista con pestañas por color del semáforo y cuántos días lleva cada
+  carro en su etapa (en rojo si lleva más de 3 días esperando respuesta).
+- ✅ Ficha del trabajo: botón rojo de siguiente paso (llegó el carro, anotar precio, ya le avisé el
+  precio, el cliente respondió, llegaron los repuestos, el carro está listo), precio con
+  repuestos, mano de obra y "Me costó", línea de tiempo, volver un paso y cancelar.
+
 ### Pendiente
 
-- En el dashboard de Supabase: apagar el registro público (*Authentication → Sign In /
-  Providers → Allow new users to sign up*), activar la protección contra contraseñas
-  filtradas y confirmar que la confirmación de correo está activa.
-- Probar un trabajo completo (cita → entregado con cuotas) y el link del cliente. Se va a
-  hacer con el usuario demo cuando existan las pantallas nuevas; no se prueba escribiendo
-  datos a mano en la base real.
-- Otras decisiones con el taller: tonos exactos del rojo y el azul, datos del taller para
+- Probar la fase 3 con el usuario demo: recibir un carro nuevo y uno conocido, anotar el precio y
+  llevarlo hasta "Listo para recoger". Después, un trabajo completo con cuotas (fase 5).
+- En el dashboard de Supabase: activar la protección contra contraseñas filtradas si algún día
+  se pasa al plan Pro (en el plan gratis no existe) y dejar contraseñas largas en las 2 cuentas.
+- El demo todavía puede, llamando a la API a mano, colgar un carro o un trabajo nuevo de un
+  cliente real si adivina su id (las políticas no revisan el dueño). Cerrarlo antes de publicar
+  las credenciales demo.
+- Otras decisiones con el taller: tonos exactos del rojo, datos del taller para
   la página pública y los mensajes, y si el demo sigue editable (con reinicio nocturno)
   o pasa a solo lectura.
