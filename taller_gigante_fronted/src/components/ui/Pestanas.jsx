@@ -21,7 +21,7 @@ export default function Pestanas({ opciones, valor, alCambiar, etiqueta }) {
             >
               {marca}
               {texto}
-              <span className="numeros">· {cantidad}</span>
+              {cantidad != null && <span className="numeros">· {cantidad}</span>}
             </button>
           );
         })}

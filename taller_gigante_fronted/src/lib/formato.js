@@ -3,6 +3,27 @@
 export const formatoColones = (valor) =>
   `₡${Number(valor).toLocaleString("es-CR", { maximumFractionDigits: 0 })}`;
 
+// Corto, para gráficos y tarjetas: "₡540 mil", "₡1,2 millones", "₡800".
+export function formatoColonesCorto(valor) {
+  const n = Number(valor);
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) {
+    const millones = (n / 1_000_000).toLocaleString("es-CR", { maximumFractionDigits: 1 });
+    return `₡${millones} ${millones === "1" || millones === "-1" ? "millón" : "millones"}`;
+  }
+  if (abs >= 1000) return `₡${Math.round(n / 1000).toLocaleString("es-CR")} mil`;
+  return formatoColones(n);
+}
+
+// "oct", "set" (en Costa Rica se dice "setiembre") a partir de "AAAA-MM-DD".
+export function mesCorto(fecha) {
+  const [anio, mes] = fecha.split("-").map(Number);
+  return new Date(anio, mes - 1, 1)
+    .toLocaleString("es-CR", { month: "short" })
+    .replace(".", "")
+    .replace("sept", "set");
+}
+
 export const formatoKm = (km) => `${Number(km).toLocaleString("es-CR")} km`;
 
 // Un <input type="number"> vacío da "": en la base eso es null, no 0.
