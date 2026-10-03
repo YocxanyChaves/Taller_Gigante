@@ -12,6 +12,9 @@ export const numeroONull = (valor) =>
 // Solo los números de un texto ("8888-1111" → "88881111").
 export const soloDigitos = (texto) => String(texto ?? "").replace(/\D/g, "");
 
+// Un monto escrito a mano ("₡25.000", "25 000") → 25000. Vacío = 0.
+export const montoDe = (texto) => Number(soloDigitos(texto) || 0);
+
 // "dsf-456" → "DSF456" (misma regla que normalizar_placa() en la base).
 export const normalizarPlaca = (placa) =>
   String(placa ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");

@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 // admin, lo real; demo, lo de prueba.
 
 const CAMPOS_TRABAJO = `
-  id, estado, problema_reportado, diagnostico, fecha_ingreso, fecha_cita, fecha_entrega,
+  id, estado, problema_reportado, diagnostico, modalidad_pago, cobro_revision, fecha_ingreso, fecha_cita, fecha_entrega,
   km_entrada, nivel_combustible, notas_recepcion, aprobada, respondida_en, comentario_cliente, token_publico,
   vehiculo:vehiculos ( id, placa, marca, modelo, anio, kilometraje,
     cliente:clientes ( id, nombre, telefono ) )
@@ -77,14 +77,15 @@ export async function listarTrabajosActivos() {
 // ===== Ficha de un trabajo =====
 
 export async function obtenerTrabajo(id) {
-  const [trabajo, items, historial, totales] = await Promise.all([
+  const [trabajo, items, historial, totales, pagos] = await Promise.all([
     supabase.from("ordenes").select(CAMPOS_TRABAJO).eq("id", id).maybeSingle(),
     supabase.from("orden_items").select("*").eq("orden_id", id).order("id"),
     supabase.from("orden_estados_historial").select("*").eq("orden_id", id).order("created_at"),
     supabase.from("ordenes_totales").select("*").eq("orden_id", id).maybeSingle(),
+    supabase.from("pagos").select("*").eq("orden_id", id).order("pagado_en"),
   ]);
 
-  for (const r of [trabajo, items, historial, totales]) {
+  for (const r of [trabajo, items, historial, totales, pagos]) {
     if (r.error) throw r.error;
   }
   if (!trabajo.data) return null;
@@ -94,6 +95,7 @@ export async function obtenerTrabajo(id) {
     items: items.data,
     historial: historial.data,
     totales: totales.data,
+    pagos: pagos.data,
   };
 }
 
