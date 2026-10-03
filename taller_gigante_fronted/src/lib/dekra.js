@@ -21,7 +21,7 @@ export const MESES = [
   "junio",
   "julio",
   "agosto",
-  "septiembre",
+  "setiembre", // así se dice en Costa Rica
   "octubre",
   "noviembre",
   "diciembre",

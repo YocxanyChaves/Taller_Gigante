@@ -102,7 +102,7 @@ export default function Cliente() {
               Toque «Recibir un carro de este cliente» para anotar el primero.
             </Vacio>
           ) : (
-            cliente.vehiculos.map((v, i) => <CarroCliente key={v.id} vehiculo={v} retraso={Math.min(i, 4) * 60} />)
+            cliente.vehiculos.map((v, i) => <CarroCliente key={v.id} vehiculo={v} retraso={Math.min(i, 4) * 60} alCambio={cargar} />)
           )}
         </section>
 

@@ -18,7 +18,7 @@ export async function obtenerCliente(id) {
     .from("clientes")
     .select(
       `id, nombre, telefono, correo, direccion, fecha_ingreso,
-       vehiculos ( id, placa, marca, modelo, anio, kilometraje,
+       vehiculos ( id, placa, marca, modelo, anio, kilometraje, ultima_revision_tecnica,
          ordenes ( id, estado, problema_reportado, diagnostico, fecha_ingreso, fecha_cita, fecha_entrega ) )`
     )
     .eq("id", id)
@@ -58,6 +58,14 @@ export async function obtenerClienteBasico(id) {
   const { data, error } = await supabase.from("clientes").select("id, nombre, telefono").eq("id", id).maybeSingle();
   if (error) throw error;
   return data;
+}
+
+// "Ya pasó DEKRA": la revisión de hoy (fecha local), así se quita el aviso.
+export async function marcarDekra(vehiculoId) {
+  const hoy = new Date();
+  const fecha = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+  const { error } = await supabase.from("vehiculos").update({ ultima_revision_tecnica: fecha }).eq("id", vehiculoId);
+  if (error) throw error;
 }
 
 export async function actualizarCliente(id, { nombre, telefono, correo, direccion }) {
