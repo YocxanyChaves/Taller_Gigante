@@ -55,6 +55,12 @@ export function fechaLarga(iso, conHora = false) {
   return new Date(iso).toLocaleString("es-CR", opciones).replace("septiembre", "setiembre");
 }
 
+// "setiembre de 2026".
+export function mesYAnio(iso) {
+  if (!iso) return "";
+  return new Date(iso).toLocaleString("es-CR", { month: "long", year: "numeric" }).replace("septiembre", "setiembre");
+}
+
 // <input type="date"> da "AAAA-MM-DD". Se guarda como medianoche en hora
 // local: si se mandara tal cual, Postgres lo tomaría como medianoche UTC y en
 // Costa Rica se vería un día antes.

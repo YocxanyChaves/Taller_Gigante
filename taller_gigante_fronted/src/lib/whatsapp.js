@@ -64,6 +64,11 @@ export function mensajeLink({ cliente, vehiculo, link }) {
   return `${saludo(cliente)}, le saluda ${TALLER.nombre}. Aquí puede ver cómo va su ${carroCorto(vehiculo)}: ${link}`;
 }
 
+// Para escribirle al cliente desde su ficha, sin un trabajo de por medio.
+export function mensajeSaludo({ nombre }) {
+  return `${saludo(nombre)}, le saluda ${TALLER.nombre}.`;
+}
+
 // Lo que escribe el cliente desde su página al taller.
 export function mensajeAlTaller({ placa }) {
   return `Hola, le escribo por mi carro${placa ? ` placa ${placa.toUpperCase()}` : ""}.`;

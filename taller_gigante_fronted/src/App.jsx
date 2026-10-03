@@ -9,6 +9,7 @@ import NuevoTrabajo from "./pages/NuevoTrabajo";
 import Trabajo from "./pages/Trabajo";
 import TrabajoPublico from "./pages/TrabajoPublico";
 import Clientes from "./pages/Clientes";
+import Cliente from "./pages/Cliente";
 import Cobros from "./pages/Cobros";
 import Estilos from "./pages/Estilos";
 import NoEncontrada from "./pages/NoEncontrada";
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="/trabajos/nuevo" element={<NuevoTrabajo />} />
             <Route path="/trabajos/:id" element={<Trabajo />} />
             <Route path="/clientes" element={<Clientes />} />
+            <Route path="/clientes/:id" element={<Cliente />} />
             <Route path="/cobros" element={<Cobros />} />
             <Route element={<SoloAdmin />}>
               <Route path="/estilos" element={<Estilos />} />
