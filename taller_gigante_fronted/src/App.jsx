@@ -1,70 +1,65 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Dashboard from "./pages/Dashboard";
-import Clientes from "./pages/Clientes";
-import Vehiculos from "./pages/Vehiculos";
-import Ordenes from "./pages/Ordenes";
-import Historial from "./pages/Historial";
-import Configuracion from "./pages/Configuracion";
-import Usuarios from "./pages/Usuarios";
-import ClientePortal from "./pages/ClientePortal";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import Marco from "./components/layout/Marco";
+import Login from "./pages/Login";
+import SinAcceso from "./pages/SinAcceso";
+import Inicio from "./pages/Inicio";
+import Trabajos from "./pages/Trabajos";
+import NuevoTrabajo from "./pages/NuevoTrabajo";
+import Trabajo from "./pages/Trabajo";
+import TrabajoPublico from "./pages/TrabajoPublico";
+import Clientes from "./pages/Clientes";
+import Cobros from "./pages/Cobros";
+import Estilos from "./pages/Estilos";
+import NoEncontrada from "./pages/NoEncontrada";
+
+// Pantallas con sesión: sin sesión va al login; con cuenta 'pendiente', a
+// "Su cuenta todavía no tiene acceso".
+function ConSesion() {
+  const { user, tieneAcceso } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (!tieneAcceso) return <SinAcceso />;
+  return <Outlet />;
+}
+
+function SoloAdmin() {
+  const { esAdmin } = useAuth();
+  return esAdmin ? <Outlet /> : <Navigate to="/inicio" replace />;
+}
 
 export default function App() {
-  const { user, rol, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-zinc-400">
-        Cargando...
+      <div className="flex min-h-screen items-center justify-center text-2xl text-gris">
+        Cargando…
       </div>
     );
   }
 
-  const protectAdmin = (element) => {
-    if (!user) return <Login />;
-    if (rol === "cliente") return <Navigate to="/portal" replace />;
-    return element;
-  };
-
-  const protectCliente = (element) => {
-    if (!user) return <Login />;
-    if (rol !== "cliente") return <Navigate to="/dashboard" replace />;
-    return element;
-  };
-
-  const protectSoloAdmin = (element) => {
-    if (!user) return <Login />;
-    if (rol !== "admin") return <Navigate to="/dashboard" replace />;
-    return element;
-  };
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-
         <Route path="/login" element={<Login />} />
+        {/* Página del cliente: sin cuenta, desde el link que le manda el taller. */}
+        <Route path="/t/:token" element={<TrabajoPublico />} />
 
-        <Route path="/register" element={<Register />} />
-
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-
-        <Route path="/dashboard" element={protectAdmin(<Dashboard />)} />
-        <Route path="/clientes" element={protectAdmin(<Clientes />)} />
-        <Route path="/vehiculos" element={protectAdmin(<Vehiculos />)} />
-        <Route path="/ordenes" element={protectAdmin(<Ordenes />)} />
-        <Route path="/historial" element={protectAdmin(<Historial />)} />
-        <Route path="/configuracion" element={protectAdmin(<Configuracion />)} />
-        <Route path="/usuarios" element={protectSoloAdmin(<Usuarios />)} />
-
-        <Route path="/portal" element={protectCliente(<ClientePortal />)} />
+        <Route element={<ConSesion />}>
+          <Route element={<Marco />}>
+            <Route path="/" element={<Navigate to="/inicio" replace />} />
+            <Route path="/inicio" element={<Inicio />} />
+            <Route path="/trabajos" element={<Trabajos />} />
+            <Route path="/trabajos/nuevo" element={<NuevoTrabajo />} />
+            <Route path="/trabajos/:id" element={<Trabajo />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/cobros" element={<Cobros />} />
+            <Route element={<SoloAdmin />}>
+              <Route path="/estilos" element={<Estilos />} />
+            </Route>
+            <Route path="*" element={<NoEncontrada />} />
+          </Route>
+        </Route>
       </Routes>
     </BrowserRouter>
   );

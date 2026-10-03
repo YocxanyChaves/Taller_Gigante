@@ -1,169 +1,97 @@
-# Detalle de las fases
+# Fases
+
+Orden pensado para que cada fase deje algo usable. No mezclar fases. Cada una cierra actualizando el README.
 
 ## Contenido
-- Fase 0 — Ordenar la casa
-- Fase 1 — Núcleo del taller
-- Fase 2 — Portal del cliente
-- Fase 3 — Retención y visibilidad
-- Fase 4 — Extras
-
-Los esquemas SQL son propuestas: ajústalos al esquema real. Los ids existentes son `bigint`; para el rol usa `(select public.get_my_role())`, y cada tabla nueva lleva `es_demo boolean default false` con el trigger `enforce_es_demo_flag`, igual que las actuales, para que el demo funcione.
-
----
-
-## Fase 0 — Ordenar la casa
-
-Objetivo: que el proyecto se entienda solo y sea fácil de extender. Sin funciones nuevas.
-
-Tareas:
-0. **Arreglos de Supabase:** aplicar `references/supabase-arreglos.md`: sección A (urgente, primera migración), luego B y D. De la sección C, en esta fase solo lo que no depende de la fase 1: `fecha_entrega` nullable + `timestamptz`, `kilometraje` a integer, costos a `numeric`, índice único de placa (después de resolver el duplicado). La sección F se le avisa a la dueña.
-1. **Versionar Supabase:** exportar el esquema actual (tablas, triggers, funciones, políticas RLS) a `supabase/migrations/` como migración base. Documentar cada función/trigger en `supabase/README.md` (qué hace y quién la llama).
-2. **`useAuth` único:** crear `AuthContext` + hook `useAuth()` que exponga `user`, `rol`, `clienteId`, `loading`, `esAdmin`, `esDemo`, `esCliente`. Reemplazar las 4 consultas de rol (App, Sidebar, Topbar, Dashboard).
-3. **Partir `Clientes.jsx`:** separar en componentes (tabla, formulario, detalle, modal de solicitudes, acciones peligrosas) y mover llamadas a Supabase a `services/clientes.js`.
-4. **Partir `ClientePortal.jsx`:** igual (perfil, mis vehículos, mis órdenes, vinculación) + `services/portal.js`.
-5. **README real:** qué es, stack, roles, cómo correrlo, variables de entorno, estructura de carpetas, diagrama de tablas, sección "Hoja de ruta" con las fases.
-
-Listo cuando: los huecos de la sección A están cerrados y probados (registrarse con `rol: 'admin'` en la metadata da `cliente`; registrarse con el teléfono de otro cliente no da acceso a su ficha), el linter de Supabase no muestra advertencias de rendimiento, la app funciona igual con los 3 roles, no quedan consultas de rol duplicadas y ningún archivo pasa de ~400 líneas.
+- Fase 0 — Seguridad y limpieza de la base de datos
+- Fase 1 — Modelo de datos nuevo
+- Fase 2 — Base del frontend nuevo (diseño + estructura)
+- Fase 3 — Trabajos: nuevo trabajo, tablero y siguiente paso
+- Fase 4 — Link del cliente y WhatsApp
+- Fase 5 — Cobros (con el gráfico de plata) y el resto de Inicio
+- Fase 6 — Clientes
+- Fase 7 — Extras
 
 ---
 
-## Fase 1 — Núcleo del taller
+## Fase 0 — Seguridad y limpieza de la base de datos
 
-Objetivo: lo que el taller usa a diario.
+Detalle en `supabase-arreglos.md`.
+1. Sección A (urgente): rol siempre `cliente` en `handle_new_user`, quitar vinculación por teléfono, `coalesce` en `proteger_rol_usuario`. Pedirle a la dueña que **desactive el registro público** en Supabase → Authentication → Sign In / Providers ("Allow new users to sign up" apagado): en el sistema nuevo nadie se registra solo.
+2. Sección D (rendimiento): índices en FKs, `(select ...)` en políticas, unir políticas duplicadas y ponerlas `to authenticated`.
+3. Sección C (datos): costos a `numeric`, `kilometraje` a `integer`, `fecha_entrega` nullable `timestamptz`, resolver placa duplicada + índice único. Mostrar antes los valores que no convierten solos.
+4. Versionar todo el esquema en `supabase/migrations/` y documentar funciones/triggers en `supabase/README.md`.
+5. Crear el subagente `tester` si la dueña lo quiere (ver sección al final).
 
-### 1.1 Recepción del vehículo
-Agregar a `ordenes`: `km_entrada int`, `nivel_combustible text` (ej. 'E','1/4','1/2','3/4','F'), `observaciones_recepcion text`, `recibido_en timestamptz default now()`.
-Actualizar `vehiculos.km` con `km_entrada` al crear la orden (si es mayor).
+Listo cuando: registrarse con `rol: 'admin'` en la metadata ya no da admin (o el registro está apagado), el linter de Supabase no marca advertencias de seguridad/rendimiento propias, y los datos viejos están limpios.
 
-Fotos de recepción (sirven para defender al taller de reclamos):
-```sql
-create table orden_fotos (
-  id uuid primary key default gen_random_uuid(),
-  orden_id bigint references ordenes(id) on delete cascade,
-  storage_path text not null,
-  tipo text not null check (tipo in ('recepcion','reparacion')),
-  descripcion text,
-  created_at timestamptz default now()
-);
-```
-Bucket de Storage **privado** `ordenes`, ruta `orden_id/archivo`. Mostrar con URLs firmadas. Comprimir imágenes en el cliente antes de subir (el celular del taller saca fotos pesadas).
+## Fase 1 — Modelo de datos nuevo
 
-### 1.2 Orden con ítems (base de la cotización)
-```sql
-create table orden_items (
-  id uuid primary key default gen_random_uuid(),
-  orden_id bigint references ordenes(id) on delete cascade,
-  tipo text not null check (tipo in ('repuesto','mano_obra','otro')),
-  descripcion text not null,
-  cantidad numeric not null default 1 check (cantidad > 0),
-  precio_unitario numeric not null check (precio_unitario >= 0),
-  subtotal numeric generated always as (cantidad * precio_unitario) stored,
-  created_at timestamptz default now()
-);
-```
-El total de la orden sale de la suma de ítems (vista o cálculo), no de un campo escrito a mano. Mantener los campos de costo viejos solo mientras se migra; luego proponer eliminarlos (confirmar).
+Detalle en `datos.md`. Todo en migraciones, con RLS y `es_demo`.
+1. Ampliar `ordenes` (se muestra en la interfaz como "trabajos"): estados nuevos + CHECK, `problema_reportado`, `fecha_cita`, datos de recepción, `token_publico`, aprobación, `modalidad_pago`.
+2. Tablas nuevas: `orden_items`, `pagos`, `orden_estados_historial` (con trigger).
+3. Migrar estados viejos (Pendiente→en_revision, En proceso→en_reparacion, Completado→entregado) — **confirmar**. Pasar costos viejos a un ítem "Trabajo registrado antes del sistema nuevo".
+4. Funciones: `get_trabajo_publico(token)`, `responder_cotizacion(token, aprueba)`, `avanzar_estado(orden_id, nuevo_estado)`, vistas/funciones del dashboard (`resumen_plata(desde, hasta)`).
+5. Actualizar `eliminar_cliente_completo` y `get_stats_publicas` a los estados nuevos.
+6. **Confirmar y luego quitar:** rol `cliente` y sus políticas, `solicitudes_vinculacion`, `fusionar_cliente_vinculado`, vinculación en `handle_new_user`, `clientes.user_id` + triggers de vinculación/sincronización, `clientes.bloqueado` + su trigger.
 
-### 1.3 Estados reales
-Propuesta: `Recibido → En diagnóstico → Esperando aprobación → Esperando repuesto → En reparación → Listo → Entregado` (+ `Cancelado`).
-Mapeo sugerido de datos viejos: Pendiente→Recibido, En proceso→En reparación, Completado→Entregado. **Confirmar antes de migrar.**
-Guardar historial de cambios de estado:
-```sql
-create table orden_estados_historial (
-  id uuid primary key default gen_random_uuid(),
-  orden_id bigint references ordenes(id) on delete cascade,
-  estado text not null,
-  cambiado_por uuid references auth.users(id),
-  created_at timestamptz default now()
-);
-```
-(trigger que inserta al cambiar `ordenes.estado`). El historial alimenta la línea de tiempo del portal en la fase 2.
-Actualizar Dashboard, Historial, filtros, `eliminar_cliente_completo` (estados activos) y `get_stats_publicas` (`'Completado'` → `'Entregado'`) con los estados nuevos. Agregar el CHECK en `ordenes.estado`.
+Listo cuando: se puede simular por SQL un trabajo completo de cita a entregado con cuotas, y el link público devuelve solo lo que debe (sin teléfono ni dirección).
 
-### 1.4 Pagos
-```sql
-create table pagos (
-  id uuid primary key default gen_random_uuid(),
-  orden_id bigint references ordenes(id) on delete cascade,
-  monto numeric not null check (monto > 0),
-  metodo text not null, -- efectivo, sinpe, tarjeta, transferencia (confirmar lista)
-  nota text,
-  pagado_en timestamptz default now()
-);
-```
-Vista `ordenes_saldo` (total, pagado, saldo). Dashboard: ingresos del mes basados en **pagos**, y nueva tarjeta "Por cobrar".
+## Fase 2 — Base del frontend nuevo
 
-RLS fase 1: admin todo; demo solo lectura; cliente lectura de ítems, fotos, pagos y historial de **sus** órdenes.
+En rama `v2`. Detalle visual en `diseno.md`.
+1. Tokens de diseño (CSS variables) + fuentes.
+2. Componentes base: `Ventana`, `Boton` (primario/secundario/peligro), `Campo` (input con etiqueta), `Tarjeta` de número, `Insignia` de estado, `Asistente` (pasos), `Confirmar` (diálogo), `Vacio` (estado sin datos con instrucción).
+3. Estructura (hecha): Inicio es un menú "¿Qué desea hacer?" con 4 opciones grandes; las demás pantallas tienen "← Inicio" y el botón rojo "Recibir un carro" arriba.
+4. Login nuevo (solo correo y contraseña, mensajes de error en español claro).
+5. `AuthContext` + `useAuth()` único.
+6. Página `/estilos` (solo admin) que muestre todos los componentes, para revisar el diseño con la dueña antes de seguir.
 
-Listo cuando: se puede recibir un carro con fotos, armar la orden con ítems, moverla por todos los estados, registrar abonos y ver el saldo; todo visible (enmascarado) con demo.
+Listo cuando: la dueña aprueba `/estilos` y el login.
 
----
+## Fase 3 — Trabajos
 
-## Fase 2 — Portal del cliente
+Detalle en `pantallas.md`.
+1. Asistente "Recibir un carro" (hecho): placa → (si el carro es nuevo) teléfono → nombre → carro → problema → cuándo → resumen. Empieza por la placa porque casi siempre el carro ya vino.
+2. "Carros en el taller" (hecho): lista con pestañas por color del semáforo (Todos · Listos · En trabajo · Esperando · Citas), no un tablero de columnas.
+3. Ficha del trabajo con el botón de siguiente paso y la línea de tiempo.
+4. Cotización: agregar repuestos y mano de obra (con costo opcional), total automático.
+5. Recepción: km de entrada, combustible, notas (fotos quedan para fase 7).
 
-### 2.1 Invitación por link (reemplaza solicitudes + fusión)
-```sql
-create table invitaciones (
-  id uuid primary key default gen_random_uuid(),
-  cliente_id bigint references clientes(id) on delete cascade,
-  token uuid not null unique default gen_random_uuid(),
-  expira_en timestamptz not null default now() + interval '7 days',
-  usada_en timestamptz
-);
-```
-- Admin: botón "Invitar al portal" en la ficha → genera link `/registro?invitacion=<token>` y botón para compartirlo por WhatsApp (`wa.me/506<telefono>?text=...`, gratis).
-- RPC `aceptar_invitacion(token)` (security definer): valida vigencia y que no esté usada, vincula `auth.uid()` a la ficha, marca `usada_en`. Si la cuenta ya tenía otra ficha, no fusionar automáticamente: devolver error claro.
-- Cuando funcione y esté probado: proponer eliminar `solicitudes_vinculacion`, su UI y `fusionar_cliente_vinculado` (**confirmar**; revisar antes si hay solicitudes pendientes).
+Listo cuando: el tío (o la dueña haciendo de tío) puede llevar un carro de cita a listo sin ayuda ni explicación.
 
-**Decidido (26/09/2026): registro SOLO por invitación.**
-- El cierre se hace en la base, no solo en el frontend: `Register.jsx` manda el token en la metadata del `signUp` y `handle_new_user` valida la invitación, crea la fila en `usuarios` (rol `cliente`), vincula la ficha y marca `usada_en`. Sin invitación válida, el trigger lanza una excepción y Supabase rechaza el registro. Vale igual para OAuth (Google): el token se guarda antes de redirigir y se valida al volver; si no hay token, no se crea la cuenta.
-- `handle_new_user` deja de crear fichas nuevas y de buscar coincidencias por correo.
-- `/register` sin `?invitacion=` muestra "Pídale al taller su link de acceso" en lugar del formulario. En la página de inicio, el botón de registro pasa a "¿Ya es cliente? Ingrese aquí".
-- Los usuarios admin y demo se siguen creando a mano (dashboard/SQL); las cuentas existentes no se tocan.
-- Probar: registro sin token (rechazado), con token vencido o ya usado (rechazado), con token válido (queda vinculado a la ficha correcta), y por la API directa sin token (rechazado).
+## Fase 4 — Link del cliente y WhatsApp
 
-### 2.2 Aprobación de cotización
-Agregar a `ordenes`: `aprobada_en timestamptz`, `aprobada_por uuid`, `rechazada_en timestamptz`, `motivo_rechazo text`.
-- En "Esperando aprobación", el cliente ve los ítems y el total, y aprueba o rechaza desde el portal (RPC que valida que la orden sea suya y esté en ese estado).
-- Al aprobar pasa a "Esperando repuesto" o "En reparación" (lo decide el admin; por defecto "En reparación").
-- El admin ve un indicador de aprobaciones pendientes.
+1. Página pública `/t/:token` (sin login): estado con línea de tiempo, carro, diagnóstico, detalle y total, saldo, botones grandes "Sí, hágale" / "No, gracias" cuando está esperando aprobación, botón de WhatsApp al taller.
+2. Botones de WhatsApp + "Copiar mensaje" en los momentos clave (ver `pantallas.md`).
+3. Regenerar link (por si se mandó al número equivocado).
 
-### 2.3 Portal más claro
-Línea de tiempo del estado (desde `orden_estados_historial`), fotos de recepción y reparación, saldo pendiente y botón de WhatsApp al taller.
+Listo cuando: desde un celular sin sesión se abre el link, se aprueba, y el trabajo avanza solo a "Esperando repuestos" en la pantalla del tío.
 
-Listo cuando: un cliente nuevo entra por link sin intervención del admin, aprueba una cotización y ve su carro avanzar.
+## Fase 5 — Cobros y el dashboard "Cómo va el taller"
+
+1. Entregar y cobrar: contado o cuotas; registrar abonos; saldo.
+2. Pantalla Cobros: quién debe, cuánto, desde cuándo, botón "Registrar abono" y "Recordar por WhatsApp".
+3. **Dashboard "Cómo va el taller"** (pedido por la dueña el 27/09/2026): pestaña aparte para que el tío explore, con una quinta opción en el menú de Inicio. Lleva las tarjetas de plata, el gráfico de las 3 líneas (cobrado, por cobrar, ganancia; ver `diseno.md` y `datos.md`, `resumen_plata()`) y otros datos útiles (carros por estado, trabajos del mes). Inicio se queda como menú + "Para hoy" (ya muestra listos y esperando respuesta con `resumen_inicio()`). Sin tablas de órdenes recientes ni actividad reciente.
+4. Alertas de DEKRA (reusar `lib/dekra.js`) como una línea más en el "Para hoy" de Inicio.
+
+## Fase 6 — Clientes
+
+Buscador único (nombre, teléfono o placa) → ficha del cliente: datos, carros, historial de trabajos por carro, lo que debe, botón "Nuevo trabajo para este cliente".
+
+## Guía de uso (antes de publicar)
+
+Pedida por la dueña el 27/09/2026. Cuando las pantallas principales estén (después de la fase 6):
+1. Pantalla "¿Cómo se usa?" dentro del sistema (una opción más en Inicio): el recorrido de un carro de cita a entregado, paso a paso, con capturas o dibujos de cada pantalla y en el mismo lenguaje sencillo.
+2. Versión para imprimir (una hoja por tema: recibir un carro, mandar el precio, cobrar) para dejar en el taller.
+3. Una línea de ayuda en cada pantalla que no la tenga.
+
+## Fase 7 — Extras (solo si el taller lo pide)
+
+Fotos de recepción (Supabase Storage privado), comprobante PDF, recordatorios de mantenimiento, página pública del taller, reinicio nocturno de datos demo, inventario.
 
 ---
 
-## Fase 3 — Retención y visibilidad
+## Subagente de pruebas (opcional)
 
-### 3.1 Recordatorios de mantenimiento
-Generalizar la lógica de `lib/dekra.js`:
-```sql
-create table mantenimientos (
-  id uuid primary key default gen_random_uuid(),
-  vehiculo_id bigint references vehiculos(id) on delete cascade,
-  tipo text not null,          -- 'cambio_aceite', 'frenos', 'alineado', ...
-  cada_km int,
-  cada_meses int,
-  ultimo_km int,
-  ultima_fecha date
-);
-```
-Dashboard: sección "Próximos mantenimientos" junto a DEKRA. Al cerrar una orden, ofrecer actualizar el mantenimiento correspondiente.
-
-### 3.2 Notificaciones por correo
-Edge Function de Supabase + proveedor de correo (ej. Resend): aviso cuando la orden pasa a "Esperando aprobación" y a "Listo", y recordatorios de DEKRA/mantenimiento. Sin WhatsApp API (tiene costo).
-
-### 3.3 Comprobante PDF de la orden
-Generar PDF con datos del taller, cliente, vehículo, ítems, total, pagos y saldo. Aclarar en el documento que **no es factura electrónica**.
-
-### 3.4 Página pública
-Ruta `/` pública (o sitio aparte): servicios, horario, ubicación con mapa, fotos, botón de WhatsApp, botón "Ver mi carro" (login). Buen SEO básico (title, meta description, Open Graph).
-
----
-
-## Fase 4 — Extras (solo si el taller lo pide)
-
-- **Inventario de repuestos:** tabla `repuestos` (código, nombre, stock, costo, precio, mínimo); al agregar un ítem tipo repuesto, elegir del inventario y descontar stock; alerta de stock bajo.
-- **Mecánico asignado:** rol `mecanico` (ve solo sus órdenes y cambia estados), campo `ordenes.mecanico_id`.
-- **Reportes:** ingresos por mes, trabajos más comunes, ticket promedio, clientes recurrentes, carros por marca.
+Si la dueña lo pide, crear `.claude/agents/tester.md`: escribe y corre pruebas (Vitest + React Testing Library; pruebas de RLS y de las funciones públicas por token), nunca contra producción, solo reporta y propone arreglos.

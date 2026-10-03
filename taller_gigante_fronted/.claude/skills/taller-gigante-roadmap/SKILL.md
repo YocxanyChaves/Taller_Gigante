@@ -1,83 +1,86 @@
 ---
 name: taller-gigante-roadmap
-description: Hoja de ruta para ordenar y mejorar el sistema "Taller Mecánico Gigante" (React + Vite + Tailwind + Supabase), por fases. Úsala SIEMPRE que se trabaje en este proyecto — refactorizar, agregar funciones, tocar la base de datos, el portal de clientes, órdenes, cotizaciones, pagos, fotos, invitaciones, recordatorios, DEKRA o la página pública — aunque la persona no mencione la hoja de ruta ni las fases.
+description: Plan completo para reconstruir el sistema "Taller Mecánico Gigante" (React + Vite + Supabase) — flujo del taller, base de datos, diseño claro y vivo (rojo del logo, semáforo para el proceso, animaciones) y fases de trabajo. Úsala SIEMPRE que se trabaje en este proyecto — base de datos, seguridad, pantallas, componentes, estilos, trabajos/órdenes, cotizaciones, WhatsApp, cobros, cuotas, dashboard, gráfico, clientes, link del cliente, DEKRA — aunque no se mencione el plan ni las fases.
 ---
 
-# Taller Gigante — hoja de ruta de mejoras
+# Taller Gigante — plan de reconstrucción
 
-Sistema de gestión para un taller mecánico real (el taller del tío de la dueña del proyecto), que además es proyecto de portafolio.
+Sistema para el taller mecánico del tío de la dueña del proyecto (Yocxany). También es proyecto de portafolio.
 
-## La meta (úsala como filtro para cada decisión)
+**Decisión tomada:** se conserva la base de datos (se limpia y se amplía) y **el frontend se hace de nuevo**, con un flujo y un diseño nuevos. No remiendes pantallas viejas: constrúyelas nuevas siguiendo este plan y rescata solo la lógica útil (`lib/dekra.js`, cliente de Supabase, cálculo de roles).
 
-1. El taller lo usa todos los días para **recibir carros, dar seguimiento y cobrar**.
-2. El cliente ve **cómo va su carro sin tener que llamar**.
-3. El rol **demo** muestra todo funcionando, con datos enmascarados, para el portafolio.
+## Para quién es (esto manda sobre todo lo demás)
 
-Si una función no sirve a ninguno de esos tres puntos, probablemente no hace falta.
+- **El tío:** hombre mayor, acostumbrado a computadoras tipo Windows viejo, poca paciencia con la tecnología. Probablemente usará el sistema poco. Todo tiene que ser obvio.
+- **Sus clientes:** no se van a crear una cuenta. Nunca.
 
-## Estado actual (resumen)
+Principios de uso (no negociables):
+1. **Nada escondido, nada que haya que saber de antemano.** Cada pantalla dice qué hacer. Sin menús ocultos, sin gestos, sin íconos sin texto.
+2. **El sistema guía paso a paso.** Formularios de una pregunta a la vez cuando hay más de 3 datos.
+3. **Un solo botón grande de "siguiente paso"** en cada trabajo.
+4. **Lo mínimo obligatorio:** teléfono del cliente, placa y qué le pasa al carro. Todo lo demás es opcional.
+5. **Útil, no extravagante.** Si una función no ayuda a recibir carros, dar seguimiento o cobrar, no va.
 
-- Frontend: React + Vite + Tailwind. Backend: Supabase, proyecto `TallerMecánicoGigante` (id `kwaurgcbtjesaswmladd`), Postgres 17. Los ids de las tablas son `bigint` identity.
-- Roles: `admin` (todo, cambia roles), `demo` (sandbox: lee y escribe solo filas `es_demo = true`), `cliente` (solo lo suyo, entra a `/portal`). La función `get_my_role()` devuelve el rol y la usan todas las políticas. Todo registro nuevo es `cliente`; el trigger `proteger_rol_usuario` protege los roles.
-- Tablas: `usuarios`, `clientes`, `vehiculos`, `ordenes`, `solicitudes_vinculacion`.
-- Ficha de cliente ≠ cuenta de usuario. Hoy se vinculan de dos formas: automática al registrarse (`handle_new_user`, solo por correo verificado por OAuth; si no, crea ficha nueva) y por solicitud + aprobación del admin + fusión (`fusionar_cliente_vinculado`). En la fase 2 se reemplaza por registro solo por invitación (ver "Decisiones tomadas").
-- La documentación de la base (tablas, funciones, triggers, roles) está en `supabase/README.md`; las migraciones, en `supabase/migrations/`.
-- Órdenes: Pendiente → En proceso → Completado. Historial por cliente/placa. Dashboard con ingresos y gráfico semanal.
-- `lib/dekra.js`: calcula el mes de revisión técnica según el último dígito de la placa y alerta 15 días antes.
-- Problemas conocidos: README es la plantilla de Vite; `Clientes.jsx` (~1200 líneas) y `ClientePortal.jsx` (~900) son gigantes; el rol se consulta en 4 lugares (App, Sidebar, Topbar, Dashboard); la lógica de Supabase no está versionada en el repo.
+## El flujo real del taller
 
-## ⚠️ Primero lo primero: arreglos urgentes de Supabase
+1. **Cita** — el cliente llama o escribe; el tío le dice qué día venir.
+2. **En revisión** — el carro llega y el tío lo examina.
+3. **Esperando aprobación** — se anota diagnóstico y precio (repuestos + mano de obra) y se le manda al cliente.
+   - **No aprobado** → el cliente se lleva el carro. Fin (con cobro de revisión opcional).
+4. **Esperando repuestos** — aprobó; se piden los repuestos.
+5. **En reparación** — varios días en el taller.
+6. **Listo** — se le avisa al cliente.
+7. **Entregado** — se entrega y se cobra: **de contado o en cuotas/crédito** (abonos hasta saldar).
 
-✅ **Sección A de `references/supabase-arreglos.md`: hecha el 26/09/2026** (migración `20260926202646_seguridad_registro_y_roles`, probada). Ya nadie puede registrarse como admin ni quedar vinculado a otra ficha por teléfono. Si en una revisión vuelves a ver esos huecos, avisa de inmediato.
+## Las decisiones grandes
 
-El resto de ese archivo (B–F) se reparte entre la fase 0 y la fase 1, como indica `references/fases.md`.
+- **Sin cuentas de clientes.** Solo inician sesión el tío/admin y el demo. Cada trabajo tiene un **link único** (token) que el cliente abre sin registrarse: ve el estado, el diagnóstico, el detalle del precio, y **aprueba o rechaza** ahí mismo. Se eliminan: rol `cliente`, portal con login, `solicitudes_vinculacion`, `fusionar_cliente_vinculado`, vinculación automática, bloqueo de clientes (confirmar cada borrado).
+- **WhatsApp gratis:** botón que abre `https://wa.me/506XXXXXXXX?text=<mensaje codificado>` con el mensaje ya escrito (el tío solo da enviar) + botón **"Copiar mensaje"** al lado. Nada de WhatsApp API (cuesta).
+- **Pocas pantallas:** Inicio (menú), Carros en el taller, Buscar un cliente, Cobrar y entregar, y el dashboard «Cómo va el taller» (tarjetas de plata y el gráfico de las 3 líneas). Más la página pública del link del cliente y el login.
+- **Diseño claro y vivo**: fondo hueso, tarjetas blancas, letra Atkinson Hyperlegible, rojo del logo, el proceso del carro con colores de semáforo y animaciones divertidas. Inicio es un menú "¿Qué desea hacer?". (Retro, vintage y futurista oscuro ya se descartaron.) Ver `references/diseno.md` — obligatorio leerlo antes de tocar cualquier componente o estilo.
 
-## Cómo trabajar con esta skill
+## Referencias (léelas cuando toque)
 
-- **Una fase a la vez.** Antes de empezar, pregunta en qué fase estamos (o revísalo en el README si ya existe la sección "Hoja de ruta"). No mezcles fases.
-- **Lee antes de cambiar.** Revisa el código y el esquema real de Supabase antes de proponer cambios; este resumen puede estar desactualizado.
-- **Propón, luego ejecuta.** Al inicio de cada fase, muestra un plan corto (archivos, migraciones, riesgos) y espera el visto bueno.
-- **Nada destructivo sin confirmar.** Borrar tablas, columnas, funciones o datos, o cambiar valores de estados existentes, requiere confirmación explícita. Siempre mediante migración, nunca a mano en el dashboard.
-- **Todo cambio de base de datos es una migración** en `supabase/migrations/` con nombre descriptivo, e incluye sus políticas RLS.
-- **Seguridad primero:** cada tabla nueva lleva RLS desde el día uno (cliente ve solo lo suyo, demo solo lectura, admin todo). Prueba las políticas con los tres roles.
-- **No romper el demo:** cada pantalla o dato nuevo debe verse bien con el rol demo, con datos enmascarados (fotos incluidas: usa un placeholder).
-- **Commits pequeños** por cambio lógico, mensajes en español y claros.
-- **Cierra cada fase** actualizando el README (qué se hizo y qué sigue) y listando pendientes.
-- Estilo de la interfaz: mantén el look actual; nada de rediseños que no se pidieron.
+- `references/fases.md` — las fases, en orden, con tareas y criterio de "listo". **Léelo al empezar cualquier sesión.**
+- `references/datos.md` — modelo de datos nuevo, estados, link público, pagos, cálculos del dashboard.
+- `references/pantallas.md` — qué lleva cada pantalla, el asistente de "Nuevo trabajo", el botón de siguiente paso y los mensajes de WhatsApp.
+- `references/diseno.md` — sistema de diseño: colores, letras, componentes, gráfico, accesibilidad.
+- `references/supabase-arreglos.md` — auditoría de la base de datos (26/09/2026): huecos de seguridad y datos sucios.
 
-## Las fases
+## ⚠️ Primero lo primero
 
-El detalle de cada fase (tareas, modelo de datos, criterios de "listo") está en `references/fases.md`. Léelo al empezar cualquier fase. La auditoría de la base de datos está en `references/supabase-arreglos.md`.
+Si la sección A de `references/supabase-arreglos.md` no está aplicada todavía (cualquiera puede registrarse como admin; vinculación por teléfono sin verificar), propón esa migración apenas empiece la sesión, aunque te pidan otra cosa. Explica el riesgo en una línea.
 
-| Fase | Objetivo | En pocas palabras |
-|---|---|---|
-| 0 | Ordenar la casa | Arreglos de seguridad y rendimiento en Supabase, README real, `useAuth` único, partir archivos gigantes, migraciones al repo |
-| 1 | Núcleo del taller | Recepción del vehículo, orden con ítems, estados reales, pagos |
-| 2 | Portal del cliente | Invitación por link (reemplaza solicitudes + fusión), aprobar cotización, ver fotos |
-| 3 | Retención y visibilidad | Recordatorios de mantenimiento, PDF de la orden, página pública |
-| 4 | Extras | Inventario de repuestos, mecánico asignado, reportes |
+## Cómo trabajar
 
-## Decisiones tomadas
+- **Una fase a la vez**, en el orden de `references/fases.md`. Revisa en el README (sección "Hoja de ruta") en qué fase va el proyecto.
+- **Lee antes de cambiar:** el código y el esquema real de Supabase pueden diferir de este plan.
+- **Propón, luego ejecuta:** al empezar cada fase, muestra un plan corto (archivos, migraciones, riesgos) y espera el visto bueno.
+- **Nada destructivo sin confirmar:** borrar tablas, columnas, funciones, usuarios o datos, o cambiar valores de estados existentes, requiere un sí explícito.
+- **Todo cambio de BD es una migración** en `supabase/migrations/`, con RLS desde el día uno y políticas con `(select auth.uid())` / `(select public.get_my_role())`.
+- **El demo no se rompe:** cada tabla nueva lleva `es_demo` + trigger `enforce_es_demo_flag`; cada pantalla nueva se prueba con el usuario demo.
+- **Trabaja en una rama** (`v2`) hasta que el sistema nuevo cubra lo que hace el viejo.
+- **Commits pequeños**, en español, un cambio lógico por commit.
+- **Pruebas:** si existe el subagente `tester` en `.claude/agents/`, úsalo al cerrar cada tarea. Nunca pruebes escribiendo en la BD de producción (usa Supabase local o mocks).
+- **Cierra cada fase** actualizando el README: qué se hizo, qué sigue, pendientes.
+- Habla en español de Costa Rica, sencillo. Textos de la interfaz: cortos, claros, sin jerga ("Carro listo", no "Orden completada").
 
-- **26/09/2026 — Registro solo por invitación (opción A).** En la fase 2 se cierra el registro abierto: solo se crea cuenta con el link de invitación que manda el taller (por WhatsApp, `wa.me`). Quien entre a `/register` sin link ve "Pídale al taller su link de acceso". Las cuentas existentes (2 clientes, admin, demo) no se tocan. Al terminar se eliminan las solicitudes de vinculación y la fusión manual (confirmar antes de borrar). Motivo: el portal solo sirve si el taller ya recibió el carro, y así no hay fichas dobles ni cuentas basura.
-- **26/09/2026 — Los datos actuales (no demo) son de prueba.** Se pueden limpiar con criterio.
-- **26/09/2026 — Placa `DSF456`:** se borró el Honda duplicado; queda el Toyota Hilux. Los kilometrajes raros (500000, 456000) son datos de prueba y se dejan.
-- **26/09/2026 — Montos con punto** ("20.222") se leen con el punto como separador de miles (₡20 222).
-- **26/09/2026 — `fecha_entrega`:** se vació en las órdenes no completadas.
+## Decisiones pendientes (preguntar, no suponer)
 
-## Decisiones pendientes (preguntar antes de tocarlas)
+- Tonos exactos del rojo y azul del taller (logo o rótulo). Mientras tanto, usar los de `diseno.md`.
+- Número de WhatsApp real del taller, dirección y horario (por ahora se usa el número de la dueña y no se muestra horario).
 
-Estas dependen de lo que el tío realmente necesita. No las implementes ni las borres sin preguntar:
+## Decisiones ya tomadas (26/09/2026)
 
-- ¿El rol **demo** sigue siendo sandbox editable (con reinicio nocturno de datos) o pasa a solo lectura?
-- ¿Se renombra la columna **`año` → `anio`**?
-- ¿Se elimina **bloquear cliente**? (propuesta: sí, casi no se usa en un taller pequeño)
-- ¿Se quita que el **cliente agregue vehículos** desde el portal? (propuesta: sí, que lo haga el taller)
-- Nombres finales de los **estados** y si todos aplican.
-- ¿Hay **más de un mecánico**? (define si la fase 4 incluye asignación)
-- Métodos de pago que usa el taller (efectivo, SINPE Móvil, tarjeta, transferencia).
+- WhatsApp del taller: por ahora el número de la dueña (83931634) en `src/lib/taller.js`, hasta tener el del taller. Sin horario en la página del cliente (no se sabe todavía).
+- Publicar en Vercel (gratis) cuando el taller lo vaya a usar; para probar los links en el celular basta `npm run dev:celular` en el mismo Wi-Fi.
+- Métodos de pago: efectivo, SINPE Móvil y transferencia. **Sin tarjeta.**
+- Cobro de revisión cuando no aprueba: opcional, sin monto por defecto (depende del cliente).
+- Los datos actuales de la base son inventados. Antes de una migración grande se saca un respaldo en `supabase/respaldos/` (fuera de git) y se aplica directo en producción; no hace falta Supabase local ni otro proyecto.
+- La fase 1 ya está aplicada: rol `cliente` eliminado (cuentas nuevas quedan `pendiente`), estados nuevos, `anio`, tablas `orden_items`/`pagos`/`orden_estados_historial`. Ver `supabase/README.md`.
 
 ## Fuera de alcance
 
-- **Factura electrónica de Hacienda:** no se integra; el taller usa su propio facturador. El sistema genera un comprobante interno (PDF) que no es factura.
-- **Mensajes automáticos por WhatsApp API:** tiene costo por mensaje. Usar links `wa.me` (gratis) y correo para notificaciones.
+- Factura electrónica de Hacienda (el taller usa su facturador; el sistema solo da comprobante interno que dice "no es factura").
+- WhatsApp API / mensajes automáticos pagados.
+- Cuentas o contraseñas para clientes.
