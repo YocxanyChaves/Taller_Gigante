@@ -65,20 +65,16 @@ Los clientes no tienen cuenta: ven su trabajo con un link único, sin registrars
 Inicio también avisa de la **revisión técnica (DEKRA)** que se acerca según el último
 dígito de la placa (`src/lib/dekra.js`).
 
-> **Ojo:** el frontend se está rehaciendo. Ya están el login, la estructura y las piezas
-> de diseño (fase 2); las pantallas de Inicio, Trabajos, Clientes y Cobros se llenan en
-> las fases 3 a 6. El sistema viejo sigue en la rama `main`.
-
 ## Estructura
 
 ```
 src/
-├─ pages/            una pantalla por ruta (Login, Inicio, Trabajos, Clientes, Cobros, Estilos…)
+├─ pages/            una pantalla por ruta (Login, Inicio, Trabajos, Clientes, Cobros…)
 ├─ services/         consultas a Supabase por pantalla
 ├─ components/
-│  ├─ ui/            piezas del sistema de diseño: Ventana, Boton, Campo, Placa, Semaforo,
+│  ├─ ui/            piezas del sistema de diseño: Boton, Campo, Placa, Semaforo,
 │  │                 Insignia, TarjetaNumero, OpcionMenu, Asistente, Confirmar, Confeti y
-│  │                 Vacio (todas se ven en /estilos)
+│  │                 Vacio
 │  └─ layout/        Marco ("← Inicio" y "Recibir un carro" arriba) y Encabezado
 ├─ context/
 │  └─ AuthContext    quién inició sesión y con qué rol → useAuth()
@@ -102,154 +98,3 @@ Convenciones:
 Siete tablas: `usuarios` (cuentas de login), `clientes`, `vehiculos`, `ordenes` (los
 trabajos), `orden_items` (detalle del precio), `pagos` y `orden_estados_historial`.
 Detalle completo en [`supabase/README.md`](supabase/README.md).
-
-## Hoja de ruta
-
-**Plan nuevo (26/09/2026):** la base de datos se queda (se limpia y se amplía) y el
-frontend se hace de nuevo en la rama `v2`, con un flujo y un diseño nuevos. Los
-clientes ya no tienen cuenta: cada trabajo tiene un link único donde ven cómo va
-su carro y aprueban o rechazan el precio. Los avisos se mandan por WhatsApp con
-el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-roadmap/`.
-
-| Fase | Objetivo | Estado |
-|---|---|---|
-| 0 | Seguridad y limpieza de la base de datos | ✅ Hecha |
-| 1 | Modelo de datos nuevo: estados del taller, ítems, pagos, historial y link público | ✅ Hecha |
-| 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ✅ Hecha |
-| 3 | Trabajos: asistente "Recibir un carro", lista de carros y botón de siguiente paso | ✅ Hecha |
-| 4 | Link del cliente y WhatsApp | 🟨 Falta probarla desde un celular |
-| 5 | Cobros (contado o cuotas) y el dashboard "Cómo va el taller" con el gráfico de plata | 🟨 Falta probarla en el navegador |
-| 6 | Clientes: buscador y ficha | 🟨 Falta probarla en el navegador con el demo |
-| 7 | Extras, solo si el taller los pide: fotos, PDF, recordatorios, inventario | ⬜ |
-
-### Fase 0: qué se hizo (26/09/2026)
-
-- ✅ Cerrados dos huecos de seguridad: registrarse como admin y ver los datos de otro
-  cliente registrándose con su teléfono.
-- ✅ Esquema de Supabase versionado en `supabase/migrations/` y documentado.
-- ✅ Políticas RLS optimizadas e índices nuevos (el linter de Supabase queda sin advertencias de rendimiento).
-- ✅ Costos y kilometraje como números, fecha de entrega opcional y placa única.
-- ✅ Un solo `useAuth` en lugar de siete consultas de sesión y rol repartidas.
-- ✅ Páginas partidas en componentes y servicios: `Clientes` (1183 → 235 líneas),
-  `ClientePortal` (870 → 103), `Dashboard` (525 → 146), `Vehiculos` (496 → 102),
-  `Ordenes` (461 → 102) y `Register` (419 → 294). Ningún archivo pasa de 400 líneas.
-- ✅ `npm run lint` sin errores (había 12).
-- ✅ Arreglos de paso: los errores de los formularios se ven dentro de la ventana, y
-  "marcar revisión DEKRA como hecha" ya no guarda la fecha de mañana después de las 6 p. m.
-
-### Fase 1: qué se hizo (26/09/2026)
-
-- ✅ Respaldo de los datos antes de empezar (`supabase/respaldos/`, fuera de git).
-- ✅ Sin cuentas de clientes: se quitaron el rol `cliente` (y sus 3 cuentas de prueba), la
-  vinculación cuenta↔ficha, las solicitudes, la fusión de fichas y el bloqueo de clientes.
-  Las cuentas nuevas quedan como `pendiente` y no ven nada.
-- ✅ Estados del flujo real (cita → … → entregado) con los pasos validados en la base.
-  Los viejos pasaron así: Pendiente → en revisión, En proceso → en reparación, Completado → entregado.
-- ✅ Datos de cita y recepción, link único por trabajo y respuesta del cliente.
-- ✅ Tablas nuevas: ítems del precio, pagos (efectivo, SINPE Móvil o transferencia; de
-  contado o en cuotas) e historial de estados. Los costos viejos pasaron a un ítem y los
-  trabajos entregados viejos quedaron como pagados de contado.
-- ✅ Funciones: ver y responder el trabajo desde el link sin login, avanzar estado,
-  regenerar link, tarjetas de Inicio y plata por mes (cobrado, por cobrar y ganancia).
-- ✅ `año` → `anio`.
-
-### Fase 2: qué se hizo (26/09/2026)
-
-- ✅ Frontend viejo borrado (sigue en la rama `main`); login nuevo y pantalla para cuentas `pendiente`.
-- ✅ Diseño "claro y vivo" aprobado por la dueña (después de probar retro, vintage y futurista):
-  fondo hueso, letra Atkinson Hyperlegible, rojo del logo, semáforo para el proceso del carro y
-  animaciones. Todas las piezas en `/estilos`.
-- ✅ Inicio como menú "¿Qué desea hacer?" con "Para hoy" (datos reales de `resumen_inicio()`).
-
-### Fase 3: qué se hizo (27/09/2026)
-
-- ✅ Asistente "Recibir un carro": empieza por la placa (si el carro ya vino, se salta el
-  teléfono y los datos del carro), busca mientras se escribe y guarda cliente, carro y trabajo
-  de una sola vez (`recibir_carro()`). Termina con confeti.
-- ✅ "Carros en el taller": lista con pestañas por color del semáforo y cuántos días lleva cada
-  carro en su etapa (en rojo si lleva más de 3 días esperando respuesta).
-- ✅ Ficha del trabajo: botón rojo de siguiente paso (llegó el carro, anotar precio, ya le avisé el
-  precio, el cliente respondió, llegaron los repuestos, el carro está listo), precio con
-  repuestos, mano de obra y "Me costó", línea de tiempo, volver un paso y cancelar.
-
-### Fase 4: qué se hizo (27/09/2026)
-
-- ✅ Página del cliente `/t/<token>`, sin cuenta y pensada para celular: cómo va su carro (pasos
-  con palomitas y la luz del semáforo), lo que tiene y cuánto cuesta, y "Sí, hágale" / "No, gracias"
-  con confirmación (confeti si aprueba). Botón para escribirle al taller por WhatsApp.
-- ✅ WhatsApp gratis (wa.me) con el mensaje ya escrito y "Copiar mensaje": "Mandar precio por
-  WhatsApp" (luego "Ya lo mandé" y el carro queda esperando respuesta) y aviso de "listo".
-- ✅ Sección "Link del cliente" en la ficha: mandarlo, copiarlo, verlo o hacer uno nuevo.
-- ✅ La ficha y la lista se actualizan solas (cada 20 y 60 segundos y al volver a la pestaña).
-- ⚠️ El WhatsApp del taller es temporal: el número de la dueña (`src/lib/taller.js`).
-
-### Fase 6: qué se hizo (03/10/2026)
-
-Se hizo antes que la fase 5 porque no depende de ella.
-
-- ✅ "Buscar un cliente": un solo campo que busca mientras se escribe, por nombre (sin importar
-  tildes), teléfono o placa (o parte de ellos). Sin texto muestra los últimos clientes. Cada
-  resultado dice sus placas, cuánto debe y si tiene carros en el taller. Lo buscado se mantiene
-  al volver de la ficha.
-- ✅ Ficha del cliente `/clientes/<id>`: llamar, WhatsApp, lo que debe, sus carros con el
-  historial de trabajos de cada uno, y "Cambiar datos" (nombre, teléfono, correo, dirección).
-- ✅ "Recibir un carro de este cliente" y "Recibir este carro": el asistente ya trae el cliente
-  o la placa y no pregunta de quién es el carro.
-- ✅ En la ficha del trabajo, el nombre del cliente lleva a su ficha.
-- Función nueva en la base: `buscar_clientes()` (ver `supabase/README.md`).
-- Sin botón de borrar clientes (decisión: casi no se usa y es peligroso).
-- Los abonos desde la ficha llegan con la fase 5.
-
-### Fase 5: qué se hizo (03/10/2026)
-
-- ✅ "Entregar y cobrar" en la ficha del trabajo: paga todo ahora o en cuotas (con abono de hoy,
-  que puede ser 0), método (efectivo, SINPE o transferencia) y confeti. Si no aprobó, "Se llevó el
-  carro" con cobro de revisión opcional. Todo en `entregar_trabajo()`: o se guarda todo o nada.
-- ✅ Sección "Pagos" en la ficha: cada abono, total, pagado, saldo y "Registrar abono".
-- ✅ Pantalla "Cobrar y entregar": total por cobrar, carros para entregar y quién debe, con
-  "Registrar abono" y "Recordar por WhatsApp".
-- ✅ "Cómo va el taller" (5.ª opción de Inicio): tarjetas de plata, gráfico de 3 líneas (Chart.js,
-  se carga solo al abrir la página), tabla con los números y carros por color del semáforo.
-  El verde de la línea de ganancia es `--color-verde` (validado para daltonismo rojo-verde).
-- ✅ DEKRA: línea en "Para hoy" y, en la ficha del cliente, cuándo le toca a cada carro y "Ya pasó DEKRA".
-- ✅ Funciones de la base probadas por SQL como demo (con rollback): cuotas, abonos, no aprobó,
-  cobros de más rechazados, el demo no puede abonar a trabajos reales.
-
-### Cómo probar las fases 5 y 6 (en el navegador)
-
-Usar el usuario **demo** (no el admin) y `npm run dev`.
-
-Fase 6 — Clientes:
-- [ ] Buscar un cliente por nombre sin tilde ("maria"), por teléfono ("8888-22") y por placa ("xyz 7").
-- [ ] Sin escribir nada aparecen los últimos clientes; al volver de una ficha sigue lo buscado.
-- [ ] Ficha: Llamar, WhatsApp, carros con su historial, aviso de lo que debe.
-- [ ] "Cambiar datos": guardar un teléfono con 7 números da error; con 8 guarda.
-- [ ] "Recibir este carro" y "Recibir un carro de este cliente": el asistente no pregunta de quién es.
-- [ ] En la ficha del trabajo, el nombre del cliente lleva a su ficha.
-
-Fase 5 — Cobros:
-- [ ] Llevar un carro a "Listo" → "Entregar y cobrar" → "Paga todo ahora" → queda entregado y pagado.
-- [ ] Otro carro → "Paga en cuotas" con un abono → aparece en "Cobrar y entregar" › "Quién debe".
-- [ ] Ahí: "Registrar abono" (probar uno mayor que el saldo: debe dar error) y "Recordar por WhatsApp".
-- [ ] Un carro que no aprobó → "Se llevó el carro" con y sin cobro de revisión.
-- [ ] "Cómo va el taller": las tarjetas cuentan, el gráfico y su tabla salen, cambiar a "Este año".
-- [ ] Revisar el gráfico en celular (que los montos no se monten) y el menú de Inicio con 5 opciones.
-- [ ] "Para hoy" muestra la línea de DEKRA si algún carro de cliente le toca; "Ya pasó DEKRA" la quita.
-
-### Pendiente
-
-- Probar la fase 4 desde un celular con el usuario demo: mandar el precio por WhatsApp, abrir el
-  link en el celular, aprobar y ver que la ficha cambia sola a "Esperando repuestos" o "En reparación".
-- Probar las fases 5 y 6 en el navegador (lista de arriba, "Cómo probar las fases 5 y 6").
-- Cambiar la contraseña de la cuenta admin por una larga.
-- Hacer la guía de uso del sistema (pantalla "¿Cómo se usa?" y versión para imprimir) antes de publicarlo.
-- Publicar el sistema (Vercel, gratis) para que los links le abran al cliente fuera de la casa.
-- Cambiar el WhatsApp del taller por el número real (`src/lib/taller.js`).
-- En el dashboard de Supabase: activar la protección contra contraseñas filtradas si algún día
-  se pasa al plan Pro (en el plan gratis no existe) y dejar contraseñas largas en las 2 cuentas.
-- El demo todavía puede, llamando a la API a mano, colgar un carro o un trabajo nuevo de un
-  cliente real si adivina su id (las políticas no revisan el dueño). Cerrarlo antes de publicar
-  las credenciales demo.
-- Otras decisiones con el taller: tonos exactos del rojo, datos del taller para
-  la página pública y los mensajes, y si el demo sigue editable (con reinicio nocturno)
-  o pasa a solo lectura.

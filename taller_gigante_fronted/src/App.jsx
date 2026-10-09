@@ -12,7 +12,6 @@ import TrabajoPublico from "./pages/TrabajoPublico";
 import Clientes from "./pages/Clientes";
 import Cliente from "./pages/Cliente";
 import Cobros from "./pages/Cobros";
-import Estilos from "./pages/Estilos";
 import NoEncontrada from "./pages/NoEncontrada";
 
 // "Cómo va el taller" lleva el gráfico (Chart.js, pesado): se baja solo al abrirla.
@@ -25,11 +24,6 @@ function ConSesion() {
   if (!user) return <Navigate to="/login" replace />;
   if (!tieneAcceso) return <SinAcceso />;
   return <Outlet />;
-}
-
-function SoloAdmin() {
-  const { esAdmin } = useAuth();
-  return esAdmin ? <Outlet /> : <Navigate to="/inicio" replace />;
 }
 
 export default function App() {
@@ -68,9 +62,6 @@ export default function App() {
                 </Suspense>
               }
             />
-            <Route element={<SoloAdmin />}>
-              <Route path="/estilos" element={<Estilos />} />
-            </Route>
             <Route path="*" element={<NoEncontrada />} />
           </Route>
         </Route>
