@@ -30,3 +30,6 @@ dist-ssr
 
 # Respaldos de la base (tienen datos personales)
 supabase/respaldos/
+
+# Notas y skills locales de Claude Code (no se publican)
+.claude/
