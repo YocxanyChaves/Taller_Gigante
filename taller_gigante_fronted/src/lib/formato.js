@@ -3,6 +3,27 @@
 export const formatoColones = (valor) =>
   `₡${Number(valor).toLocaleString("es-CR", { maximumFractionDigits: 0 })}`;
 
+// Corto, para gráficos y tarjetas: "₡540 mil", "₡1,2 millones", "₡800".
+export function formatoColonesCorto(valor) {
+  const n = Number(valor);
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) {
+    const millones = (n / 1_000_000).toLocaleString("es-CR", { maximumFractionDigits: 1 });
+    return `₡${millones} ${millones === "1" || millones === "-1" ? "millón" : "millones"}`;
+  }
+  if (abs >= 1000) return `₡${Math.round(n / 1000).toLocaleString("es-CR")} mil`;
+  return formatoColones(n);
+}
+
+// "oct", "set" (en Costa Rica se dice "setiembre") a partir de "AAAA-MM-DD".
+export function mesCorto(fecha) {
+  const [anio, mes] = fecha.split("-").map(Number);
+  return new Date(anio, mes - 1, 1)
+    .toLocaleString("es-CR", { month: "short" })
+    .replace(".", "")
+    .replace("sept", "set");
+}
+
 export const formatoKm = (km) => `${Number(km).toLocaleString("es-CR")} km`;
 
 // Un <input type="number"> vacío da "": en la base eso es null, no 0.
@@ -11,6 +32,9 @@ export const numeroONull = (valor) =>
 
 // Solo los números de un texto ("8888-1111" → "88881111").
 export const soloDigitos = (texto) => String(texto ?? "").replace(/\D/g, "");
+
+// Un monto escrito a mano ("₡25.000", "25 000") → 25000. Vacío = 0.
+export const montoDe = (texto) => Number(soloDigitos(texto) || 0);
 
 // "dsf-456" → "DSF456" (misma regla que normalizar_placa() en la base).
 export const normalizarPlaca = (placa) =>
@@ -53,6 +77,12 @@ export function fechaLarga(iso, conHora = false) {
   const opciones = { weekday: "long", day: "numeric", month: "long" };
   if (conHora) Object.assign(opciones, { hour: "numeric", minute: "2-digit" });
   return new Date(iso).toLocaleString("es-CR", opciones).replace("septiembre", "setiembre");
+}
+
+// "setiembre de 2026".
+export function mesYAnio(iso) {
+  if (!iso) return "";
+  return new Date(iso).toLocaleString("es-CR", { month: "long", year: "numeric" }).replace("septiembre", "setiembre");
 }
 
 // <input type="date"> da "AAAA-MM-DD". Se guarda como medianoche en hora

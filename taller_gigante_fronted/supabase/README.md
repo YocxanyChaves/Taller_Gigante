@@ -24,6 +24,8 @@ coincide con la versión que guarda Supabase.
 | `20260926225809_funciones_trabajos.sql` | Fase 1. Pasos permitidos, link público, regenerar link y cálculos del dashboard. |
 | `20260926225837_renombrar_anio.sql` | Fase 1. `vehiculos."año"` → `anio`. |
 | `20260927004208_recibir_carro.sql` | Fase 3. Buscar carro por placa y cliente por teléfono (como sea que se escriban) y `recibir_carro()`, que guarda cliente, carro y trabajo de una sola vez. |
+| `20261003145422_buscar_clientes.sql` | Fase 6. `buscar_clientes()`: un solo buscador por nombre (sin tildes), teléfono o placa. |
+| `20261003150934_cobros.sql` | Fase 5. Entregar y cobrar de una vez, abonos y la lista de quién debe. |
 
 Antes de la fase 1 se sacó un respaldo de los datos en `respaldos/` (fuera de git).
 
@@ -110,6 +112,11 @@ La columna `es_demo` separa los datos de prueba de los reales y ya no se puede c
 | `buscar_cliente_por_telefono(tel)` | admin, demo | Clientes con ese teléfono (compara los últimos 8 números). |
 | `recibir_carro(...)` | admin, demo | Asistente "Recibir un carro": crea el cliente y el carro si son nuevos y el trabajo (en revisión si "ya está aquí", si no como cita). Todo o nada; se niega si el carro ya está en el taller. Devuelve el id del trabajo. |
 | `normalizar_placa(p)`, `normalizar_telefono(t)` | admin, demo | "dsf-456" → "DSF456"; "8888-1111" → "88881111". |
+| `buscar_clientes(texto)` | admin, demo | "Buscar un cliente": por nombre ("jose" = "José"), teléfono (3 números o más) o placa (o parte de ella). Por cliente: placas, `debe` (saldo de lo entregado), `en_taller` y última visita. Sin texto, los 8 con movimiento más reciente. |
+| `normalizar_nombre(n)` | admin, demo | "José Núñez" → "jose nunez". |
+| `entregar_trabajo(orden, modalidad, monto, metodo, cobro_revision, nota)` | admin, demo | "Entregar y cobrar". Desde `listo`: `contado` (el monto debe ser todo el saldo) o `cuotas` (abona lo que pueda, hasta 0). Desde `no_aprobado`: cobro de revisión opcional. Anota el pago (si hay) y pasa a `entregado`, todo o nada. Devuelve el saldo que queda. |
+| `registrar_abono(orden, monto, metodo, nota)` | admin, demo | Abono a un trabajo entregado; nunca más que el saldo. Devuelve el saldo que queda. |
+| `lista_cobros()` | admin, demo | "Quién debe": trabajos entregados con saldo, con cliente, carro, total, saldo, fecha de entrega, último abono y token del link (para el recordatorio). |
 | `get_trabajo_publico(token)` | **Sin login** | Lo que ve el cliente con su link: primer nombre, carro, estado e historial, problema, diagnóstico, ítems (sin costos del taller), total, pagado, saldo y si puede responder. Nunca teléfono, correo, dirección ni otros trabajos. Token que no existe → `null`. |
 | `responder_cotizacion(token, aprueba, comentario)` | **Sin login** | El cliente aprueba o rechaza. Solo si el trabajo espera respuesta; pasa a `esperando_repuestos` (si hay repuestos), `en_reparacion` o `no_aprobado`. Si ya respondió no cambia nada. |
 | `get_stats_publicas()` | Página de inicio (sin login) | Cuenta clientes, vehículos y trabajos entregados reales. |

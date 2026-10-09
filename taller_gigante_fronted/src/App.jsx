@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Marco from "./components/layout/Marco";
@@ -9,9 +10,13 @@ import NuevoTrabajo from "./pages/NuevoTrabajo";
 import Trabajo from "./pages/Trabajo";
 import TrabajoPublico from "./pages/TrabajoPublico";
 import Clientes from "./pages/Clientes";
+import Cliente from "./pages/Cliente";
 import Cobros from "./pages/Cobros";
 import Estilos from "./pages/Estilos";
 import NoEncontrada from "./pages/NoEncontrada";
+
+// "Cómo va el taller" lleva el gráfico (Chart.js, pesado): se baja solo al abrirla.
+const Taller = lazy(() => import("./pages/Taller"));
 
 // Pantallas con sesión: sin sesión va al login; con cuenta 'pendiente', a
 // "Su cuenta todavía no tiene acceso".
@@ -53,7 +58,16 @@ export default function App() {
             <Route path="/trabajos/nuevo" element={<NuevoTrabajo />} />
             <Route path="/trabajos/:id" element={<Trabajo />} />
             <Route path="/clientes" element={<Clientes />} />
+            <Route path="/clientes/:id" element={<Cliente />} />
             <Route path="/cobros" element={<Cobros />} />
+            <Route
+              path="/taller"
+              element={
+                <Suspense fallback={<p className="animate-pulse text-xl text-gris">Cargando…</p>}>
+                  <Taller />
+                </Suspense>
+              }
+            />
             <Route element={<SoloAdmin />}>
               <Route path="/estilos" element={<Estilos />} />
             </Route>

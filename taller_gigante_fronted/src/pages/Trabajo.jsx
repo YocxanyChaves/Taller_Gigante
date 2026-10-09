@@ -17,6 +17,7 @@ import DatosTrabajo from "../components/trabajos/DatosTrabajo";
 import LinkCliente from "../components/trabajos/LinkCliente";
 import useRefrescar from "../lib/useRefrescar";
 import LineaTiempo from "../components/trabajos/LineaTiempo";
+import Pagos from "../components/trabajos/Pagos";
 
 // Ficha de un trabajo: arriba el carro y su estado; al centro el botón del
 // siguiente paso y el precio; al lado los datos, por dónde ha pasado y las
@@ -143,6 +144,7 @@ export default function Trabajo() {
         </div>
 
         <div className="flex flex-col gap-6">
+          <Pagos trabajo={trabajo} alCambio={cargar} />
           <DatosTrabajo trabajo={trabajo} />
           {trabajo.estado !== "cancelado" && <LinkCliente trabajo={trabajo} alCambio={cargar} />}
           <LineaTiempo historial={trabajo.historial} />

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { CarFront, ClipboardPen, MessageCircle, MessageCircleReply, PackageCheck, Sparkles } from "lucide-react";
+import { CarFront, ClipboardPen, HandCoins, KeyRound, MessageCircle, MessageCircleReply, PackageCheck, Sparkles } from "lucide-react";
 import { avanzarEstado, registrarLlegada } from "../../services/trabajos";
+import { entregarTrabajo } from "../../services/cobros";
 import { mensajeError } from "../../lib/errores";
 import { linkCliente } from "../../lib/taller";
 import { mensajeCotizacion, mensajeListo } from "../../lib/whatsapp";
@@ -9,6 +10,7 @@ import Confeti from "../ui/Confeti";
 import DialogoLlegada from "./DialogoLlegada";
 import DialogoRespuesta from "./DialogoRespuesta";
 import DialogoWhatsApp from "../ui/DialogoWhatsApp";
+import DialogoEntregar from "../cobros/DialogoEntregar";
 
 // El botón rojo grande de cada trabajo: dice cuál es el siguiente paso y qué
 // pasa al tocarlo. Es la única acción principal de la ficha.
@@ -58,6 +60,20 @@ function pasoPara(trabajo) {
         icono: Sparkles,
         accion: "listo",
       };
+    case "listo":
+      return {
+        boton: "Entregar y cobrar",
+        frase: "Cuando el cliente venga: cobre todo o la primera cuota y el carro queda entregado.",
+        icono: HandCoins,
+        accion: "entregar",
+      };
+    case "no_aprobado":
+      return {
+        boton: "Se llevó el carro",
+        frase: "Cuando el cliente venga por el carro. Si le cobra la revisión, se anota aquí.",
+        icono: KeyRound,
+        accion: "entregar",
+      };
     default:
       return null;
   }
@@ -65,14 +81,12 @@ function pasoPara(trabajo) {
 
 // Lo que se ve cuando no hay botón (todavía no existe ese paso o ya terminó).
 const SIN_PASO = {
-  listo: "Cuando el cliente venga, aquí va a estar «Entregar y cobrar» (se agrega en la fase 5).",
-  no_aprobado: "Cuando el cliente venga por el carro, aquí va a estar «Se llevó el carro» (fase 5).",
   entregado: "Este trabajo ya terminó: el carro se entregó.",
   cancelado: "Este trabajo se canceló.",
 };
 
 export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
-  const [dialogo, setDialogo] = useState(null); // "llegada" | "respuesta" | "whatsapp_precio" | "whatsapp_listo" | null
+  const [dialogo, setDialogo] = useState(null); // "llegada" | "respuesta" | "whatsapp_precio" | "whatsapp_listo" | "entregar" | null
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [celebrando, setCelebrando] = useState(false);
@@ -99,7 +113,7 @@ export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
 
   const tocar = () => {
     if (paso.accion === "precio") return alEditarPrecio();
-    if (["llegada", "respuesta", "whatsapp_precio"].includes(paso.accion)) {
+    if (["llegada", "respuesta", "whatsapp_precio", "entregar"].includes(paso.accion)) {
       setError("");
       return setDialogo(paso.accion);
     }
@@ -148,6 +162,15 @@ export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
         alListo={() => ejecutar(() => avanzarEstado(trabajo.id, "esperando_aprobacion"))}
         alCerrar={() => setDialogo(null)}
       />
+      {dialogo === "entregar" && (
+        <DialogoEntregar
+          trabajo={trabajo}
+          guardando={guardando}
+          error={error}
+          alCerrar={() => setDialogo(null)}
+          alGuardar={(datos) => ejecutar(() => entregarTrabajo(trabajo.id, datos), { celebrar: true })}
+        />
+      )}
       <DialogoWhatsApp
         abierto={dialogo === "whatsapp_listo"}
         titulo="¡Listo! ¿Le avisamos al cliente?"

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Phone } from "lucide-react";
 import { formatoTelefono, formatoKm, fechaLarga, soloDigitos } from "../../lib/formato";
 
@@ -23,7 +24,13 @@ export default function DatosTrabajo({ trabajo }) {
       <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">Datos</h2>
       <dl className="flex flex-col gap-4 p-6">
         <Dato etiqueta="Cliente">
-          <span className="font-bold">{cliente?.nombre ?? "Sin dueño anotado"}</span>
+          {cliente ? (
+            <Link to={`/clientes/${cliente.id}`} className="font-bold underline decoration-linea-fuerte underline-offset-4 hover:decoration-tinta">
+              {cliente.nombre}
+            </Link>
+          ) : (
+            <span className="font-bold">Sin dueño anotado</span>
+          )}
           {telefono.length === 8 && (
             <a
               href={`tel:+506${telefono}`}

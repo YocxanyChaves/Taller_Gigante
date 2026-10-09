@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { CalendarDays, Car, Sun, Sunrise, UserPlus, User } from "lucide-react";
 import { buscarVehiculoPorPlaca, buscarClientesPorTelefono, recibirCarro } from "../services/trabajos";
+import { obtenerClienteBasico } from "../services/clientes";
 import useBusqueda from "../lib/useBusqueda";
 import { mensajeError } from "../lib/errores";
 import {
@@ -22,6 +23,8 @@ import CarroRecibido from "../components/recibir/CarroRecibido";
 // "Recibir un carro": una pregunta por pantalla. Empieza por la placa porque
 // casi siempre el carro ya vino antes; en ese caso se salta el teléfono y los
 // datos del carro. Los pasos se arman solos según lo que se va encontrando.
+// Desde la ficha del cliente llega con ?placa= (ese carro) o ?cliente= (un
+// carro de ese cliente): entonces no se pregunta de quién es.
 
 const VACIO = {
   placa: "",
@@ -64,11 +67,26 @@ function anioValido(anio) {
 }
 
 export default function NuevoTrabajo() {
-  const [datos, setDatos] = useState(VACIO);
+  const [parametros, setParametros] = useSearchParams();
+  const idClienteFijo = parametros.get("cliente");
+  const [datos, setDatos] = useState(() => ({ ...VACIO, placa: parametros.get("placa") ?? "" }));
+  // El cliente que viene de su ficha: undefined = cargando, null = ninguno.
+  const [clienteFijo, setClienteFijo] = useState(idClienteFijo ? undefined : null);
   const [indice, setIndice] = useState(0);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [recibido, setRecibido] = useState(null);
+
+  useEffect(() => {
+    if (!idClienteFijo) return;
+    let vigente = true;
+    obtenerClienteBasico(idClienteFijo)
+      .then((c) => vigente && setClienteFijo(c ?? null))
+      .catch(() => vigente && setClienteFijo(null));
+    return () => {
+      vigente = false;
+    };
+  }, [idClienteFijo]);
 
   const cambiar = (campo) => (e) => setDatos((d) => ({ ...d, [campo]: e.target.value }));
 
@@ -80,7 +98,8 @@ export default function NuevoTrabajo() {
 
   const vehiculo = busquedaPlaca.estado === "listo" ? busquedaPlaca.resultado : null;
   const carroConocido = Boolean(vehiculo);
-  const necesitaCliente = !carroConocido || !vehiculo.cliente_id;
+  const carroConDueno = carroConocido && Boolean(vehiculo.cliente_id);
+  const necesitaCliente = !carroConDueno && !clienteFijo;
   const encontrados = busquedaTelefono.resultado ?? [];
   const clienteElegido =
     datos.eleccionCliente && datos.eleccionCliente !== "nuevo" ? datos.eleccionCliente : null;
@@ -100,6 +119,8 @@ export default function NuevoTrabajo() {
   const paso = pasos[posicion];
 
   const reiniciar = () => {
+    setParametros({}, { replace: true });
+    setClienteFijo(null);
     setDatos(VACIO);
     setIndice(0);
     setRecibido(null);
@@ -110,8 +131,14 @@ export default function NuevoTrabajo() {
     return <CarroRecibido {...recibido} alRecibirOtro={reiniciar} />;
   }
 
-  const nombreCliente = clienteElegido?.nombre ?? (clienteNuevo ? datos.nombre.trim() : vehiculo?.cliente_nombre);
-  const telefonoCliente = necesitaCliente ? telefono : vehiculo?.cliente_telefono;
+  const nombreCliente = carroConDueno
+    ? vehiculo.cliente_nombre
+    : (clienteFijo?.nombre ?? clienteElegido?.nombre ?? (clienteNuevo ? datos.nombre.trim() : null));
+  const telefonoCliente = carroConDueno
+    ? vehiculo.cliente_telefono
+    : clienteFijo
+      ? clienteFijo.telefono
+      : telefono;
   const textoCuando =
     datos.cuando === "ya"
       ? "Ya está aquí"
@@ -132,7 +159,7 @@ export default function NuevoTrabajo() {
         marca: datos.marca,
         modelo: datos.modelo,
         anio: datos.anio ? Number(datos.anio) : null,
-        clienteId: necesitaCliente ? clienteElegido?.id : null,
+        clienteId: carroConDueno ? null : (clienteFijo?.id ?? clienteElegido?.id),
         clienteNombre: necesitaCliente && clienteNuevo ? datos.nombre : null,
         clienteTelefono: necesitaCliente && clienteNuevo ? telefono : null,
       });
@@ -151,7 +178,8 @@ export default function NuevoTrabajo() {
   const configuracion = {
     placa: {
       pregunta: "¿Cuál es la placa del carro?",
-      puedeSeguir: busquedaPlaca.estado === "listo" && !vehiculo?.trabajo_activo_id,
+      ayuda: clienteFijo ? `Un carro de ${clienteFijo.nombre}.` : undefined,
+      puedeSeguir: busquedaPlaca.estado === "listo" && !vehiculo?.trabajo_activo_id && clienteFijo !== undefined,
       contenido: (
         <>
           <Campo
@@ -186,10 +214,21 @@ export default function NuevoTrabajo() {
           {vehiculo && !vehiculo.trabajo_activo_id && (
             <Aviso tipo="bien" titulo="Este carro ya vino antes">
               {nombreCarro(vehiculo)} · {vehiculo.cliente_nombre ?? "sin dueño anotado"}
+              {clienteFijo && !vehiculo.cliente_id && <p>Se anota como carro de {clienteFijo.nombre}.</p>}
+              {clienteFijo && vehiculo.cliente_id && vehiculo.cliente_id !== clienteFijo.id && (
+                <p className="font-bold text-tinta">
+                  Ojo: este carro está a nombre de {vehiculo.cliente_nombre}, no de {clienteFijo.nombre}. El trabajo
+                  se anota a {vehiculo.cliente_nombre}.
+                </p>
+              )}
             </Aviso>
           )}
           {busquedaPlaca.estado === "listo" && !vehiculo && (
-            <Aviso titulo="Carro nuevo">En los siguientes pasos anotamos de quién es.</Aviso>
+            <Aviso titulo="Carro nuevo">
+              {clienteFijo
+                ? `Se anota como carro de ${clienteFijo.nombre}.`
+                : "En los siguientes pasos anotamos de quién es."}
+            </Aviso>
           )}
         </>
       ),

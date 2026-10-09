@@ -118,8 +118,8 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 | 2 | Base del frontend nuevo: diseño, componentes, estructura y login | ✅ Hecha |
 | 3 | Trabajos: asistente "Recibir un carro", lista de carros y botón de siguiente paso | ✅ Hecha |
 | 4 | Link del cliente y WhatsApp | 🟨 Falta probarla desde un celular |
-| 5 | Cobros (contado o cuotas) y el dashboard "Cómo va el taller" con el gráfico de plata | ⬜ |
-| 6 | Clientes: buscador y ficha | ⬜ |
+| 5 | Cobros (contado o cuotas) y el dashboard "Cómo va el taller" con el gráfico de plata | 🟨 Falta probarla en el navegador |
+| 6 | Clientes: buscador y ficha | 🟨 Falta probarla en el navegador con el demo |
 | 7 | Extras, solo si el taller los pide: fotos, PDF, recordatorios, inventario | ⬜ |
 
 ### Fase 0: qué se hizo (26/09/2026)
@@ -183,10 +183,65 @@ el mensaje ya escrito. El plan completo está en `.claude/skills/taller-gigante-
 - ✅ La ficha y la lista se actualizan solas (cada 20 y 60 segundos y al volver a la pestaña).
 - ⚠️ El WhatsApp del taller es temporal: el número de la dueña (`src/lib/taller.js`).
 
+### Fase 6: qué se hizo (03/10/2026)
+
+Se hizo antes que la fase 5 porque no depende de ella.
+
+- ✅ "Buscar un cliente": un solo campo que busca mientras se escribe, por nombre (sin importar
+  tildes), teléfono o placa (o parte de ellos). Sin texto muestra los últimos clientes. Cada
+  resultado dice sus placas, cuánto debe y si tiene carros en el taller. Lo buscado se mantiene
+  al volver de la ficha.
+- ✅ Ficha del cliente `/clientes/<id>`: llamar, WhatsApp, lo que debe, sus carros con el
+  historial de trabajos de cada uno, y "Cambiar datos" (nombre, teléfono, correo, dirección).
+- ✅ "Recibir un carro de este cliente" y "Recibir este carro": el asistente ya trae el cliente
+  o la placa y no pregunta de quién es el carro.
+- ✅ En la ficha del trabajo, el nombre del cliente lleva a su ficha.
+- Función nueva en la base: `buscar_clientes()` (ver `supabase/README.md`).
+- Sin botón de borrar clientes (decisión: casi no se usa y es peligroso).
+- Los abonos desde la ficha llegan con la fase 5.
+
+### Fase 5: qué se hizo (03/10/2026)
+
+- ✅ "Entregar y cobrar" en la ficha del trabajo: paga todo ahora o en cuotas (con abono de hoy,
+  que puede ser 0), método (efectivo, SINPE o transferencia) y confeti. Si no aprobó, "Se llevó el
+  carro" con cobro de revisión opcional. Todo en `entregar_trabajo()`: o se guarda todo o nada.
+- ✅ Sección "Pagos" en la ficha: cada abono, total, pagado, saldo y "Registrar abono".
+- ✅ Pantalla "Cobrar y entregar": total por cobrar, carros para entregar y quién debe, con
+  "Registrar abono" y "Recordar por WhatsApp".
+- ✅ "Cómo va el taller" (5.ª opción de Inicio): tarjetas de plata, gráfico de 3 líneas (Chart.js,
+  se carga solo al abrir la página), tabla con los números y carros por color del semáforo.
+  El verde de la línea de ganancia es `--color-verde` (validado para daltonismo rojo-verde).
+- ✅ DEKRA: línea en "Para hoy" y, en la ficha del cliente, cuándo le toca a cada carro y "Ya pasó DEKRA".
+- ✅ Funciones de la base probadas por SQL como demo (con rollback): cuotas, abonos, no aprobó,
+  cobros de más rechazados, el demo no puede abonar a trabajos reales.
+
+### Cómo probar las fases 5 y 6 (en el navegador)
+
+Usar el usuario **demo** (no el admin) y `npm run dev`.
+
+Fase 6 — Clientes:
+- [ ] Buscar un cliente por nombre sin tilde ("maria"), por teléfono ("8888-22") y por placa ("xyz 7").
+- [ ] Sin escribir nada aparecen los últimos clientes; al volver de una ficha sigue lo buscado.
+- [ ] Ficha: Llamar, WhatsApp, carros con su historial, aviso de lo que debe.
+- [ ] "Cambiar datos": guardar un teléfono con 7 números da error; con 8 guarda.
+- [ ] "Recibir este carro" y "Recibir un carro de este cliente": el asistente no pregunta de quién es.
+- [ ] En la ficha del trabajo, el nombre del cliente lleva a su ficha.
+
+Fase 5 — Cobros:
+- [ ] Llevar un carro a "Listo" → "Entregar y cobrar" → "Paga todo ahora" → queda entregado y pagado.
+- [ ] Otro carro → "Paga en cuotas" con un abono → aparece en "Cobrar y entregar" › "Quién debe".
+- [ ] Ahí: "Registrar abono" (probar uno mayor que el saldo: debe dar error) y "Recordar por WhatsApp".
+- [ ] Un carro que no aprobó → "Se llevó el carro" con y sin cobro de revisión.
+- [ ] "Cómo va el taller": las tarjetas cuentan, el gráfico y su tabla salen, cambiar a "Este año".
+- [ ] Revisar el gráfico en celular (que los montos no se monten) y el menú de Inicio con 5 opciones.
+- [ ] "Para hoy" muestra la línea de DEKRA si algún carro de cliente le toca; "Ya pasó DEKRA" la quita.
+
 ### Pendiente
 
 - Probar la fase 4 desde un celular con el usuario demo: mandar el precio por WhatsApp, abrir el
   link en el celular, aprobar y ver que la ficha cambia sola a "Esperando repuestos" o "En reparación".
+- Probar las fases 5 y 6 en el navegador (lista de arriba, "Cómo probar las fases 5 y 6").
+- Cambiar la contraseña de la cuenta admin por una larga.
 - Hacer la guía de uso del sistema (pantalla "¿Cómo se usa?" y versión para imprimir) antes de publicarlo.
 - Publicar el sistema (Vercel, gratis) para que los links le abran al cliente fuera de la casa.
 - Cambiar el WhatsApp del taller por el número real (`src/lib/taller.js`).
