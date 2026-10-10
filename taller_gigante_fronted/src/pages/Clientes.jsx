@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Car, SearchX, Users } from "lucide-react";
 import { buscarClientes } from "../services/clientes";
@@ -11,17 +12,20 @@ import FilaCliente from "../components/clientes/FilaCliente";
 
 // "Buscar un cliente": un solo campo para nombre, teléfono o placa, que busca
 // mientras se escribe. Sin texto muestra los últimos clientes. Lo escrito queda
-// en la dirección (?q=), así al volver de la ficha sigue ahí.
+// en la dirección (?q=), así al volver de la ficha sigue ahí. El campo lee de su
+// propio estado y no de la dirección: la dirección se actualiza un toque después
+// y, si se escribe rápido, se comería letras.
 
 export default function Clientes() {
   const [parametros, setParametros] = useSearchParams();
-  const texto = parametros.get("q") ?? "";
+  const [texto, setTexto] = useState(() => parametros.get("q") ?? "");
   const clave = texto.trim();
   const busqueda = useBusqueda(clave, buscarClientes, 300);
   const clientes = busqueda.resultado ?? [];
 
   const cambiar = (e) => {
     const valor = e.target.value;
+    setTexto(valor);
     setParametros(valor ? { q: valor } : {}, { replace: true });
   };
 
