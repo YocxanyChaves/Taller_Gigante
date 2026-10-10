@@ -1,7 +1,10 @@
 import { useEffect, useId } from "react";
+import { createPortal } from "react-dom";
 
 // Ventanita encima de la pantalla para algo corto (anotar la llegada del
 // carro, la respuesta del cliente). Aparece con un rebote; Escape la cierra.
+// Se dibuja directo en <body>: si quedara dentro de una tarjeta animada, la
+// animación la encierra en la tarjeta y el encabezado le queda encima.
 // Con `alEnviar`, el contenido y el pie forman un <form> (Enter envía).
 // `rol="alertdialog"` para preguntas de confirmar (ver <Confirmar>).
 
@@ -28,7 +31,7 @@ export default function Dialogo({ abierto, titulo, children, pie, alCerrar, alEn
     </>
   );
 
-  return (
+  return createPortal(
     <div className="oscurecer fixed inset-0 z-50 flex items-center justify-center bg-tinta/40 p-4 backdrop-blur-sm">
       <div
         role={rol}
@@ -53,6 +56,7 @@ export default function Dialogo({ abierto, titulo, children, pie, alCerrar, alEn
           cuerpo
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
