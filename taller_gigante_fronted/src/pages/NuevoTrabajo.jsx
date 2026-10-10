@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CalendarDays, Car, Sun, Sunrise, UserPlus, User } from "lucide-react";
+import { CalendarDays, Car, CarFront, ListChecks, Sun, Sunrise, UserPlus, User } from "lucide-react";
 import { buscarVehiculoPorPlaca, buscarClientesPorTelefono, recibirCarro } from "../services/trabajos";
 import { obtenerClienteBasico } from "../services/clientes";
 import useBusqueda from "../lib/useBusqueda";
@@ -19,14 +19,19 @@ import Aviso from "../components/ui/Aviso";
 import Eleccion from "../components/ui/Eleccion";
 import Resumen from "../components/recibir/Resumen";
 import CarroRecibido from "../components/recibir/CarroRecibido";
+import ElegirCarro from "../components/recibir/ElegirCarro";
 
-// "Recibir un carro": una pregunta por pantalla. Empieza por la placa porque
-// casi siempre el carro ya vino antes; en ese caso se salta el teléfono y los
-// datos del carro. Los pasos se arman solos según lo que se va encontrando.
+// "Agregar un carro al sistema": una pregunta por pantalla. Primero pregunta si
+// el carro ya está registrado: si sí, se escoge de la lista por el nombre del
+// dueño (el tío conoce los carros por la persona); si no, se anota la placa.
+// Si el carro ya vino, se saltan el teléfono y los datos del carro. Los pasos
+// se arman solos según lo que se va encontrando.
 // Desde la ficha del cliente llega con ?placa= (ese carro) o ?cliente= (un
-// carro de ese cliente): entonces no se pregunta de quién es.
+// carro de ese cliente): entonces no se pregunta nada de eso.
 
 const VACIO = {
+  tipo: null, // "registrado" | "nuevo" | null
+  carroElegido: null, // el carro escogido de la lista (si "registrado")
   placa: "",
   telefono: "",
   eleccionCliente: null, // un cliente encontrado, "nuevo" o null
@@ -70,6 +75,8 @@ export default function NuevoTrabajo() {
   const [parametros, setParametros] = useSearchParams();
   const idClienteFijo = parametros.get("cliente");
   const [datos, setDatos] = useState(() => ({ ...VACIO, placa: parametros.get("placa") ?? "" }));
+  // Viene de la ficha del cliente: ya se sabe qué carro o de quién.
+  const [desdeFicha, setDesdeFicha] = useState(() => parametros.has("placa") || parametros.has("cliente"));
   // El cliente que viene de su ficha: undefined = cargando, null = ninguno.
   const [clienteFijo, setClienteFijo] = useState(idClienteFijo ? undefined : null);
   const [indice, setIndice] = useState(0);
@@ -90,13 +97,19 @@ export default function NuevoTrabajo() {
 
   const cambiar = (campo) => (e) => setDatos((d) => ({ ...d, [campo]: e.target.value }));
 
-  // Búsquedas mientras escribe.
+  // Búsquedas mientras escribe. Si el carro se escogió de la lista ya se sabe
+  // todo de él y no hace falta buscar la placa.
+  const registrado = datos.tipo === "registrado";
   const placa = normalizarPlaca(datos.placa);
-  const busquedaPlaca = useBusqueda(placa.length >= 3 ? placa : null, buscarVehiculoPorPlaca);
+  const busquedaPlaca = useBusqueda(!registrado && placa.length >= 3 ? placa : null, buscarVehiculoPorPlaca);
   const telefono = soloDigitos(datos.telefono);
   const busquedaTelefono = useBusqueda(telefono.length === 8 ? telefono : null, buscarClientesPorTelefono, 250);
 
-  const vehiculo = busquedaPlaca.estado === "listo" ? busquedaPlaca.resultado : null;
+  const vehiculo = registrado
+    ? datos.carroElegido
+    : busquedaPlaca.estado === "listo"
+      ? busquedaPlaca.resultado
+      : null;
   const carroConocido = Boolean(vehiculo);
   const carroConDueno = carroConocido && Boolean(vehiculo.cliente_id);
   const necesitaCliente = !carroConDueno && !clienteFijo;
@@ -107,7 +120,8 @@ export default function NuevoTrabajo() {
     datos.eleccionCliente === "nuevo" || (busquedaTelefono.estado === "listo" && encontrados.length === 0);
 
   const pasos = [
-    "placa",
+    ...(desdeFicha ? [] : ["tipo"]),
+    registrado ? "elegir" : "placa",
     ...(necesitaCliente ? ["telefono"] : []),
     ...(necesitaCliente && clienteNuevo ? ["nombre"] : []),
     ...(carroConocido ? [] : ["carro"]),
@@ -120,6 +134,7 @@ export default function NuevoTrabajo() {
 
   const reiniciar = () => {
     setParametros({}, { replace: true });
+    setDesdeFicha(false);
     setClienteFijo(null);
     setDatos(VACIO);
     setIndice(0);
@@ -155,7 +170,7 @@ export default function NuevoTrabajo() {
         yaEsta: datos.cuando === "ya",
         fechaCita: datos.cuando === "ya" ? null : fechaCita(datos.cuando, datos.fecha),
         vehiculoId: vehiculo?.id,
-        placa: datos.placa,
+        placa: vehiculo?.placa ?? datos.placa,
         marca: datos.marca,
         modelo: datos.modelo,
         anio: datos.anio ? Number(datos.anio) : null,
@@ -175,7 +190,84 @@ export default function NuevoTrabajo() {
     }
   };
 
+  // Qué se sabe del carro escogido o escrito: si ya está en el taller o si ya vino.
+  const avisoCarro = (
+    <>
+      {vehiculo?.trabajo_activo_id && (
+        <Aviso
+          tipo="alerta"
+          titulo="Este carro ya está en el taller"
+          accion={
+            <Link to={`/trabajos/${vehiculo.trabajo_activo_id}`} className="text-lg font-bold text-rojo underline underline-offset-4">
+              Ver el trabajo
+            </Link>
+          }
+        >
+          {nombreCarro(vehiculo)} · {vehiculo.cliente_nombre ?? "sin dueño anotado"}
+        </Aviso>
+      )}
+      {vehiculo && !vehiculo.trabajo_activo_id && (
+        <Aviso tipo="bien" titulo="Este carro ya vino antes">
+          {nombreCarro(vehiculo)} · {vehiculo.cliente_nombre ?? "sin dueño anotado"}
+          {clienteFijo && !vehiculo.cliente_id && <p>Se anota como carro de {clienteFijo.nombre}.</p>}
+          {clienteFijo && vehiculo.cliente_id && vehiculo.cliente_id !== clienteFijo.id && (
+            <p className="font-bold text-tinta">
+              Ojo: este carro está a nombre de {vehiculo.cliente_nombre}, no de {clienteFijo.nombre}. El trabajo
+              se anota a {vehiculo.cliente_nombre}.
+            </p>
+          )}
+        </Aviso>
+      )}
+    </>
+  );
+
   const configuracion = {
+    tipo: {
+      pregunta: "¿El carro ya está registrado?",
+      ayuda: "Si ya vino antes, lo busca por el nombre del dueño.",
+      puedeSeguir: datos.tipo !== null,
+      contenido: (
+        <div className="flex flex-col gap-3">
+          {[
+            { valor: "registrado", titulo: "Sí, ya está registrado", ayuda: "Lo busco por el nombre del dueño", icono: ListChecks },
+            { valor: "nuevo", titulo: "No, es la primera vez", ayuda: "Anoto la placa, el dueño y el carro", icono: CarFront },
+          ].map((opcion) => (
+            <Eleccion
+              key={opcion.valor}
+              {...opcion}
+              elegida={datos.tipo === opcion.valor}
+              onClick={() =>
+                setDatos((d) =>
+                  d.tipo === opcion.valor ? d : { ...d, tipo: opcion.valor, placa: "", carroElegido: null }
+                )
+              }
+            />
+          ))}
+        </div>
+      ),
+    },
+
+    elegir: {
+      pregunta: "¿De quién es el carro?",
+      ayuda: "Toque el carro en la lista.",
+      puedeSeguir: Boolean(vehiculo) && !vehiculo.trabajo_activo_id,
+      contenido: (
+        <>
+          <div className="mb-6 empty:hidden">{avisoCarro}</div>
+          <ElegirCarro
+            elegidoId={vehiculo?.id}
+            alElegir={(carro) => {
+              setDatos((d) => ({ ...d, carroElegido: carro }));
+              // Si se puede, sigue de una (los botones quedan abajo de la lista);
+              // si ya está en el taller, sube para que vea el aviso.
+              if (carro.trabajo_activo_id) window.scrollTo({ top: 0, behavior: "smooth" });
+              else setIndice(posicion + 1);
+            }}
+          />
+        </>
+      ),
+    },
+
     placa: {
       pregunta: "¿Cuál es la placa del carro?",
       ayuda: clienteFijo ? `Un carro de ${clienteFijo.nombre}.` : undefined,
@@ -198,31 +290,7 @@ export default function NuevoTrabajo() {
               Revise el internet e intente de nuevo.
             </Aviso>
           )}
-          {vehiculo?.trabajo_activo_id && (
-            <Aviso
-              tipo="alerta"
-              titulo="Este carro ya está en el taller"
-              accion={
-                <Link to={`/trabajos/${vehiculo.trabajo_activo_id}`} className="text-lg font-bold text-rojo underline underline-offset-4">
-                  Ver el trabajo
-                </Link>
-              }
-            >
-              {nombreCarro(vehiculo)} · {vehiculo.cliente_nombre ?? "sin dueño anotado"}
-            </Aviso>
-          )}
-          {vehiculo && !vehiculo.trabajo_activo_id && (
-            <Aviso tipo="bien" titulo="Este carro ya vino antes">
-              {nombreCarro(vehiculo)} · {vehiculo.cliente_nombre ?? "sin dueño anotado"}
-              {clienteFijo && !vehiculo.cliente_id && <p>Se anota como carro de {clienteFijo.nombre}.</p>}
-              {clienteFijo && vehiculo.cliente_id && vehiculo.cliente_id !== clienteFijo.id && (
-                <p className="font-bold text-tinta">
-                  Ojo: este carro está a nombre de {vehiculo.cliente_nombre}, no de {clienteFijo.nombre}. El trabajo
-                  se anota a {vehiculo.cliente_nombre}.
-                </p>
-              )}
-            </Aviso>
-          )}
+          {avisoCarro}
           {busquedaPlaca.estado === "listo" && !vehiculo && (
             <Aviso titulo="Carro nuevo">
               {clienteFijo
@@ -370,7 +438,7 @@ export default function NuevoTrabajo() {
           <Resumen
             alCambiar={(p) => setIndice(pasos.indexOf(p))}
             filas={[
-              { etiqueta: "Placa", valor: vehiculo?.placa?.toUpperCase() ?? datos.placa.trim().toUpperCase(), esPlaca: true, paso: "placa" },
+              { etiqueta: "Placa", valor: vehiculo?.placa?.toUpperCase() ?? datos.placa.trim().toUpperCase(), esPlaca: true, paso: registrado ? "elegir" : "placa" },
               {
                 etiqueta: "Carro",
                 valor: carroConocido ? nombreCarro(vehiculo) : nombreCarro(datos),
@@ -400,7 +468,7 @@ export default function NuevoTrabajo() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="etiqueta mb-3">Recibir un carro</h1>
+      <h1 className="etiqueta mb-3">Agregar un carro al sistema</h1>
       <Asistente
         paso={posicion + 1}
         total={pasos.length}
