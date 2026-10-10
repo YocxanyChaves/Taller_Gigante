@@ -12,7 +12,7 @@ import CarroCliente from "../components/clientes/CarroCliente";
 import DialogoCliente from "../components/clientes/DialogoCliente";
 
 // Ficha del cliente: quién es y cómo contactarlo, lo que debe, sus carros con
-// el historial de cada uno y el botón para recibirle un carro.
+// el historial de cada uno y el botón para agregarle un carro.
 
 export default function Cliente() {
   const { id } = useParams();
@@ -82,7 +82,7 @@ export default function Cliente() {
           <p className="numeros mt-2 text-xl text-gris">{formatoTelefono(cliente.telefono)}</p>
         </div>
         <Boton icono={Car} to={`/trabajos/nuevo?cliente=${cliente.id}`}>
-          Recibir un carro de este cliente
+          Agregar un carro de este cliente
         </Boton>
       </header>
 
@@ -99,7 +99,7 @@ export default function Cliente() {
           <h2 className="sr-only">Carros</h2>
           {cliente.vehiculos.length === 0 ? (
             <Vacio icono={Car} titulo="No tiene carros anotados">
-              Toque «Recibir un carro de este cliente» para anotar el primero.
+              Toque «Agregar un carro de este cliente» para anotar el primero.
             </Vacio>
           ) : (
             cliente.vehiculos.map((v, i) => <CarroCliente key={v.id} vehiculo={v} retraso={Math.min(i, 4) * 60} alCambio={cargar} />)

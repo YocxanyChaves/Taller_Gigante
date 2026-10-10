@@ -13,7 +13,7 @@ const OPCIONES = [
   {
     to: "/trabajos/nuevo",
     icono: Plus,
-    titulo: "Recibir un carro",
+    titulo: "Agregar un carro al sistema",
     ayuda: "Anotar el carro y lo que tiene",
     destacada: true,
   },

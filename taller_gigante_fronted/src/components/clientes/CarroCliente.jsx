@@ -11,7 +11,7 @@ import Boton from "../ui/Boton";
 
 // Un carro del cliente con su historial de trabajos (el más nuevo arriba).
 // Si el carro está en el taller, el botón lleva a ese trabajo; si no, a
-// "Recibir un carro" con la placa ya puesta. Abajo, cuándo le toca DEKRA; si ya
+// "Agregar un carro al sistema" con la placa ya puesta. Abajo, cuándo le toca DEKRA; si ya
 // le toca, el botón "Ya pasó DEKRA" quita el aviso de Inicio.
 
 export default function CarroCliente({ vehiculo, retraso = 0, alCambio }) {
@@ -37,7 +37,7 @@ export default function CarroCliente({ vehiculo, retraso = 0, alCambio }) {
           </Boton>
         ) : (
           <Boton variante="secundario" icono={Car} to={`/trabajos/nuevo?placa=${encodeURIComponent(placa)}`}>
-            Recibir este carro
+            Abrir una ficha nueva
           </Boton>
         )}
       </header>

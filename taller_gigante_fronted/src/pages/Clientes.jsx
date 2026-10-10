@@ -61,15 +61,15 @@ export default function Clientes() {
             titulo="No encontramos a nadie"
             accion={
               <Boton variante="secundario" icono={Car} to="/trabajos/nuevo">
-                Recibir un carro
+                Agregar un carro al sistema
               </Boton>
             }
           >
-            Revise cómo lo escribió o pruebe con otro dato. Si es un cliente nuevo, se anota al recibir su carro.
+            Revise cómo lo escribió o pruebe con otro dato. Si es un cliente nuevo, se anota al agregar su carro.
           </Vacio>
         ) : (
           <Vacio icono={Users} titulo="Todavía no hay clientes">
-            Los clientes se anotan solos al recibir su primer carro.
+            Los clientes se anotan solos al agregar su primer carro.
           </Vacio>
         )
       )}
