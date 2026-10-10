@@ -18,6 +18,17 @@ export default function Pagos({ trabajo, alCambio }) {
 
   if (trabajo.estado !== "entregado" && pagos.length === 0) return null;
 
+  // Se entregó sin cobrar nada (no aprobó y no se cobró la revisión): una sola
+  // línea, sin "Total ₡0 · Pagado completo ✓" que confunde.
+  if (total === 0 && pagos.length === 0) {
+    return (
+      <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
+        <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">Pagos</h2>
+        <p className="p-6 text-lg text-gris">No se le cobró nada.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
       <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">
