@@ -73,7 +73,7 @@ function Contenido({ telefono, nombre, mensajeInicial }) {
         id="mensaje-whatsapp"
         value={mensaje}
         onChange={(e) => setMensaje(e.target.value)}
-        rows={7}
+        rows={Math.min(14, Math.max(5, mensajeInicial.split("\n").length + 1))}
         className="w-full rounded-tarjeta border-2 border-linea-fuerte bg-[#e7f7ec] px-4 py-3 text-lg text-tinta focus:border-tinta focus:outline-none"
       />
       <div className="grid gap-3 sm:grid-cols-2">

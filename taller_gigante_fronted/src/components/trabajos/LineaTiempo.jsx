@@ -1,5 +1,6 @@
 import { ESTADOS } from "../../lib/estados";
 import { fechaLarga } from "../../lib/formato";
+import Desplegable from "../ui/Desplegable";
 
 // Por dónde ha pasado el carro, del más viejo al más nuevo. El último punto
 // es el estado actual y lleva el color de su luz del semáforo.
@@ -11,9 +12,12 @@ const COLOR_LUZ = {
 };
 
 export default function LineaTiempo({ historial }) {
+  const ultimo = historial.at(-1);
   return (
-    <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
-      <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">Por dónde ha pasado</h2>
+    <Desplegable
+      titulo="Por dónde ha pasado"
+      resumen={ultimo ? `Ahora: ${ESTADOS[ultimo.estado]?.texto ?? ultimo.estado}` : null}
+    >
       <ol className="p-6">
         {historial.map((h, i) => {
           const actual = i === historial.length - 1;
@@ -39,6 +43,6 @@ export default function LineaTiempo({ historial }) {
           );
         })}
       </ol>
-    </section>
+    </Desplegable>
   );
 }

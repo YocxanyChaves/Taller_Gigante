@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Phone } from "lucide-react";
 import { formatoTelefono, formatoKm, fechaLarga, soloDigitos } from "../../lib/formato";
+import Desplegable from "../ui/Desplegable";
 
 // El carro, el cliente (con botón para llamar) y cómo llegó.
 
@@ -20,8 +21,7 @@ export default function DatosTrabajo({ trabajo }) {
   const telefono = soloDigitos(cliente?.telefono).slice(-8);
 
   return (
-    <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
-      <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">Datos</h2>
+    <Desplegable titulo="Datos" resumen={`Cliente: ${cliente?.nombre ?? "sin dueño anotado"}`}>
       <dl className="flex flex-col gap-4 p-6">
         <Dato etiqueta="Cliente">
           {cliente ? (
@@ -58,6 +58,6 @@ export default function DatosTrabajo({ trabajo }) {
           </Dato>
         )}
       </dl>
-    </section>
+    </Desplegable>
   );
 }

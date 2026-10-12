@@ -7,6 +7,7 @@ import { mensajeError } from "../../lib/errores";
 import { copiar } from "../../lib/copiar";
 import Boton from "../ui/Boton";
 import Confirmar from "../ui/Confirmar";
+import Desplegable from "../ui/Desplegable";
 import DialogoWhatsApp from "../ui/DialogoWhatsApp";
 
 // El link que el cliente abre sin cuenta para ver cómo va su carro (y
@@ -47,8 +48,7 @@ export default function LinkCliente({ trabajo, alCambio }) {
   };
 
   return (
-    <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
-      <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">Link del cliente</h2>
+    <Desplegable titulo="Link del cliente" resumen="Para que vea su carro desde el celular">
       <div className="flex flex-col gap-3 p-6">
         <p className="text-base text-gris">
           El cliente lo abre en su celular, sin cuenta, para ver cómo va su carro
@@ -94,6 +94,6 @@ export default function LinkCliente({ trabajo, alCambio }) {
         El link que ya se mandó va a dejar de funcionar. Úselo si lo mandó a un número equivocado.
         {error && <p role="alert" className="mt-3 font-bold text-rojo">{error}</p>}
       </Confirmar>
-    </section>
+    </Desplegable>
   );
 }
