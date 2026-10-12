@@ -94,15 +94,20 @@ function ParaHoy({ resumen }) {
       marca: <Semaforo luz="rojo" />,
       texto: `${plural(resumen.esperando_respuesta, "cliente no ha", "clientes no han")} respondido el precio`,
     },
+    resumen.esperando_repuestos > 0 && {
+      clave: "repuestos",
+      marca: <Semaforo luz="rojo" />,
+      texto: `${plural(resumen.esperando_repuestos, "carro", "carros")} esperando repuestos`,
+    },
     resumen.listos > 0 && {
       clave: "listos",
       marca: <Semaforo luz="verde" />,
       texto: `${plural(resumen.listos, "carro listo", "carros listos")} para recoger`,
     },
-    resumen.en_taller > 0 && {
+    resumen.trabajandose > 0 && {
       clave: "taller",
       marca: <Semaforo luz="amarillo" />,
-      texto: `${plural(resumen.en_taller, "carro", "carros")} en el taller`,
+      texto: `${plural(resumen.trabajandose, "carro", "carros")} en revisión o reparación`,
     },
     resumen.dekra.length > 0 && {
       clave: "dekra",
