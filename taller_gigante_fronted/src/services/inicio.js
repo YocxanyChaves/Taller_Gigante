@@ -1,18 +1,21 @@
 import { supabase } from "../lib/supabaseClient";
 import { calcularEstadoDekra } from "../lib/dekra";
 
-// "Para hoy" de Inicio: carros en el taller, esperando respuesta, listos y
-// total por cobrar (resumen_inicio() respeta el rol: admin ve lo real; demo,
-// lo demo), más las citas pendientes, cuántas son para hoy y los carros que
-// tienen que pasar DEKRA.
+// "Para hoy" de Inicio: esperando respuesta, listos y total por cobrar
+// (resumen_inicio() respeta el rol: admin ve lo real; demo, lo demo), más los
+// carros que se están trabajando y los que esperan repuestos (cada carro con
+// una sola luz: el "en_taller" de resumen_inicio() cuenta también los listos),
+// las citas pendientes, cuántas son para hoy y los carros que tienen que
+// pasar DEKRA.
 export async function obtenerResumenInicio() {
   const inicioHoy = new Date();
   inicioHoy.setHours(0, 0, 0, 0);
   const inicioManana = new Date(inicioHoy);
   inicioManana.setDate(inicioManana.getDate() + 1);
 
-  const [resumen, citas, citasHoy, vehiculos] = await Promise.all([
+  const [resumen, enTaller, citas, citasHoy, vehiculos] = await Promise.all([
     supabase.rpc("resumen_inicio"),
+    supabase.from("ordenes").select("estado").in("estado", ["en_revision", "en_reparacion", "esperando_repuestos"]),
     supabase.from("ordenes").select("id", { count: "exact", head: true }).eq("estado", "cita"),
     supabase
       .from("ordenes")
@@ -26,7 +29,7 @@ export async function obtenerResumenInicio() {
       .not("id_cliente", "is", null),
   ]);
 
-  for (const r of [resumen, citas, citasHoy, vehiculos]) {
+  for (const r of [resumen, enTaller, citas, citasHoy, vehiculos]) {
     if (r.error) throw r.error;
   }
 
@@ -37,5 +40,14 @@ export async function obtenerResumenInicio() {
     .filter((v) => v.estado?.dentroDeVentana)
     .sort((a, b) => a.estado.diasParaVencer - b.estado.diasParaVencer);
 
-  return { ...resumen.data, citas: citas.count ?? 0, citas_hoy: citasHoy.count ?? 0, dekra };
+  const cuantos = (...estados) => enTaller.data.filter((o) => estados.includes(o.estado)).length;
+
+  return {
+    ...resumen.data,
+    trabajandose: cuantos("en_revision", "en_reparacion"),
+    esperando_repuestos: cuantos("esperando_repuestos"),
+    citas: citas.count ?? 0,
+    citas_hoy: citasHoy.count ?? 0,
+    dekra,
+  };
 }

@@ -52,7 +52,7 @@ function subtotal(fila) {
 function errorDeFila(fila) {
   if (!fila.descripcion.trim()) return "Escriba qué es.";
   if (!(aCantidad(fila.cantidad) > 0)) return "La cantidad tiene que ser mayor que 0.";
-  if (aNumero(fila.precio) == null) return "Escriba el precio.";
+  if (aNumero(fila.precio) == null) return "Escriba el precio al cliente.";
   return null;
 }
 
@@ -250,7 +250,7 @@ function FilaEditable({ numero, fila, error, alCambiar, alQuitar }) {
         </Boton>
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_10rem]">
+      <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_12rem]">
         <Campo
           etiqueta="Qué es"
           placeholder={ejemplo}
@@ -264,7 +264,7 @@ function FilaEditable({ numero, fila, error, alCambiar, alQuitar }) {
           onChange={(e) => alCambiar("cantidad", e.target.value)}
         />
         <Campo
-          etiqueta="Precio (₡)"
+          etiqueta="Precio al cliente (₡)"
           inputMode="numeric"
           placeholder="15000"
           value={fila.precio}
