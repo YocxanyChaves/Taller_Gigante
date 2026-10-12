@@ -24,30 +24,38 @@ const carroCorto = ({ marca, placa }) =>
     .filter(Boolean)
     .join(" ");
 
-// "repuestos ₡72 000 + mano de obra ₡25 000"
-function desglose(items) {
-  const suma = (tipo) => items.filter((i) => i.tipo === tipo).reduce((s, i) => s + Number(i.subtotal), 0);
-  return [
-    ["repuestos", suma("repuesto")],
-    ["mano de obra", suma("mano_obra")],
-    ["otros", suma("otro")],
-  ]
-    .filter(([, monto]) => monto > 0)
-    .map(([texto, monto]) => `${texto} ${formatoColones(monto)}`)
-    .join(" + ");
+// Las partes del precio, en el orden en que se le explican al cliente.
+// (*texto* sale en negrita en WhatsApp.)
+const SECCIONES = [
+  { tipo: "repuesto", titulo: "🔩 *Repuestos que ocupa*" },
+  { tipo: "mano_obra", titulo: "🛠️ *Mano de obra*" },
+  { tipo: "otro", titulo: "➕ *Otros*" },
+];
+
+// "• Pastillas de freno: ₡30 000" o, si son varios,
+// "• Aceite (4 × ₡6 000): ₡24 000".
+function lineaItem({ descripcion, cantidad, precio_unitario, subtotal }) {
+  const varios = Number(cantidad) !== 1 ? ` (${Number(cantidad)} × ${formatoColones(precio_unitario)})` : "";
+  return `• ${descripcion.trim()}${varios}: ${formatoColones(subtotal)}`;
 }
 
 // Plantillas (ver la skill, references/pantallas.md).
 
+// Resumen del precio: qué tiene el carro, cada repuesto con su precio, la
+// mano de obra y el total bien visible, con el link para aprobar.
 export function mensajeCotizacion({ cliente, vehiculo, diagnostico, items, total, link }) {
-  const partes = [
-    `${saludo(cliente)}, le saluda ${TALLER.nombre}.`,
-    `Ya revisamos su ${carroCorto(vehiculo)}.`,
-    diagnostico ? `Diagnóstico: ${diagnostico.trim()}` : null,
-    `Total: ${formatoColones(total)}${items.length > 1 ? ` (${desglose(items)})` : ""}.`,
-    `Puede ver el detalle y responder aquí: ${link}`,
+  const bloques = [
+    `${saludo(cliente)} 👋, le saluda *${TALLER.nombre}*.\nYa revisamos su *${carroCorto(vehiculo)}* 🚗`,
+    diagnostico?.trim() ? `🔍 *Lo que encontramos*\n${diagnostico.trim()}` : null,
+    ...SECCIONES.map(({ tipo, titulo }) => {
+      const delTipo = items.filter((i) => i.tipo === tipo);
+      return delTipo.length ? [titulo, ...delTipo.map(lineaItem)].join("\n") : null;
+    }),
+    `💰 *Todo le sale en: ${formatoColones(total)}*`,
+    `👉 Para ver el detalle y decirnos si le hacemos el trabajo, toque aquí:\n${link}`,
+    "¡Quedamos atentos! 🙌",
   ];
-  return partes.filter(Boolean).join("\n");
+  return bloques.filter(Boolean).join("\n\n");
 }
 
 export function mensajeListo({ cliente, vehiculo, total, link }) {
