@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { ArrowLeft, Plus, LogOut, FlaskConical } from "lucide-react";
+import { ArrowLeft, House, Plus, LogOut, FlaskConical } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Boton from "../ui/Boton";
 import logo from "../../assets/logo-oscuro.png";
@@ -61,6 +61,15 @@ export default function Marco() {
 
       <main key={pathname} className="animar-entrada mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-8 sm:py-12">
         <Outlet />
+
+        {/* Al terminar de ver una pantalla, volver al menú sin subir hasta
+            arriba. No va en el asistente de agregar un carro: ahí los botones
+            de abajo son para avanzar y uno se saldría a medio llenar. */}
+        {!enInicio && !recibiendo && (
+          <Boton icono={House} to="/inicio" anchoCompleto className="mt-12 min-h-16 text-xl">
+            Volver al inicio
+          </Boton>
+        )}
       </main>
     </div>
   );
