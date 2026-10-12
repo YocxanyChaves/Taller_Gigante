@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Ban, RotateCw, SearchX, Undo2 } from "lucide-react";
+import { Ban, House, RotateCw, SearchX, Undo2 } from "lucide-react";
 import { obtenerTrabajo, avanzarEstado } from "../services/trabajos";
 import { ESTADOS } from "../lib/estados";
 import { nombreCarro } from "../lib/formato";
@@ -164,6 +164,13 @@ export default function Trabajo() {
           )}
         </div>
       </div>
+
+      {/* Ya terminó: no hay nada más que hacer aquí, se ofrece volver al menú. */}
+      {!activo && (
+        <Boton icono={House} to="/inicio" anchoCompleto className="mt-10 min-h-16 text-xl">
+          Volver al inicio
+        </Boton>
+      )}
 
       <Confirmar
         abierto={preguntando !== null}

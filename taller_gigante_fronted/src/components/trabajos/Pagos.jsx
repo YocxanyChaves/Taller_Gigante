@@ -3,10 +3,11 @@ import { HandCoins } from "lucide-react";
 import { textoMetodo } from "../../services/cobros";
 import { formatoColones, fechaLarga, nombreCarro } from "../../lib/formato";
 import Boton from "../ui/Boton";
+import Desplegable from "../ui/Desplegable";
 import DialogoAbono from "../cobros/DialogoAbono";
 
 // Pagos de un trabajo: cada abono, lo pagado y lo que falta. Si ya se entregó
-// y queda saldo, el botón para registrar otro abono.
+// y queda saldo, el botón para registrar otro abono. Cerrado, dice si debe.
 
 export default function Pagos({ trabajo, alCambio }) {
   const [abonando, setAbonando] = useState(false);
@@ -22,19 +23,21 @@ export default function Pagos({ trabajo, alCambio }) {
   // línea, sin "Total ₡0 · Pagado completo ✓" que confunde.
   if (total === 0 && pagos.length === 0) {
     return (
-      <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
-        <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">Pagos</h2>
+      <Desplegable titulo="Pagos" resumen="No se le cobró nada">
         <p className="p-6 text-lg text-gris">No se le cobró nada.</p>
-      </section>
+      </Desplegable>
     );
   }
 
+  const resumen = [
+    trabajo.modalidad_pago === "cuotas" ? "En cuotas" : null,
+    saldo > 0 ? `Debe ${formatoColones(saldo)}` : "Pagado completo ✓",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
-      <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">
-        Pagos
-        {trabajo.modalidad_pago === "cuotas" && <span className="ml-2 font-normal text-gris">· en cuotas</span>}
-      </h2>
+    <Desplegable titulo="Pagos" resumen={resumen}>
       <div className="flex flex-col gap-4 p-6">
         {pagos.length === 0 ? (
           <p className="text-lg text-gris">Todavía no ha pagado nada.</p>
@@ -91,6 +94,6 @@ export default function Pagos({ trabajo, alCambio }) {
           }}
         />
       )}
-    </section>
+    </Desplegable>
   );
 }
