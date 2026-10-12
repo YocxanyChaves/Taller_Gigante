@@ -29,7 +29,7 @@ const PUNTO = {
 };
 
 const VACIOS = {
-  todos: "Todavía no hay carros en el taller. Toque «Recibir un carro» para anotar el primero.",
+  todos: "Todavía no hay carros en el taller. Toque «Agregar un carro al sistema» para anotar el primero.",
   verde: "Ningún carro está listo para recoger.",
   amarillo: "No hay carros en revisión ni en reparación.",
   rojo: "Ningún carro está esperando respuesta ni repuestos.",

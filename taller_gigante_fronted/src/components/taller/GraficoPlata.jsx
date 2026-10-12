@@ -31,30 +31,37 @@ const token = (nombre) => getComputedStyle(document.documentElement).getProperty
 const LETRA = "'Atkinson Hyperlegible', system-ui, sans-serif";
 
 // Escribe el monto encima de cada punto. Si dos montos del mismo mes quedan
-// muy cerca, los separa para que no se monten.
+// muy cerca, apila el de arriba más arriba (nunca encima de la línea). En el
+// primer y el último mes el texto se alinea hacia adentro para que no se corte.
 const montosEncima = {
   id: "montosEncima",
   afterDatasetsDraw(chart) {
     const { ctx } = chart;
     const meses = chart.data.labels.length;
-    const soloUltimo = meses > 6;
+    // Con muchos meses o en celular no caben todos: solo el último (los demás
+    // están en la tabla).
+    const soloUltimo = meses > 6 || chart.width < 480;
     ctx.save();
     ctx.font = `bold 15px ${LETRA}`;
-    ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
 
     for (let i = 0; i < meses; i++) {
       if (soloUltimo && i !== meses - 1) continue;
+      const borde = i === meses - 1 ? "right" : i === 0 ? "left" : "center";
+      const corrida = borde === "right" ? 6 : borde === "left" ? -6 : 0;
+      ctx.textAlign = borde;
       const etiquetas = chart.data.datasets
         .map((ds, d) => {
           const punto = chart.getDatasetMeta(d).data[i];
           const valor = ds.data[i];
-          return punto && valor > 0 ? { x: punto.x, y: punto.y - 10, texto: formatoColonesCorto(valor), color: ds.colorLetra } : null;
+          return punto && valor > 0
+            ? { x: punto.x + corrida, y: punto.y - 10, texto: formatoColonesCorto(valor), color: ds.colorLetra }
+            : null;
         })
         .filter(Boolean)
-        .sort((a, b) => a.y - b.y);
+        .sort((a, b) => b.y - a.y);
       for (let k = 1; k < etiquetas.length; k++) {
-        if (etiquetas[k].y - etiquetas[k - 1].y < 18) etiquetas[k].y = etiquetas[k - 1].y + 18;
+        if (etiquetas[k - 1].y - etiquetas[k].y < 18) etiquetas[k].y = etiquetas[k - 1].y - 18;
       }
       for (const e of etiquetas) {
         ctx.fillStyle = e.color;

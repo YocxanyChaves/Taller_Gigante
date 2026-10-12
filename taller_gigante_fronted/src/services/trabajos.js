@@ -24,6 +24,23 @@ export async function buscarClientesPorTelefono(telefono) {
   return data ?? [];
 }
 
+// Todos los carros anotados con su dueño, para escogerlo de una lista (el tío
+// conoce los carros por el dueño, no por la placa). Cada carro viene con la
+// misma forma que buscarVehiculoPorPlaca(), para usarlo igual en el asistente.
+export async function listarCarros() {
+  const { data, error } = await supabase
+    .from("vehiculos")
+    .select("id, placa, marca, modelo, anio, cliente:clientes ( id, nombre, telefono ), ordenes ( id, estado )");
+  if (error) throw error;
+  return data.map(({ ordenes, cliente, ...v }) => ({
+    ...v,
+    cliente_id: cliente?.id ?? null,
+    cliente_nombre: cliente?.nombre ?? null,
+    cliente_telefono: cliente?.telefono ?? null,
+    trabajo_activo_id: (ordenes ?? []).find((o) => o.estado !== "entregado" && o.estado !== "cancelado")?.id ?? null,
+  }));
+}
+
 // Guarda cliente, carro y trabajo de una vez. Devuelve el id del trabajo.
 export async function recibirCarro(datos) {
   const { data, error } = await supabase.rpc("recibir_carro", {

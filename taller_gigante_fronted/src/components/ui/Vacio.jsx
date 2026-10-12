@@ -1,5 +1,5 @@
 // Lo que se ve cuando no hay datos: nunca una pantalla en blanco, siempre qué
-// hacer ("Toque «Recibir un carro» para agregar el primero").
+// hacer ("Toque «Agregar un carro al sistema» para agregar el primero").
 
 export default function Vacio({ icono: Icono, titulo, children, accion }) {
   return (

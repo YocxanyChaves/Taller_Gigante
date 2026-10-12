@@ -6,7 +6,7 @@ import logo from "../../assets/logo-oscuro.png";
 
 // Marco de todas las pantallas con sesión. Inicio es el menú ("¿Qué desea
 // hacer?"); las demás pantallas tienen arriba "← Inicio" para volver y el
-// botón rojo "Recibir un carro" siempre a mano. Nada escondido.
+// botón rojo "Agregar un carro al sistema" siempre a mano. Nada escondido.
 
 export default function Marco() {
   const { esDemo, cerrarSesion } = useAuth();
@@ -38,8 +38,8 @@ export default function Marco() {
           <div className="flex items-center gap-2 sm:gap-3">
             {!enInicio && !recibiendo && (
               <Boton to="/trabajos/nuevo" icono={Plus} className="min-h-12 px-4 sm:px-6">
-                <span className="sm:hidden">Recibir</span>
-                <span className="hidden sm:inline">Recibir un carro</span>
+                <span className="sm:hidden">Agregar carro</span>
+                <span className="hidden sm:inline">Agregar un carro al sistema</span>
               </Boton>
             )}
             {/* Salir solo en Inicio: en celular no caben tres botones arriba. */}

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Marco from "./components/layout/Marco";
@@ -13,9 +13,12 @@ import Clientes from "./pages/Clientes";
 import Cliente from "./pages/Cliente";
 import Cobros from "./pages/Cobros";
 import NoEncontrada from "./pages/NoEncontrada";
+import SiFallaLaCarga from "./components/ui/SiFallaLaCarga";
+import cargarPagina from "./lib/cargarPagina";
 
 // "Cómo va el taller" lleva el gráfico (Chart.js, pesado): se baja solo al abrirla.
-const Taller = lazy(() => import("./pages/Taller"));
+// Si no baja, se reintenta solo (ver cargarPagina).
+const Taller = cargarPagina(() => import("./pages/Taller"));
 
 // Pantallas con sesión: sin sesión va al login; con cuenta 'pendiente', a
 // "Su cuenta todavía no tiene acceso".
@@ -57,9 +60,11 @@ export default function App() {
             <Route
               path="/taller"
               element={
-                <Suspense fallback={<p className="animate-pulse text-xl text-gris">Cargando…</p>}>
-                  <Taller />
-                </Suspense>
+                <SiFallaLaCarga>
+                  <Suspense fallback={<p className="animate-pulse text-xl text-gris">Cargando…</p>}>
+                    <Taller />
+                  </Suspense>
+                </SiFallaLaCarga>
               }
             />
             <Route path="*" element={<NoEncontrada />} />

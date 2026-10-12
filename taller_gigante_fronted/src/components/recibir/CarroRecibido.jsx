@@ -15,7 +15,7 @@ export default function CarroRecibido({ trabajoId, placa, esCita, alRecibirOtro 
             <path className="dibujar" d="M5 12.5l4.5 4.5L19 7.5" />
           </svg>
         </span>
-        <h1 className="mt-6 text-4xl font-bold">{esCita ? "¡Cita anotada!" : "¡Carro recibido!"}</h1>
+        <h1 className="mt-6 text-4xl font-bold">{esCita ? "¡Cita anotada!" : "¡Carro agregado!"}</h1>
         <div className="mt-4">
           <Placa grande>{placa}</Placa>
         </div>
@@ -29,7 +29,7 @@ export default function CarroRecibido({ trabajoId, placa, esCita, alRecibirOtro 
             Ver el trabajo
           </Boton>
           <Boton variante="secundario" icono={Plus} onClick={alRecibirOtro}>
-            Recibir otro carro
+            Agregar otro carro
           </Boton>
         </div>
       </div>
