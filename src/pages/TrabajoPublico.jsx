@@ -54,7 +54,7 @@ const SUBTITULO = {
 
 export default function TrabajoPublico() {
   const { token } = useParams();
-  // undefined = cargando, null = no existe, { vencido: true } = ya se entregó hace rato
+  // undefined = cargando, null = no existe, { vencido: true } = ya se entregó y pagó
   const [trabajo, setTrabajo] = useState(undefined);
   const [error, setError] = useState("");
   const [celebrando, setCelebrando] = useState(false);
@@ -122,7 +122,7 @@ export default function TrabajoPublico() {
 
         {trabajo?.vencido && (
           <Vacio icono={Clock} titulo="Este link ya venció" accion={botonTaller}>
-            Su carro se entregó hace más de un mes. Si necesita algo, escríbanos con gusto.
+            Su carro ya se entregó. Si necesita algo, escríbanos con gusto.
           </Vacio>
         )}
 
