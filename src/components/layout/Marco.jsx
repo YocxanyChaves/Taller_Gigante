@@ -1,11 +1,13 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, House, Plus, LogOut, FlaskConical } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Boton from "../ui/Boton";
+import useRegresar from "../../lib/useRegresar";
 import logo from "../../assets/logo-oscuro.png";
 
 // Marco de todas las pantallas con sesión. Inicio es el menú ("¿Qué desea
-// hacer?"); las demás pantallas tienen arriba "← Inicio" para volver y el
+// hacer?"); las demás pantallas tienen arriba "← Inicio" para volver (o
+// "← Regresar" en un detalle al que se llegó desde otra pantalla) y el
 // botón rojo "Agregar un carro al sistema" siempre a mano. Nada escondido.
 
 export default function Marco() {
@@ -13,6 +15,18 @@ export default function Marco() {
   const { pathname } = useLocation();
   const enInicio = pathname === "/inicio";
   const recibiendo = pathname === "/trabajos/nuevo";
+  const puedeRegresar = useRegresar();
+  const navegar = useNavigate();
+  const claseFlecha =
+    "group flex min-h-12 items-center gap-2 rounded-control pr-3 text-lg font-bold transition-colors hover:text-rojo";
+  const flecha = (
+    <ArrowLeft
+      aria-hidden="true"
+      size={24}
+      strokeWidth={2.4}
+      className="transition-transform duration-200 group-hover:-translate-x-1"
+    />
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -20,17 +34,14 @@ export default function Marco() {
         <div className="mx-auto flex h-18 max-w-6xl items-center justify-between gap-3 px-4 sm:px-8">
           {enInicio ? (
             <img src={logo} alt="Taller Mecánico Gigante" className="h-10 w-auto sm:h-11" />
+          ) : puedeRegresar ? (
+            <button type="button" onClick={() => navegar(-1)} className={claseFlecha}>
+              {flecha}
+              Regresar
+            </button>
           ) : (
-            <Link
-              to="/inicio"
-              className="group flex min-h-12 items-center gap-2 rounded-control pr-3 text-lg font-bold transition-colors hover:text-rojo"
-            >
-              <ArrowLeft
-                aria-hidden="true"
-                size={24}
-                strokeWidth={2.4}
-                className="transition-transform duration-200 group-hover:-translate-x-1"
-              />
+            <Link to="/inicio" className={claseFlecha}>
+              {flecha}
               Inicio
             </Link>
           )}
