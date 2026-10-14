@@ -3,7 +3,8 @@ import { supabase } from "../lib/supabaseClient";
 // Página del cliente (sin cuenta). Las dos funciones de la base son públicas a
 // propósito y solo devuelven lo que el cliente necesita ver.
 
-// null si el link no existe (o se cambió por uno nuevo).
+// null si el link no existe (o se cambió por uno nuevo); { vencido: true } si
+// el carro ya se entregó y no debe nada.
 export async function obtenerTrabajoPublico(token) {
   const { data, error } = await supabase.rpc("get_trabajo_publico", { p_token: token });
   // 22P02: el código del link está mal copiado (no es un uuid). Es lo mismo que no existir.

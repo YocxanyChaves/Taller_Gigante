@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CalendarDays, CarFront, MessageCircle, SearchX } from "lucide-react";
+import { CalendarDays, CarFront, Clock, MessageCircle, SearchX } from "lucide-react";
 import { obtenerTrabajoPublico } from "../services/publico";
 import { TALLER } from "../lib/taller";
 import { enlaceWhatsApp, mensajeAlTaller } from "../lib/whatsapp";
@@ -54,7 +54,8 @@ const SUBTITULO = {
 
 export default function TrabajoPublico() {
   const { token } = useParams();
-  const [trabajo, setTrabajo] = useState(undefined); // undefined = cargando, null = no existe
+  // undefined = cargando, null = no existe, { vencido: true } = ya se entregó y pagó
+  const [trabajo, setTrabajo] = useState(undefined);
   const [error, setError] = useState("");
   const [celebrando, setCelebrando] = useState(false);
   const [recienRespondio, setRecienRespondio] = useState(null); // true = aprobó, false = no
@@ -119,7 +120,13 @@ export default function TrabajoPublico() {
           </Vacio>
         )}
 
-        {trabajo && (
+        {trabajo?.vencido && (
+          <Vacio icono={Clock} titulo="Este link ya venció" accion={botonTaller}>
+            Su carro ya se entregó. Si necesita algo, escríbanos con gusto.
+          </Vacio>
+        )}
+
+        {trabajo && !trabajo.vencido && (
           <>
             <section className="animar-entrada relative">
               {celebrando && <Confeti />}
@@ -186,6 +193,11 @@ export default function TrabajoPublico() {
         )}
 
         <p className="pt-4 text-center text-base text-gris">{TALLER.nombre}</p>
+        {/* Aviso de privacidad (Ley 8968): qué se guarda, para qué y cómo pedir que se borre. */}
+        <p className="text-center text-sm text-gris">
+          Guardamos su nombre, su teléfono y los datos de su carro solo para darle seguimiento a su
+          vehículo. No se los damos a nadie más. Si quiere que los borremos, escríbanos.
+        </p>
       </main>
     </div>
   );
