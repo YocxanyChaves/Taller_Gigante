@@ -186,6 +186,11 @@ export default function TrabajoPublico() {
         )}
 
         <p className="pt-4 text-center text-base text-gris">{TALLER.nombre}</p>
+        {/* Aviso de privacidad (Ley 8968): qué se guarda, para qué y cómo pedir que se borre. */}
+        <p className="text-center text-sm text-gris">
+          Guardamos su nombre, su teléfono y los datos de su carro solo para darle seguimiento a su
+          vehículo. No se los damos a nadie más. Si quiere que los borremos, escríbanos.
+        </p>
       </main>
     </div>
   );
