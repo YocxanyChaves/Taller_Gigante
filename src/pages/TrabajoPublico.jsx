@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CalendarDays, CarFront, MessageCircle, SearchX } from "lucide-react";
+import { CalendarDays, CarFront, Clock, MessageCircle, SearchX } from "lucide-react";
 import { obtenerTrabajoPublico } from "../services/publico";
 import { TALLER } from "../lib/taller";
 import { enlaceWhatsApp, mensajeAlTaller } from "../lib/whatsapp";
@@ -54,7 +54,8 @@ const SUBTITULO = {
 
 export default function TrabajoPublico() {
   const { token } = useParams();
-  const [trabajo, setTrabajo] = useState(undefined); // undefined = cargando, null = no existe
+  // undefined = cargando, null = no existe, { vencido: true } = ya se entregó hace rato
+  const [trabajo, setTrabajo] = useState(undefined);
   const [error, setError] = useState("");
   const [celebrando, setCelebrando] = useState(false);
   const [recienRespondio, setRecienRespondio] = useState(null); // true = aprobó, false = no
@@ -119,7 +120,13 @@ export default function TrabajoPublico() {
           </Vacio>
         )}
 
-        {trabajo && (
+        {trabajo?.vencido && (
+          <Vacio icono={Clock} titulo="Este link ya venció" accion={botonTaller}>
+            Su carro se entregó hace más de un mes. Si necesita algo, escríbanos con gusto.
+          </Vacio>
+        )}
+
+        {trabajo && !trabajo.vencido && (
           <>
             <section className="animar-entrada relative">
               {celebrando && <Confeti />}
