@@ -93,7 +93,7 @@ src/
 │  ├─ ui/            piezas del sistema de diseño: Boton, Campo, Placa, Semaforo,
 │  │                 Insignia, TarjetaNumero, OpcionMenu, Asistente, Confirmar, Confeti,
 │  │                 Galeria y Vacio
-│  └─ layout/        Marco ("← Inicio" y "Recibir un carro" arriba) y Encabezado
+│  └─ layout/        Marco ("← Inicio" y el logo arriba) y Encabezado
 ├─ context/
 │  └─ AuthContext    quién inició sesión y con qué rol → useAuth()
 └─ lib/              supabaseClient, estados (semáforo), formato, useContar, errores, dekra

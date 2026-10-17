@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, House, Plus, LogOut, FlaskConical } from "lucide-react";
+import { ArrowLeft, House, LogOut, FlaskConical } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Boton from "../ui/Boton";
 import useRegresar from "../../lib/useRegresar";
@@ -7,8 +7,8 @@ import logo from "../../assets/logo-oscuro.png";
 
 // Marco de todas las pantallas con sesión. Inicio es el menú ("¿Qué desea
 // hacer?"); las demás pantallas tienen arriba "← Inicio" para volver (o
-// "← Regresar" en un detalle al que se llegó desde otra pantalla) y el
-// botón rojo "Agregar un carro al sistema" siempre a mano. Nada escondido.
+// "← Regresar" en un detalle al que se llegó desde otra pantalla) y a la
+// derecha el logo del taller, que también lleva a Inicio. Nada escondido.
 
 export default function Marco() {
   const { esDemo, cerrarSesion } = useAuth();
@@ -47,11 +47,14 @@ export default function Marco() {
           )}
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {!enInicio && !recibiendo && (
-              <Boton to="/trabajos/nuevo" icono={Plus} className="min-h-12 px-4 sm:px-6">
-                <span className="sm:hidden">Agregar carro</span>
-                <span className="hidden sm:inline">Agregar un carro al sistema</span>
-              </Boton>
+            {!enInicio && (
+              <Link
+                to="/inicio"
+                aria-label="Ir al inicio"
+                className="rounded-control p-1 transition-transform duration-200 hover:-translate-y-0.5"
+              >
+                <img src={logo} alt="Taller Mecánico Gigante" className="h-10 w-auto sm:h-11" />
+              </Link>
             )}
             {/* Salir solo en Inicio: en celular no caben tres botones arriba. */}
             {enInicio && (
