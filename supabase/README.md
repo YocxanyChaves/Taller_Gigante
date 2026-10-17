@@ -26,6 +26,7 @@ coincide con la versión que guarda Supabase.
 | `20260927004208_recibir_carro.sql` | Fase 3. Buscar carro por placa y cliente por teléfono (como sea que se escriban) y `recibir_carro()`, que guarda cliente, carro y trabajo de una sola vez. |
 | `20261003145422_buscar_clientes.sql` | Fase 6. `buscar_clientes()`: un solo buscador por nombre (sin tildes), teléfono o placa. |
 | `20261003150934_cobros.sql` | Fase 5. Entregar y cobrar de una vez, abonos y la lista de quién debe. |
+| `20261017120000_fotos_evidencia.sql` | Fase 7. Fotos de evidencia: tabla `orden_fotos`, el depósito privado `fotos` y sus permisos. |
 
 Antes de la fase 1 se sacó un respaldo de los datos en `respaldos/` (fuera de git).
 
@@ -42,7 +43,8 @@ auth.users ──1:1── usuarios (rol: admin | demo | pendiente)
 
 clientes ──< vehiculos ──< ordenes ──< orden_items
                               │   ├──< pagos
-                              │   └──< orden_estados_historial
+                              │   ├──< orden_estados_historial
+                              │   └──< orden_fotos ── archivo en Storage (fotos/)
                               └── token_publico (link del cliente)
 ```
 
@@ -58,6 +60,25 @@ clientes ──< vehiculos ──< ordenes ──< orden_items
 - **orden_items**: el detalle del precio. `tipo` es `repuesto`, `mano_obra` u `otro`. `subtotal` se calcula solo. `costo_unitario` es opcional (lo que le costó al taller, para la ganancia); el cliente nunca lo ve.
 - **pagos**: cada pago o abono. `metodo` es `efectivo`, `sinpe` o `transferencia`.
 - **orden_estados_historial**: cada cambio de estado con su fecha. `cambiado_por` nulo = lo hizo el cliente desde su link. Solo lo escribe un trigger.
+- **orden_fotos**: las fotos de evidencia de un trabajo (cómo llegó, el repuesto dañado, cómo quedó), con una `nota` opcional. `ruta` apunta al archivo en el depósito `fotos`, siempre dentro de la carpeta del trabajo (`<orden_id>/<uuid>.jpg`). Máximo 12 por trabajo (`trg_orden_fotos_limite`).
+
+## Fotos (Storage)
+
+- **Depósito `fotos`**: privado, solo JPG, 2 MB máximo por archivo. El navegador
+  achica cada foto a 1600 px antes de subirla (unos 250 KB), así que el GB del
+  plan gratis alcanza para miles.
+- **Permisos** (`storage.objects`): admin y demo ven, suben y borran solo en
+  carpetas de trabajos que pueden ver (`puede_usar_foto()`, que se apoya en el
+  RLS de `ordenes`). Así el demo no toca fotos reales.
+- **El cliente** no tiene login: las ve con la Edge Function `fotos-cliente`
+  (`functions/fotos-cliente/`). Recibe el token del link, revisa que no esté
+  vencido (igual que `get_trabajo_publico`) y devuelve direcciones firmadas que
+  vencen en 1 hora. Se publica con `verify_jwt` apagado porque el frontend usa
+  la llave *publishable*, que no es un JWT; la función revisa el token ella misma.
+- **Si se borra un trabajo** (por ejemplo, con `eliminar_cliente_completo` en
+  modo `todo`), la lista se borra sola pero los archivos quedan en el depósito.
+  Hoy el sistema no tiene botón para borrar clientes; si se agrega, que borre
+  primero los archivos.
 - **ordenes_totales** (vista): por orden, `total`, `pagado`, `saldo`, `costo_repuestos` y `costo_completo` (false si a algún repuesto le falta el costo). Si el cliente no aprobó, el total es solo el `cobro_revision`.
 
 ### Estados de un trabajo
@@ -138,4 +159,5 @@ demás corren con los permisos de quien llama.
 | `trg_validar_cambio_estado` | `ordenes` | Crear / cambiar estado | Revisa que el paso sea permitido, marca `aprobada`/`respondida_en` y llena o vacía `fecha_entrega`. |
 | `trg_ordenes_historial` | `ordenes` | Crear / cambiar estado | Anota el cambio en `orden_estados_historial`. |
 | `trg_*_es_demo` | `clientes`, `vehiculos`, `ordenes` | Crear/editar | Marca `es_demo` según el rol y lo vuelve inmutable. |
-| `trg_*_es_demo` | `orden_items`, `pagos`, `orden_estados_historial` | Crear/editar | Copia `es_demo` de la orden. |
+| `trg_*_es_demo` | `orden_items`, `pagos`, `orden_estados_historial`, `orden_fotos` | Crear/editar | Copia `es_demo` de la orden. |
+| `trg_orden_fotos_limite` | `orden_fotos` | Crear | Se niega si el trabajo ya tiene 12 fotos. |
