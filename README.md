@@ -46,11 +46,25 @@ lo compilado) y `npm run lint`.
 
 | Rol | Puede |
 |---|---|
-| `admin` | Todo con los datos reales, y cambiar roles en *Usuarios* |
+| `admin` | Todo con los datos reales |
 | `demo` | Lo mismo que admin, pero solo con datos de prueba (`es_demo = true`), separados de los reales |
 | `pendiente` | Nada. Es el rol de toda cuenta nueva hasta que un admin le asigne otro |
 
 Los clientes no tienen cuenta: ven su trabajo con un link único, sin registrarse.
+
+Las cuentas se manejan desde Supabase; el sistema no tiene pantalla para eso:
+
+- **Crear una cuenta**: *Authentication → Users → Add user*. Entra como `pendiente`.
+- **Darle acceso**: en *Table Editor → usuarios*, cambiarle `rol` a `admin` o `demo`.
+- **Cambiar la contraseña del demo**: su correo (`demo@tallergigante.com`) no existe, así
+  que el correo de recuperación nunca llega. Se cambia en *SQL Editor*:
+
+  ```sql
+  update auth.users
+  set encrypted_password = extensions.crypt('clave-nueva', extensions.gen_salt('bf')),
+      updated_at = now()
+  where email = 'demo@tallergigante.com';
+  ```
 
 ## Flujo
 

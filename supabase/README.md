@@ -46,7 +46,7 @@ clientes ──< vehiculos ──< ordenes ──< orden_items
                               └── token_publico (link del cliente)
 ```
 
-- **usuarios**: una fila por cuenta de login. Solo el tío/admin y el demo. La crea el trigger `on_auth_user_created` como `pendiente` (no ve nada hasta que un admin le cambie el rol).
+- **usuarios**: una fila por cuenta de login. Solo el tío/admin y el demo. La crea el trigger `on_auth_user_created` como `pendiente` (no ve nada hasta que un admin le cambie el rol desde Supabase; el sistema no tiene pantalla para eso).
 - **clientes**: la ficha del cliente en el taller. Los clientes no tienen cuenta.
 - **vehiculos**: pertenecen a un cliente. `id_cliente` puede quedar nulo si se borró el cliente conservando el historial. `kilometraje` y `anio` son enteros. La placa es única entre vehículos reales, sin importar mayúsculas, guiones ni espacios (índice `vehiculos_placa_unica`).
 - **ordenes**: en la interfaz se llaman **trabajos**. Campos principales:
