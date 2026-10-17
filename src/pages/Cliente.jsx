@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Car, MessageCircle, Pencil, Phone, RotateCw, SearchX } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Car, MessageCircle, Pencil, Phone, RotateCw, SearchX, Trash2 } from "lucide-react";
 import { obtenerCliente } from "../services/clientes";
 import { formatoColones, formatoTelefono, mesYAnio, soloDigitos } from "../lib/formato";
 import { enlaceWhatsApp, mensajeSaludo } from "../lib/whatsapp";
@@ -10,15 +10,19 @@ import Aviso from "../components/ui/Aviso";
 import Vacio from "../components/ui/Vacio";
 import CarroCliente from "../components/clientes/CarroCliente";
 import DialogoCliente from "../components/clientes/DialogoCliente";
+import DialogoBorrarCliente from "../components/clientes/DialogoBorrarCliente";
 
 // Ficha del cliente: quién es y cómo contactarlo, lo que debe, sus carros con
-// el historial de cada uno y el botón para agregarle un carro.
+// el historial de cada uno, el botón para agregarle un carro y, al lado,
+// cambiar sus datos o borrarlo.
 
 export default function Cliente() {
   const { id } = useParams();
   const [cliente, setCliente] = useState(undefined); // undefined = cargando, null = no existe
   const [error, setError] = useState("");
   const [editando, setEditando] = useState(false);
+  const [borrando, setBorrando] = useState(false);
+  const navegar = useNavigate();
 
   const cargar = useCallback(
     () =>
@@ -72,6 +76,8 @@ export default function Cliente() {
   }
 
   const telefono = soloDigitos(cliente.telefono).slice(-8);
+  // La base no deja borrar un cliente con trabajos sin terminar.
+  const enTaller = cliente.vehiculos.some((v) => v.ordenes.some((o) => !["entregado", "cancelado"].includes(o.estado)));
 
   return (
     <>
@@ -137,9 +143,26 @@ export default function Cliente() {
             </div>
           </section>
 
-          <Boton variante="gris" icono={Pencil} className="justify-start" onClick={() => setEditando(true)}>
-            Cambiar datos
-          </Boton>
+          <section className="flex flex-col gap-2">
+            <p className="etiqueta">Otras acciones</p>
+            <Boton variante="gris" icono={Pencil} className="justify-start" onClick={() => setEditando(true)}>
+              Cambiar datos
+            </Boton>
+            <Boton
+              variante="gris"
+              icono={Trash2}
+              className="justify-start"
+              onClick={() => setBorrando(true)}
+              disabled={enTaller}
+            >
+              Borrar este cliente
+            </Boton>
+            {enTaller && (
+              <p className="px-1 text-base text-gris">
+                Para borrarlo, primero entregue o cancele el carro que tiene en el taller.
+              </p>
+            )}
+          </section>
         </aside>
       </div>
 
@@ -151,6 +174,14 @@ export default function Cliente() {
             await cargar();
             setEditando(false);
           }}
+        />
+      )}
+
+      {borrando && (
+        <DialogoBorrarCliente
+          cliente={cliente}
+          alCerrar={() => setBorrando(false)}
+          alBorrado={() => navegar("/clientes", { replace: true })}
         />
       )}
     </>

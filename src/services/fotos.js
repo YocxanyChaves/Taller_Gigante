@@ -73,6 +73,12 @@ export async function borrarFoto(foto) {
   await supabase.storage.from(DEPOSITO).remove([foto.ruta]);
 }
 
+export async function borrarArchivosDeFotos(rutas) {
+  if (!rutas.length) return;
+  const { error } = await supabase.storage.from(DEPOSITO).remove(rutas);
+  if (error) throw error;
+}
+
 // Página del cliente (sin cuenta): la función `fotos-cliente` revisa el link
 // y devuelve las fotos con direcciones que vencen en 1 hora.
 export async function fotosDelLink(token) {

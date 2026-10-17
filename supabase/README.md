@@ -61,6 +61,7 @@ clientes ──< vehiculos ──< ordenes ──< orden_items
 - **pagos**: cada pago o abono. `metodo` es `efectivo`, `sinpe` o `transferencia`.
 - **orden_estados_historial**: cada cambio de estado con su fecha. `cambiado_por` nulo = lo hizo el cliente desde su link. Solo lo escribe un trigger.
 - **orden_fotos**: las fotos de evidencia de un trabajo (cómo llegó, el repuesto dañado, cómo quedó), con una `nota` opcional. `ruta` apunta al archivo en el depósito `fotos`, siempre dentro de la carpeta del trabajo (`<orden_id>/<uuid>.jpg`). Máximo 12 por trabajo (`trg_orden_fotos_limite`).
+- **ordenes_totales** (vista): por orden, `total`, `pagado`, `saldo`, `costo_repuestos` y `costo_completo` (false si a algún repuesto le falta el costo). Si el cliente no aprobó, el total es solo el `cobro_revision`.
 
 ## Fotos (Storage)
 
@@ -76,10 +77,10 @@ clientes ──< vehiculos ──< ordenes ──< orden_items
   vencen en 1 hora. Se publica con `verify_jwt` apagado porque el frontend usa
   la llave *publishable*, que no es un JWT; la función revisa el token ella misma.
 - **Si se borra un trabajo** (por ejemplo, con `eliminar_cliente_completo` en
-  modo `todo`), la lista se borra sola pero los archivos quedan en el depósito.
-  Hoy el sistema no tiene botón para borrar clientes; si se agrega, que borre
-  primero los archivos.
-- **ordenes_totales** (vista): por orden, `total`, `pagado`, `saldo`, `costo_repuestos` y `costo_completo` (false si a algún repuesto le falta el costo). Si el cliente no aprobó, el total es solo el `cobro_revision`.
+  modo `todo`), la lista se borra sola pero los archivos no. Por eso «Borrar
+  este cliente» (`eliminarCliente()` en `src/services/clientes.js`) borra
+  primero los archivos: después ya no se podría, porque el permiso depende de
+  que el trabajo exista.
 
 ### Estados de un trabajo
 

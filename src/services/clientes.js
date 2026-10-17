@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabaseClient";
+import { borrarArchivosDeFotos } from "./fotos";
 
 // Consultas de "Buscar un cliente" y la ficha del cliente. RLS decide qué ve
 // cada rol: admin, lo real; demo, lo de prueba.
@@ -71,6 +72,24 @@ export async function marcarDekra(vehiculoId) {
   const hoy = new Date();
   const fecha = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
   const { error } = await supabase.from("vehiculos").update({ ultima_revision_tecnica: fecha }).eq("id", vehiculoId);
+  if (error) throw error;
+}
+
+// "Borrar este cliente". Modo "todo": también sus carros, trabajos y fotos;
+// "conservar_historial": los carros y trabajos se quedan sin dueño. La base se
+// niega si tiene trabajos sin terminar (la pantalla ya lo revisa antes).
+// Con "todo", los archivos de las fotos se borran primero: después ya no se
+// podría, porque el permiso de borrarlos depende de que el trabajo exista.
+export async function eliminarCliente(cliente, modo) {
+  if (modo === "todo") {
+    const ordenes = cliente.vehiculos.flatMap((v) => v.ordenes.map((o) => o.id));
+    if (ordenes.length) {
+      const { data: fotos, error } = await supabase.from("orden_fotos").select("ruta").in("orden_id", ordenes);
+      if (error) throw error;
+      await borrarArchivosDeFotos(fotos.map((f) => f.ruta));
+    }
+  }
+  const { error } = await supabase.rpc("eliminar_cliente_completo", { p_cliente_id: cliente.id, p_modo: modo });
   if (error) throw error;
 }
 
