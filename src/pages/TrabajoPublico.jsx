@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { CalendarDays, CarFront, Clock, MessageCircle, SearchX } from "lucide-react";
 import { obtenerTrabajoPublico } from "../services/publico";
 import { fotosDelLink } from "../services/fotos";
+import { fotosPorEtapa } from "../lib/etapas";
+import { ESTADOS } from "../lib/estados";
 import { TALLER } from "../lib/taller";
 import { enlaceWhatsApp, mensajeAlTaller } from "../lib/whatsapp";
 import { formatoColones, nombreCarro, fechaLarga } from "../lib/formato";
@@ -184,7 +186,7 @@ export default function TrabajoPublico() {
 
             <Detalle trabajo={trabajo} />
 
-            <FotosDelCarro token={token} />
+            <FotosDelCarro token={token} historial={trabajo.historial} />
 
             {trabajo.puede_responder && (
               <RespuestaCliente token={token} total={trabajo.total} alResponder={alResponder} />
@@ -208,9 +210,9 @@ export default function TrabajoPublico() {
   );
 }
 
-// Las fotos que tomó el taller. Si no hay o no cargan, no se muestra nada:
-// la página sirve igual sin ellas.
-function FotosDelCarro({ token }) {
+// Las fotos que tomó el taller, agrupadas por la etapa en que se tomaron. Si
+// no hay o no cargan, no se muestra nada: la página sirve igual sin ellas.
+function FotosDelCarro({ token, historial }) {
   const [fotos, setFotos] = useState([]);
 
   useEffect(() => {
@@ -220,12 +222,25 @@ function FotosDelCarro({ token }) {
   }, [token]);
 
   if (!fotos.length) return null;
+  const etapas = fotosPorEtapa(historial ?? [], fotos).filter((e) => e.fotos.length);
 
   return (
     <section className="aparecer rounded-tarjeta border border-linea bg-tarjeta p-6 shadow-tarjeta">
       <h2 className="text-xl font-bold">Fotos de su carro</h2>
-      <p className="mt-1 mb-4 text-base text-gris">Toque una para verla grande.</p>
-      <Galeria fotos={fotos} />
+      <p className="mt-1 text-base text-gris">Toque una para verla grande.</p>
+      {etapas.length ? (
+        etapas.map((e, i) => (
+          <div key={i} className="mt-5">
+            <h3 className="text-lg font-bold">{ESTADOS[e.estado]?.texto ?? e.estado}</h3>
+            <p className="mb-2 text-base text-gris">{fechaLarga(e.fecha)}</p>
+            <Galeria fotos={e.fotos} />
+          </div>
+        ))
+      ) : (
+        <div className="mt-4">
+          <Galeria fotos={fotos} />
+        </div>
+      )}
     </section>
   );
 }

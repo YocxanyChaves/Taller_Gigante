@@ -19,9 +19,12 @@ import useRefrescar from "../lib/useRefrescar";
 import LineaTiempo from "../components/trabajos/LineaTiempo";
 import Pagos from "../components/trabajos/Pagos";
 import Fotos from "../components/trabajos/Fotos";
+import HistorialCliente from "../components/trabajos/HistorialCliente";
+import { listarFotos } from "../services/fotos";
 
 // Ficha de un trabajo: arriba el carro y su estado; al centro el botón del
-// siguiente paso, el precio y las fotos; al lado los datos, por dónde ha pasado y las
+// siguiente paso, el precio y las fotos; al lado los datos, por dónde ha pasado
+// (con las fotos de cada etapa), el historial en PDF para el cliente y las
 // acciones de poco uso (volver un paso, cancelar), siempre con confirmación.
 
 export default function Trabajo() {
@@ -53,6 +56,25 @@ export default function Trabajo() {
 
   // Si el cliente responde desde su link, la ficha se actualiza sola.
   useRefrescar(cargar, 20000);
+
+  // Las fotos van aparte y no se refrescan solas: cada vez traen direcciones
+  // nuevas y las imágenes se volverían a descargar.
+  const [fotos, setFotos] = useState(undefined); // undefined = cargando
+  const [errorFotos, setErrorFotos] = useState("");
+  const cargarFotos = useCallback(
+    () =>
+      listarFotos(id)
+        .then((datos) => {
+          setFotos(datos);
+          setErrorFotos("");
+        })
+        .catch((e) => setErrorFotos(mensajeError(e))),
+    [id]
+  );
+
+  useEffect(() => {
+    cargarFotos();
+  }, [cargarFotos]);
 
   if (error) {
     return (
@@ -144,14 +166,21 @@ export default function Trabajo() {
               }}
             />
           </div>
-          <Fotos trabajo={trabajo} pedirLlegada={busqueda.get("fotos") === "llegada"} />
+          <Fotos
+            trabajo={trabajo}
+            fotos={fotos}
+            error={errorFotos}
+            alCambio={cargarFotos}
+            pedirLlegada={busqueda.get("fotos") === "llegada"}
+          />
         </div>
 
         <div className="flex flex-col gap-6">
           <Pagos trabajo={trabajo} alCambio={cargar} />
           <DatosTrabajo trabajo={trabajo} />
           {trabajo.estado !== "cancelado" && <LinkCliente trabajo={trabajo} alCambio={cargar} />}
-          <LineaTiempo historial={trabajo.historial} />
+          <LineaTiempo historial={trabajo.historial} fotos={fotos ?? []} />
+          <HistorialCliente trabajo={trabajo} fotos={fotos} />
 
           {activo && (
             <section className="flex flex-col gap-2">

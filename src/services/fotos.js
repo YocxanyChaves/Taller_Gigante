@@ -27,7 +27,8 @@ async function achicar(archivo) {
   );
 }
 
-// Las fotos de un trabajo, de la más vieja a la más nueva, con su dirección.
+// Las fotos de un trabajo, de la más vieja a la más nueva, con su fecha y su
+// dirección (vence en 1 hora).
 export async function listarFotos(ordenId) {
   const { data, error } = await supabase
     .from("orden_fotos")
@@ -46,7 +47,7 @@ export async function listarFotos(ordenId) {
   if (errorFirmar) throw errorFirmar;
 
   const url = Object.fromEntries(firmadas.map((f) => [f.path, f.signedUrl]));
-  return data.map((f) => ({ ...f, url: url[f.ruta] }));
+  return data.map((f) => ({ ...f, fecha: f.created_at, url: url[f.ruta] }));
 }
 
 // Sube una foto con su nota (opcional). Si no se puede anotar (por ejemplo,

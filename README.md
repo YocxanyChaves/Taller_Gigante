@@ -77,8 +77,15 @@ Las cuentas se manejan desde Supabase; el sistema no tiene pantalla para eso:
 5. **Entregado**: se cobra de contado o en cuotas (abonos hasta saldar).
 
 En cualquier paso se pueden agregar **fotos de evidencia** al trabajo (cómo llegó, el
-repuesto dañado, cómo quedó), hasta 12 por trabajo. El cliente también las ve en su link,
-y en la ficha del cliente cada trabajo dice cuántas fotos tiene.
+repuesto dañado, cómo quedó), hasta 12 por trabajo. Cada foto queda en la etapa en que se
+tomó (según la hora, `src/lib/etapas.js`): así salen en «Por dónde ha pasado» y en el link
+del cliente. En la ficha del cliente cada trabajo dice cuántas fotos tiene.
+
+Desde la ficha del trabajo se arma el **historial para el cliente** en PDF
+(`src/lib/historialPdf.js`, con jsPDF cargado solo al usarlo): por dónde pasó el carro con
+sus fotos, el diagnóstico, el precio y los pagos, sin los costos del taller. En el celular se
+manda directo por WhatsApp con «Compartir»; en la compu se descarga. El cliente se lo queda
+aunque el link venza.
 
 Inicio también avisa de la **revisión técnica (DEKRA)** que se acerca según el último
 dígito de la placa (`src/lib/dekra.js`).

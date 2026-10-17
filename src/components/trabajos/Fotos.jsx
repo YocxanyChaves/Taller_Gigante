@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Camera, RotateCw } from "lucide-react";
-import { listarFotos, subirFoto, borrarFoto } from "../../services/fotos";
+import { subirFoto, borrarFoto } from "../../services/fotos";
 import { mensajeError } from "../../lib/errores";
 import Boton from "../ui/Boton";
 import Campo from "../ui/Campo";
@@ -12,14 +12,14 @@ import Galeria from "../ui/Galeria";
 // quedó), para evitar malentendidos. El cliente también las ve en su link.
 // «Agregar fotos» pregunta qué muestran (opcional) y abre la cámara o la
 // galería del celular. Con `pedirLlegada` se abre solo con la nota «Así
-// llegó» (viene de «¡Carro agregado!»).
+// llegó» (viene de «¡Carro agregado!»). Las fotos las carga la ficha
+// (`fotos`: undefined mientras cargan), que también las usa en «Por dónde ha
+// pasado» y en el historial para el cliente; `alCambio` las vuelve a pedir.
 
 const MAXIMO = 12;
 const NOTAS_RAPIDAS = ["Así llegó", "Repuesto dañado", "Así quedó"];
 
-export default function Fotos({ trabajo, pedirLlegada = false }) {
-  const [fotos, setFotos] = useState(undefined); // undefined = cargando
-  const [error, setError] = useState("");
+export default function Fotos({ trabajo, fotos, error, alCambio, pedirLlegada = false }) {
   const [agregando, setAgregando] = useState(pedirLlegada);
   const [nota, setNota] = useState(pedirLlegada ? "Así llegó" : "");
   const [subiendo, setSubiendo] = useState(null); // { hecho, total } mientras sube
@@ -28,21 +28,6 @@ export default function Fotos({ trabajo, pedirLlegada = false }) {
   const [borrando, setBorrando] = useState(false);
   const [errorBorrar, setErrorBorrar] = useState("");
   const refArchivo = useRef(null);
-
-  const cargar = useCallback(
-    () =>
-      listarFotos(trabajo.id)
-        .then((datos) => {
-          setFotos(datos);
-          setError("");
-        })
-        .catch((e) => setError(mensajeError(e))),
-    [trabajo.id]
-  );
-
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
 
   const quedan = MAXIMO - (fotos?.length ?? 0);
 
@@ -68,7 +53,7 @@ export default function Fotos({ trabajo, pedirLlegada = false }) {
       setErrorSubir(mensajeError(err));
     } finally {
       setSubiendo(null);
-      await cargar();
+      await alCambio();
     }
   };
 
@@ -78,7 +63,7 @@ export default function Fotos({ trabajo, pedirLlegada = false }) {
     try {
       await borrarFoto(porBorrar);
       setPorBorrar(null);
-      await cargar();
+      await alCambio();
     } catch (e) {
       setErrorBorrar(mensajeError(e));
     } finally {
@@ -99,7 +84,7 @@ export default function Fotos({ trabajo, pedirLlegada = false }) {
       {error && (
         <div className="flex flex-col items-start gap-2">
           <p role="alert" className="font-bold text-rojo">{error}</p>
-          <Boton variante="secundario" icono={RotateCw} onClick={cargar}>
+          <Boton variante="secundario" icono={RotateCw} onClick={alCambio}>
             Intentar de nuevo
           </Boton>
         </div>
@@ -109,7 +94,7 @@ export default function Fotos({ trabajo, pedirLlegada = false }) {
 
       {fotos?.length > 0 && (
         <Galeria
-          fotos={fotos.map((f) => ({ ...f, fecha: f.created_at }))}
+          fotos={fotos}
           alBorrar={(foto) => setPorBorrar(foto)}
         />
       )}
