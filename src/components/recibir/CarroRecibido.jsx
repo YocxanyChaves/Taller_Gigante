@@ -1,4 +1,4 @@
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, Camera, Plus } from "lucide-react";
 import Boton from "../ui/Boton";
 import Confeti from "../ui/Confeti";
 import Placa from "../ui/Placa";
@@ -28,6 +28,11 @@ export default function CarroRecibido({ trabajoId, placa, esCita, alRecibirOtro 
           <Boton to={`/trabajos/${trabajoId}`} icono={ArrowRight}>
             Ver el trabajo
           </Boton>
+          {!esCita && (
+            <Boton variante="secundario" icono={Camera} to={`/trabajos/${trabajoId}?fotos=llegada`}>
+              Tomar fotos de cómo llegó
+            </Boton>
+          )}
           <Boton variante="secundario" icono={Plus} onClick={alRecibirOtro}>
             Agregar otro carro
           </Boton>

@@ -76,6 +76,10 @@ Las cuentas se manejan desde Supabase; el sistema no tiene pantalla para eso:
 4. **Esperando repuestos** → **En reparación** → **Listo** (se le avisa al cliente).
 5. **Entregado**: se cobra de contado o en cuotas (abonos hasta saldar).
 
+En cualquier paso se pueden agregar **fotos de evidencia** al trabajo (cómo llegó, el
+repuesto dañado, cómo quedó), hasta 12 por trabajo. El cliente también las ve en su link,
+y en la ficha del cliente cada trabajo dice cuántas fotos tiene.
+
 Inicio también avisa de la **revisión técnica (DEKRA)** que se acerca según el último
 dígito de la placa (`src/lib/dekra.js`).
 
@@ -87,14 +91,15 @@ src/
 ├─ services/         consultas a Supabase por pantalla
 ├─ components/
 │  ├─ ui/            piezas del sistema de diseño: Boton, Campo, Placa, Semaforo,
-│  │                 Insignia, TarjetaNumero, OpcionMenu, Asistente, Confirmar, Confeti y
-│  │                 Vacio
+│  │                 Insignia, TarjetaNumero, OpcionMenu, Asistente, Confirmar, Confeti,
+│  │                 Galeria y Vacio
 │  └─ layout/        Marco ("← Inicio" y "Recibir un carro" arriba) y Encabezado
 ├─ context/
 │  └─ AuthContext    quién inició sesión y con qué rol → useAuth()
 └─ lib/              supabaseClient, estados (semáforo), formato, useContar, errores, dekra
 supabase/
 ├─ migrations/       todos los cambios a la base, en orden
+├─ functions/        Edge Functions (fotos-cliente: las fotos del link del cliente)
 └─ README.md         tablas, funciones, triggers y políticas explicados
 ```
 
@@ -109,6 +114,7 @@ Convenciones:
 
 ## Base de datos
 
-Siete tablas: `usuarios` (cuentas de login), `clientes`, `vehiculos`, `ordenes` (los
-trabajos), `orden_items` (detalle del precio), `pagos` y `orden_estados_historial`.
+Ocho tablas: `usuarios` (cuentas de login), `clientes`, `vehiculos`, `ordenes` (los
+trabajos), `orden_items` (detalle del precio), `pagos`, `orden_estados_historial` y
+`orden_fotos`. Las fotos se guardan en Supabase Storage (depósito privado `fotos`).
 Detalle completo en [`supabase/README.md`](supabase/README.md).

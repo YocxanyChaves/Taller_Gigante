@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Car, Check, ChevronRight, ClipboardCheck, Wrench } from "lucide-react";
+import { Camera, Car, Check, ChevronRight, ClipboardCheck, Wrench } from "lucide-react";
 import { calcularEstadoDekra } from "../../lib/dekra";
 import { marcarDekra } from "../../services/clientes";
 import { mensajeError } from "../../lib/errores";
@@ -120,7 +120,15 @@ function FilaHistorial({ orden }) {
       />
       <span className="col-span-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1">
         <span className="block truncate text-lg font-bold">{orden.diagnostico || orden.problema_reportado}</span>
-        <Insignia estado={orden.estado} />
+        <span className="flex flex-wrap items-center gap-3">
+          <Insignia estado={orden.estado} />
+          {orden.fotos > 0 && (
+            <span className="flex items-center gap-1.5 text-base text-gris">
+              <Camera aria-hidden="true" size={18} />
+              {orden.fotos === 1 ? "1 foto" : `${orden.fotos} fotos`}
+            </span>
+          )}
+        </span>
       </span>
       <span className="col-span-2 flex flex-col md:col-span-1 md:col-start-3 md:row-start-1 md:items-end">
         {orden.total > 0 && <span className="numeros text-lg">{formatoColones(orden.total)}</span>}

@@ -12,14 +12,15 @@ export async function buscarClientes(texto) {
 }
 
 // El cliente con sus carros y, por carro, sus trabajos (el más nuevo primero)
-// con total y saldo. null si no existe.
+// con total, saldo y cuántas fotos tiene. null si no existe.
 export async function obtenerCliente(id) {
   const { data, error } = await supabase
     .from("clientes")
     .select(
       `id, nombre, telefono, correo, direccion, fecha_ingreso,
        vehiculos ( id, placa, marca, modelo, anio, kilometraje, ultima_revision_tecnica,
-         ordenes ( id, estado, problema_reportado, diagnostico, fecha_ingreso, fecha_cita, fecha_entrega ) )`
+         ordenes ( id, estado, problema_reportado, diagnostico, fecha_ingreso, fecha_cita, fecha_entrega,
+           fotos:orden_fotos ( count ) ) )`
     )
     .eq("id", id)
     .maybeSingle();
@@ -39,7 +40,12 @@ export async function obtenerCliente(id) {
     .map((v) => ({
       ...v,
       ordenes: v.ordenes
-        .map((o) => ({ ...o, total: Number(porOrden[o.id]?.total ?? 0), saldo: Number(porOrden[o.id]?.saldo ?? 0) }))
+        .map((o) => ({
+          ...o,
+          total: Number(porOrden[o.id]?.total ?? 0),
+          saldo: Number(porOrden[o.id]?.saldo ?? 0),
+          fotos: o.fotos?.[0]?.count ?? 0,
+        }))
         .sort((a, b) => new Date(b.fecha_ingreso) - new Date(a.fecha_ingreso)),
     }))
     // Primero el carro que vino más recientemente.

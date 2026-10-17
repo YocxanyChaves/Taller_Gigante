@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarDays, CarFront, Clock, MessageCircle, SearchX } from "lucide-react";
 import { obtenerTrabajoPublico } from "../services/publico";
+import { fotosDelLink } from "../services/fotos";
 import { TALLER } from "../lib/taller";
 import { enlaceWhatsApp, mensajeAlTaller } from "../lib/whatsapp";
 import { formatoColones, nombreCarro, fechaLarga } from "../lib/formato";
@@ -13,12 +14,14 @@ import Confeti from "../components/ui/Confeti";
 import Vacio from "../components/ui/Vacio";
 import ProgresoCliente from "../components/publico/ProgresoCliente";
 import RespuestaCliente from "../components/publico/RespuestaCliente";
+import Galeria from "../components/ui/Galeria";
 import logo from "../assets/logo-oscuro.png";
 
 // Página del cliente: la abre desde el link que le manda el taller, sin
 // cuenta. Ve cómo va su carro, el precio y, si toca, responde si se hace el
 // trabajo. Pensada para celular. Solo muestra lo que devuelve
-// get_trabajo_publico() (nunca teléfonos, direcciones ni costos del taller).
+// get_trabajo_publico() (nunca teléfonos, direcciones ni costos del taller) y
+// las fotos de la función `fotos-cliente`.
 
 // La frase grande de arriba según el estado.
 function titular(t) {
@@ -181,6 +184,8 @@ export default function TrabajoPublico() {
 
             <Detalle trabajo={trabajo} />
 
+            <FotosDelCarro token={token} />
+
             {trabajo.puede_responder && (
               <RespuestaCliente token={token} total={trabajo.total} alResponder={alResponder} />
             )}
@@ -200,6 +205,28 @@ export default function TrabajoPublico() {
         </p>
       </main>
     </div>
+  );
+}
+
+// Las fotos que tomó el taller. Si no hay o no cargan, no se muestra nada:
+// la página sirve igual sin ellas.
+function FotosDelCarro({ token }) {
+  const [fotos, setFotos] = useState([]);
+
+  useEffect(() => {
+    fotosDelLink(token)
+      .then(setFotos)
+      .catch(() => setFotos([]));
+  }, [token]);
+
+  if (!fotos.length) return null;
+
+  return (
+    <section className="aparecer rounded-tarjeta border border-linea bg-tarjeta p-6 shadow-tarjeta">
+      <h2 className="text-xl font-bold">Fotos de su carro</h2>
+      <p className="mt-1 mb-4 text-base text-gris">Toque una para verla grande.</p>
+      <Galeria fotos={fotos} />
+    </section>
   );
 }
 

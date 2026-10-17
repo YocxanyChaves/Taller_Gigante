@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Ban, RotateCw, SearchX, Undo2 } from "lucide-react";
 import { obtenerTrabajo, avanzarEstado } from "../services/trabajos";
 import { ESTADOS } from "../lib/estados";
@@ -18,14 +18,17 @@ import LinkCliente from "../components/trabajos/LinkCliente";
 import useRefrescar from "../lib/useRefrescar";
 import LineaTiempo from "../components/trabajos/LineaTiempo";
 import Pagos from "../components/trabajos/Pagos";
+import Fotos from "../components/trabajos/Fotos";
 
 // Ficha de un trabajo: arriba el carro y su estado; al centro el botón del
-// siguiente paso y el precio; al lado los datos, por dónde ha pasado y las
+// siguiente paso, el precio y las fotos; al lado los datos, por dónde ha pasado y las
 // acciones de poco uso (volver un paso, cancelar), siempre con confirmación.
 
 export default function Trabajo() {
   const { id } = useParams();
   const navegar = useNavigate();
+  // ?fotos=llegada: viene de «¡Carro agregado!» a tomar las fotos de cómo llegó.
+  const [busqueda] = useSearchParams();
   const [trabajo, setTrabajo] = useState(undefined); // undefined = cargando, null = no existe
   const [error, setError] = useState("");
   const [editandoPrecio, setEditandoPrecio] = useState(false);
@@ -141,6 +144,7 @@ export default function Trabajo() {
               }}
             />
           </div>
+          <Fotos trabajo={trabajo} pedirLlegada={busqueda.get("fotos") === "llegada"} />
         </div>
 
         <div className="flex flex-col gap-6">
