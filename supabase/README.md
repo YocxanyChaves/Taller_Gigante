@@ -26,7 +26,7 @@ coincide con la versión que guarda Supabase.
 | `20260927004208_recibir_carro.sql` | Fase 3. Buscar carro por placa y cliente por teléfono (como sea que se escriban) y `recibir_carro()`, que guarda cliente, carro y trabajo de una sola vez. |
 | `20261003145422_buscar_clientes.sql` | Fase 6. `buscar_clientes()`: un solo buscador por nombre (sin tildes), teléfono o placa. |
 | `20261003150934_cobros.sql` | Fase 5. Entregar y cobrar de una vez, abonos y la lista de quién debe. |
-| `20261017120000_fotos_evidencia.sql` | Fase 7. Fotos de evidencia: tabla `orden_fotos`, el depósito privado `fotos` y sus permisos. |
+| `20261017044908_fotos_evidencia.sql` | Fase 7. Fotos de evidencia: tabla `orden_fotos`, el depósito privado `fotos` y sus permisos. |
 
 Antes de la fase 1 se sacó un respaldo de los datos en `respaldos/` (fuera de git).
 
