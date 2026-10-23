@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CalendarDays, Car, CarFront, ListChecks, Sun, Sunrise, UserPlus, User } from "lucide-react";
+import { CalendarDays, Car, CarFront, EyeOff, ListChecks, Sun, Sunrise, UserPlus, User } from "lucide-react";
 import { buscarVehiculoPorPlaca, buscarClientesPorTelefono, recibirCarro } from "../services/trabajos";
 import { obtenerClienteBasico } from "../services/clientes";
 import useBusqueda from "../lib/useBusqueda";
@@ -9,6 +9,7 @@ import {
   normalizarPlaca,
   soloDigitos,
   formatoTelefono,
+  formatoKm,
   nombreCarro,
   fechaLarga,
   isoAFechaInput,
@@ -24,7 +25,8 @@ import ElegirCarro from "../components/recibir/ElegirCarro";
 // "Agregar un carro al sistema": una pregunta por pantalla. Primero pregunta si
 // el carro ya está registrado: si sí, se escoge de la lista por el nombre del
 // dueño (el tío conoce los carros por la persona); si no, se anota la placa.
-// Si el carro ya vino, se saltan el teléfono y los datos del carro. Los pasos
+// Si el carro ya vino, se saltan el teléfono y los datos del carro. Si ya
+// está aquí, se pide el kilometraje (en una cita se pide cuando llega). Los pasos
 // se arman solos según lo que se va encontrando.
 // Desde la ficha del cliente llega con ?placa= (ese carro) o ?cliente= (un
 // carro de ese cliente): entonces no se pregunta nada de eso.
@@ -42,6 +44,8 @@ const VACIO = {
   problema: "",
   cuando: null, // "ya" | "hoy" | "manana" | "fecha"
   fecha: "",
+  km: "",
+  sinKm: false, // no se puede ver el tablero
 };
 
 const CUANDO = [
@@ -127,6 +131,7 @@ export default function NuevoTrabajo() {
     ...(carroConocido ? [] : ["carro"]),
     "problema",
     "cuando",
+    ...(datos.cuando === "ya" ? ["km"] : []),
     "resumen",
   ];
   const posicion = Math.min(indice, pasos.length - 1);
@@ -154,6 +159,7 @@ export default function NuevoTrabajo() {
     : clienteFijo
       ? clienteFijo.telefono
       : telefono;
+  const km = soloDigitos(datos.km) ? Number(soloDigitos(datos.km)) : null;
   const textoCuando =
     datos.cuando === "ya"
       ? "Ya está aquí"
@@ -177,6 +183,7 @@ export default function NuevoTrabajo() {
         clienteId: carroConDueno ? null : (clienteFijo?.id ?? clienteElegido?.id),
         clienteNombre: necesitaCliente && clienteNuevo ? datos.nombre : null,
         clienteTelefono: necesitaCliente && clienteNuevo ? telefono : null,
+        km: datos.cuando === "ya" ? km : null,
       });
       setRecibido({
         trabajoId,
@@ -429,6 +436,33 @@ export default function NuevoTrabajo() {
       ),
     },
 
+    km: {
+      pregunta: "¿Cuánto kilometraje marca?",
+      ayuda: "Véalo en el tablero del carro.",
+      puedeSeguir: km !== null || datos.sinKm,
+      contenido: (
+        <div className="flex flex-col gap-5">
+          <Campo
+            etiqueta="Kilometraje"
+            grande
+            autoFocus
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="85 000"
+            value={datos.km}
+            onChange={(e) => setDatos((d) => ({ ...d, km: e.target.value, sinKm: false }))}
+          />
+          <Eleccion
+            icono={EyeOff}
+            titulo="No se puede ver el tablero"
+            ayuda="Sigo sin anotarlo"
+            elegida={datos.sinKm}
+            onClick={() => setDatos((d) => ({ ...d, sinKm: !d.sinKm, km: "" }))}
+          />
+        </div>
+      ),
+    },
+
     resumen: {
       pregunta: "¿Está todo bien?",
       ayuda: "Revise los datos y toque «Guardar».",
@@ -451,6 +485,7 @@ export default function NuevoTrabajo() {
               },
               { etiqueta: "Qué le pasa", valor: datos.problema.trim(), paso: "problema" },
               { etiqueta: "Cuándo", valor: textoCuando, paso: "cuando" },
+              ...(datos.cuando === "ya" ? [{ etiqueta: "Kilometraje", valor: km === null ? "No se pudo ver el tablero" : formatoKm(km), paso: "km" }] : []),
             ]}
           />
           {error && (
