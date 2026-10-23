@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
 import { Phone } from "lucide-react";
 import { formatoTelefono, formatoKm, fechaLarga, soloDigitos } from "../../lib/formato";
+import { TEXTO_GASOLINA } from "../../lib/llegada";
 import Desplegable from "../ui/Desplegable";
 
 // El carro, el cliente (con botón para llamar) y cómo llegó.
-
-const GASOLINA = { vacio: "Vacío", "1/4": "1/4", "1/2": "1/2", "3/4": "3/4", lleno: "Lleno" };
 
 function Dato({ etiqueta, children }) {
   return (
@@ -50,7 +49,7 @@ export default function DatosTrabajo({ trabajo }) {
         <Dato etiqueta="Anotado">{fechaLarga(trabajo.fecha_ingreso)}</Dato>
         {trabajo.km_entrada != null && <Dato etiqueta="Kilometraje al llegar">{formatoKm(trabajo.km_entrada)}</Dato>}
         {trabajo.nivel_combustible && (
-          <Dato etiqueta="Gasolina al llegar">{GASOLINA[trabajo.nivel_combustible]}</Dato>
+          <Dato etiqueta="Gasolina al llegar">{TEXTO_GASOLINA[trabajo.nivel_combustible]}</Dato>
         )}
         {trabajo.notas_recepcion && (
           <Dato etiqueta="Cómo llegó">
