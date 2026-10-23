@@ -1,110 +1,37 @@
 import { useState } from "react";
-import { EyeOff } from "lucide-react";
-import { soloDigitos } from "../../lib/formato";
 import Dialogo from "../ui/Dialogo";
-import Campo from "../ui/Campo";
 import Boton from "../ui/Boton";
-import Eleccion from "../ui/Eleccion";
+import { LLEGADA_VACIA, datosLlegada, llegadaLista } from "../../lib/llegada";
+import CamposLlegada from "./CamposLlegada";
 
-// "Ya llegó el carro": kilometraje (obligatorio, aclara dudas después, salvo
-// que no se pueda ver el tablero), gasolina y notas de cómo llegó; con
-// "Guardar" el carro pasa a revisión.
-
-const GASOLINA = [
-  { valor: "vacio", texto: "Vacío" },
-  { valor: "1/4", texto: "1/4" },
-  { valor: "1/2", texto: "1/2" },
-  { valor: "3/4", texto: "3/4" },
-  { valor: "lleno", texto: "Lleno" },
-];
+// "Ya llegó el carro": cómo llegó (ver CamposLlegada); con "Guardar" el carro
+// pasa a revisión.
 
 export default function DialogoLlegada({ abierto, guardando, error, alGuardar, alCerrar }) {
-  const [km, setKm] = useState("");
-  const [gasolina, setGasolina] = useState(null);
-  const [notas, setNotas] = useState("");
-  const [sinKm, setSinKm] = useState(false);
-  const digitosKm = soloDigitos(km);
+  const [valores, setValores] = useState(LLEGADA_VACIA);
+  const lista = llegadaLista(valores);
 
   return (
     <Dialogo
       abierto={abierto}
       titulo="Llegó el carro"
       alCerrar={alCerrar}
-      alEnviar={() =>
-        (digitosKm || sinKm) &&
-        alGuardar({
-          km: digitosKm ? Number(digitosKm) : null,
-          combustible: gasolina,
-          notas: notas.trim() || null,
-        })
-      }
+      alEnviar={() => lista && alGuardar(datosLlegada(valores))}
       pie={
         <>
           <Boton variante="gris" onClick={alCerrar}>
             Cancelar
           </Boton>
-          <Boton type="submit" disabled={guardando || (!digitosKm && !sinKm)}>
+          <Boton type="submit" disabled={guardando || !lista}>
             {guardando ? "Guardando…" : "Guardar y pasar a revisión"}
           </Boton>
         </>
       }
     >
       <p>Anote el kilometraje que marca el tablero. La gasolina y las notas son opcionales.</p>
-      <div className="mt-5 flex flex-col gap-5 text-tinta">
-        <Campo
-          etiqueta="Kilometraje"
-          autoFocus
-          inputMode="numeric"
-          placeholder="85 000"
-          value={km}
-          onChange={(e) => {
-            setKm(e.target.value);
-            setSinKm(false);
-          }}
-        />
-        <Eleccion
-          icono={EyeOff}
-          titulo="No se puede ver el tablero"
-          ayuda="Sigo sin anotarlo"
-          elegida={sinKm}
-          onClick={() => {
-            setSinKm(!sinKm);
-            setKm("");
-          }}
-        />
-
-        <fieldset>
-          <legend className="mb-2 text-lg font-bold">
-            Gasolina <span className="font-normal text-gris">(opcional)</span>
-          </legend>
-          <div className="grid grid-cols-5 gap-2">
-            {GASOLINA.map(({ valor, texto }) => (
-              <button
-                key={valor}
-                type="button"
-                aria-pressed={gasolina === valor}
-                onClick={() => setGasolina(gasolina === valor ? null : valor)}
-                className={
-                  "min-h-13 rounded-control border-2 text-lg font-bold transition-colors " +
-                  (gasolina === valor ? "border-tinta bg-tinta text-white" : "border-linea-fuerte hover:border-tinta")
-                }
-              >
-                {texto}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        <Campo
-          etiqueta="Notas"
-          opcional
-          multilinea
-          placeholder="Por ejemplo: rayón en la puerta, trae llanta de repuesto…"
-          value={notas}
-          onChange={(e) => setNotas(e.target.value)}
-        />
-
-        {error && <p role="alert" className="text-lg font-bold text-rojo">{error}</p>}
+      <div className="mt-5">
+        <CamposLlegada valores={valores} alCambiar={(cambio) => setValores((v) => ({ ...v, ...cambio }))} />
+        {error && <p role="alert" className="mt-5 text-lg font-bold text-rojo">{error}</p>}
       </div>
     </Dialogo>
   );
