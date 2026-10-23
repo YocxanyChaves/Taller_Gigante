@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { Camera, RotateCw } from "lucide-react";
+import { Camera, Images, RotateCw } from "lucide-react";
 import { subirFoto, borrarFoto } from "../../services/fotos";
 import { mensajeError } from "../../lib/errores";
 import Boton from "../ui/Boton";
@@ -10,8 +10,9 @@ import Galeria from "../ui/Galeria";
 
 // Fotos de evidencia del trabajo (cómo llegó, el repuesto dañado, cómo
 // quedó), para evitar malentendidos. El cliente también las ve en su link.
-// «Agregar fotos» pregunta qué muestran (opcional) y abre la cámara o la
-// galería del celular. Con `pedirLlegada` se abre solo con la nota «Así
+// «Agregar fotos» pregunta qué muestran (opcional) y deja tomar la foto con
+// la cámara o escogerla de la galería: son dos entradas aparte porque en
+// muchos celulares la que deja escoger varias a la vez solo abre la galería. Con `pedirLlegada` se abre solo con la nota «Así
 // llegó» (viene de «¡Carro agregado!»). Las fotos las carga la ficha
 // (`fotos`: undefined mientras cargan), que también las usa en «Por dónde ha
 // pasado» y en el historial para el cliente; `alCambio` las vuelve a pedir.
@@ -28,6 +29,7 @@ export default function Fotos({ trabajo, fotos, error, alCambio, pedirLlegada = 
   const [borrando, setBorrando] = useState(false);
   const [errorBorrar, setErrorBorrar] = useState("");
   const refArchivo = useRef(null);
+  const refCamara = useRef(null);
 
   const quedan = MAXIMO - (fotos?.length ?? 0);
 
@@ -110,6 +112,7 @@ export default function Fotos({ trabajo, fotos, error, alCambio, pedirLlegada = 
       )}
 
       <input ref={refArchivo} type="file" accept="image/*" multiple hidden onChange={alEscoger} />
+      <input ref={refCamara} type="file" accept="image/*" capture="environment" hidden onChange={alEscoger} />
 
       <Dialogo
         abierto={agregando}
@@ -120,9 +123,20 @@ export default function Fotos({ trabajo, fotos, error, alCambio, pedirLlegada = 
             <Boton variante="secundario" onClick={cerrarAgregar} disabled={!!subiendo}>
               Volver
             </Boton>
-            <Boton icono={Camera} onClick={() => refArchivo.current?.click()} disabled={!!subiendo}>
-              {subiendo ? `Subiendo ${subiendo.hecho + 1} de ${subiendo.total}…` : "Tomar o escoger fotos"}
-            </Boton>
+            {subiendo ? (
+              <Boton icono={Camera} disabled>
+                Subiendo {subiendo.hecho + 1} de {subiendo.total}…
+              </Boton>
+            ) : (
+              <>
+                <Boton variante="secundario" icono={Images} onClick={() => refArchivo.current?.click()}>
+                  Escoger de la galería
+                </Boton>
+                <Boton icono={Camera} onClick={() => refCamara.current?.click()}>
+                  Tomar foto
+                </Boton>
+              </>
+            )}
           </>
         }
       >
@@ -150,7 +164,7 @@ export default function Fotos({ trabajo, fotos, error, alCambio, pedirLlegada = 
             ))}
           </div>
           <p className="text-base">
-            Puede escoger varias a la vez{quedan < MAXIMO ? ` (le caben ${quedan} más)` : ""}.
+            De la galería puede escoger varias a la vez{quedan < MAXIMO ? ` (le caben ${quedan} más)` : ""}.
           </p>
           {errorSubir && <p role="alert" className="font-bold text-rojo">{errorSubir}</p>}
         </div>
