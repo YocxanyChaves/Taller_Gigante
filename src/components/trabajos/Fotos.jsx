@@ -12,8 +12,9 @@ import Galeria from "../ui/Galeria";
 // quedó), para evitar malentendidos. El cliente también las ve en su link.
 // «Agregar fotos» pregunta qué muestran (opcional) y deja tomar la foto con
 // la cámara o escogerla de la galería: son dos entradas aparte porque en
-// muchos celulares la que deja escoger varias a la vez solo abre la galería. Con `pedirLlegada` se abre solo con la nota «Así
-// llegó» (viene de «¡Carro agregado!»). Las fotos las carga la ficha
+// muchos celulares la que deja escoger varias a la vez solo abre la galería.
+// Con `pedirLlegada` se abre solo con la nota «Así llegó» (viene de «¡Carro
+// agregado!»). Las fotos las carga la ficha
 // (`fotos`: undefined mientras cargan), que también las usa en «Por dónde ha
 // pasado» y en el historial para el cliente; `alCambio` las vuelve a pedir.
 
