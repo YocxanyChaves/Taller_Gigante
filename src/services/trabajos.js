@@ -55,6 +55,7 @@ export async function recibirCarro(datos) {
     p_cliente_id: datos.clienteId ?? null,
     p_cliente_nombre: datos.clienteNombre ?? null,
     p_cliente_telefono: datos.clienteTelefono ?? null,
+    p_km: datos.km ?? null,
   });
   if (error) throw error;
   return data;

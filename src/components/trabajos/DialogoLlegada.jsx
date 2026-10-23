@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { EyeOff } from "lucide-react";
 import { soloDigitos } from "../../lib/formato";
 import Dialogo from "../ui/Dialogo";
 import Campo from "../ui/Campo";
 import Boton from "../ui/Boton";
+import Eleccion from "../ui/Eleccion";
 
-// "Ya llegó el carro": kilometraje, gasolina y notas de cómo llegó. Todo es
-// opcional; con "Guardar" el carro pasa a revisión.
+// "Ya llegó el carro": kilometraje (obligatorio, aclara dudas después, salvo
+// que no se pueda ver el tablero), gasolina y notas de cómo llegó; con
+// "Guardar" el carro pasa a revisión.
 
 const GASOLINA = [
   { valor: "vacio", texto: "Vacío" },
@@ -19,6 +22,8 @@ export default function DialogoLlegada({ abierto, guardando, error, alGuardar, a
   const [km, setKm] = useState("");
   const [gasolina, setGasolina] = useState(null);
   const [notas, setNotas] = useState("");
+  const [sinKm, setSinKm] = useState(false);
+  const digitosKm = soloDigitos(km);
 
   return (
     <Dialogo
@@ -26,8 +31,9 @@ export default function DialogoLlegada({ abierto, guardando, error, alGuardar, a
       titulo="Llegó el carro"
       alCerrar={alCerrar}
       alEnviar={() =>
+        (digitosKm || sinKm) &&
         alGuardar({
-          km: km ? Number(soloDigitos(km)) : null,
+          km: digitosKm ? Number(digitosKm) : null,
           combustible: gasolina,
           notas: notas.trim() || null,
         })
@@ -37,22 +43,34 @@ export default function DialogoLlegada({ abierto, guardando, error, alGuardar, a
           <Boton variante="gris" onClick={alCerrar}>
             Cancelar
           </Boton>
-          <Boton type="submit" disabled={guardando}>
+          <Boton type="submit" disabled={guardando || (!digitosKm && !sinKm)}>
             {guardando ? "Guardando…" : "Guardar y pasar a revisión"}
           </Boton>
         </>
       }
     >
-      <p>Si quiere, anote cómo llegó. Puede dejar todo en blanco.</p>
+      <p>Anote el kilometraje que marca el tablero. La gasolina y las notas son opcionales.</p>
       <div className="mt-5 flex flex-col gap-5 text-tinta">
         <Campo
           etiqueta="Kilometraje"
-          opcional
           autoFocus
           inputMode="numeric"
           placeholder="85 000"
           value={km}
-          onChange={(e) => setKm(e.target.value)}
+          onChange={(e) => {
+            setKm(e.target.value);
+            setSinKm(false);
+          }}
+        />
+        <Eleccion
+          icono={EyeOff}
+          titulo="No se puede ver el tablero"
+          ayuda="Sigo sin anotarlo"
+          elegida={sinKm}
+          onClick={() => {
+            setSinKm(!sinKm);
+            setKm("");
+          }}
         />
 
         <fieldset>
