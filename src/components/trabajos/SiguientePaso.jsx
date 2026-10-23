@@ -138,6 +138,7 @@ export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
     <>
       <DialogoLlegada
         abierto={dialogo === "llegada"}
+        unidad={trabajo.vehiculo?.unidad_distancia}
         guardando={guardando}
         error={error}
         alCerrar={() => setDialogo(null)}

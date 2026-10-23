@@ -20,7 +20,8 @@ export default function HistorialCliente({ trabajo, fotos }) {
     setPreparando(true);
     setError("");
     try {
-      setPdf(await armarHistorialPdf(trabajo, fotos ?? []));
+      // Los videos no caben en un PDF: solo van las fotos.
+      setPdf(await armarHistorialPdf(trabajo, (fotos ?? []).filter((f) => f.tipo !== "video")));
     } catch {
       setError("No se pudo hacer el PDF. Revise el internet e intente de nuevo.");
     } finally {

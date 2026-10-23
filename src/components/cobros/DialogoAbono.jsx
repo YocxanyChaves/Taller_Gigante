@@ -7,8 +7,10 @@ import Dialogo from "../ui/Dialogo";
 import Campo from "../ui/Campo";
 import Boton from "../ui/Boton";
 import { CampoMonto, ElegirMetodo } from "./CamposPago";
+import { CampoProximoPago } from "./ProximoPago";
 
-// "Registrar abono": cuánto pagó (sugiere todo el saldo) y cómo.
+// "Registrar abono": cuánto pagó (sugiere todo el saldo) y cómo. Si no paga
+// todo, cuándo es el próximo pago.
 // `carro` es el texto que dice de qué trabajo es ("Toyota Hilux BTR-482").
 // Se monta de nuevo cada vez que se abre.
 
@@ -16,6 +18,7 @@ export default function DialogoAbono({ ordenId, saldo, carro, alCerrar, alGuarda
   const [valor, setValor] = useState(String(Math.round(saldo)));
   const [metodo, setMetodo] = useState(null);
   const [nota, setNota] = useState("");
+  const [proximoPago, setProximoPago] = useState("");
   const [intento, setIntento] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
@@ -37,7 +40,12 @@ export default function DialogoAbono({ ordenId, saldo, carro, alCerrar, alGuarda
     setGuardando(true);
     setError("");
     try {
-      const queda = await registrarAbono(ordenId, { monto, metodo, nota: nota.trim() || null });
+      const queda = await registrarAbono(ordenId, {
+        monto,
+        metodo,
+        nota: nota.trim() || null,
+        proximoPago: monto < saldo ? proximoPago : null,
+      });
       await alGuardado(queda);
     } catch (e) {
       setError(mensajeError(e));
@@ -83,6 +91,7 @@ export default function DialogoAbono({ ordenId, saldo, carro, alCerrar, alGuarda
           <ElegirMetodo valor={metodo} alCambiar={setMetodo} />
           {intento && errores.metodo && <p role="alert" className="mt-2 font-bold text-rojo">{errores.metodo}</p>}
         </div>
+        {monto > 0 && monto < saldo && <CampoProximoPago valor={proximoPago} alCambiar={setProximoPago} />}
         <Campo
           etiqueta="Nota"
           opcional

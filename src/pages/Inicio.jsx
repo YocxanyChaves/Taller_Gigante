@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, List, Search, Wallet, CalendarDays, ChartLine, ClipboardCheck } from "lucide-react";
+import { Plus, List, Search, Wallet, CalendarDays, CalendarClock, ChartLine, ClipboardCheck } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { obtenerResumenInicio } from "../services/inicio";
 import OpcionMenu from "../components/ui/OpcionMenu";
@@ -75,7 +75,7 @@ export default function Inicio() {
 }
 
 // Pastilla negra con un ícono, del mismo tamaño que el semaforito (para las
-// líneas que no son una etapa del carro: DEKRA y citas).
+// líneas que no son una etapa del carro: DEKRA, cobros y citas).
 function Insignita({ icono: Icono }) {
   return (
     <span className="grid h-[1.125rem] w-[3.125rem] shrink-0 place-items-center rounded-full bg-tinta text-white">
@@ -127,6 +127,25 @@ function ParaHoy({ resumen }) {
           ))}
           {resumen.dekra.length > 3 && <li className="text-base text-gris">y {resumen.dekra.length - 3} más</li>}
         </ul>
+      ),
+    },
+    resumen.cobros_hoy + resumen.cobros_atrasados > 0 && {
+      clave: "cobros",
+      marca: <Insignita icono={CalendarClock} />,
+      texto: [
+        resumen.cobros_hoy > 0 && `${plural(resumen.cobros_hoy, "cliente tiene", "clientes tienen")} que pagar hoy`,
+        resumen.cobros_atrasados > 0 &&
+          `${plural(resumen.cobros_atrasados, "pago atrasado", "pagos atrasados")}`,
+      ]
+        .filter(Boolean)
+        .join(" y "),
+      extra: (
+        <Link
+          to="/cobros"
+          className="ml-[3.875rem] text-base text-gris underline decoration-linea-fuerte underline-offset-4 hover:text-tinta"
+        >
+          Ver quién debe
+        </Link>
       ),
     },
     resumen.citas > 0 && {

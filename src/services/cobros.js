@@ -12,7 +12,8 @@ export const METODOS = [
 export const textoMetodo = (valor) => METODOS.find((m) => m.valor === valor)?.texto ?? valor;
 
 // Entrega el carro y anota el primer pago (si hay). Devuelve el saldo que queda.
-export async function entregarTrabajo(ordenId, { modalidad, monto, metodo, cobroRevision, nota }) {
+// Si queda debiendo, `proximoPago` ("AAAA-MM-DD", opcional) es cuándo vuelve a pagar.
+export async function entregarTrabajo(ordenId, { modalidad, monto, metodo, cobroRevision, nota, proximoPago }) {
   const { data, error } = await supabase.rpc("entregar_trabajo", {
     p_orden_id: ordenId,
     p_modalidad: modalidad ?? null,
@@ -20,21 +21,32 @@ export async function entregarTrabajo(ordenId, { modalidad, monto, metodo, cobro
     p_metodo: metodo ?? null,
     p_cobro_revision: cobroRevision ?? null,
     p_nota: nota ?? null,
+    p_proximo_pago: proximoPago || null,
   });
   if (error) throw error;
   return Number(data);
 }
 
-// Devuelve el saldo que queda.
-export async function registrarAbono(ordenId, { monto, metodo, nota }) {
+// Devuelve el saldo que queda. Si todavía debe, `proximoPago` es cuándo vuelve a pagar.
+export async function registrarAbono(ordenId, { monto, metodo, nota, proximoPago }) {
   const { data, error } = await supabase.rpc("registrar_abono", {
     p_orden_id: ordenId,
     p_monto: monto,
     p_metodo: metodo,
     p_nota: nota ?? null,
+    p_proximo_pago: proximoPago || null,
   });
   if (error) throw error;
   return Number(data);
+}
+
+// "Cambiar la fecha del próximo pago" ("AAAA-MM-DD", o vacío para quitarla).
+export async function cambiarProximoPago(ordenId, dia) {
+  const { error } = await supabase
+    .from("ordenes")
+    .update({ fecha_proximo_pago: dia || null })
+    .eq("id", ordenId);
+  if (error) throw error;
 }
 
 // "Cobrar y entregar": quién debe y los carros que esperan que los recojan.

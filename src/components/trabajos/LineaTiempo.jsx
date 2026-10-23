@@ -1,12 +1,12 @@
 import { Camera } from "lucide-react";
 import { ESTADOS } from "../../lib/estados";
 import { fechaLarga } from "../../lib/formato";
-import { fotosPorEtapa } from "../../lib/etapas";
+import { fotosPorEtapa, textoFotos } from "../../lib/etapas";
 import Desplegable from "../ui/Desplegable";
 import Galeria from "../ui/Galeria";
 
-// Por dónde ha pasado el carro, del más viejo al más nuevo, con las fotos que
-// se tomaron en cada etapa. El último punto es el estado actual y lleva el
+// Por dónde ha pasado el carro, del más viejo al más nuevo, con las fotos y
+// videos que se tomaron en cada etapa. El último punto es el estado actual y lleva el
 // color de su luz del semáforo.
 
 const COLOR_LUZ = {
@@ -23,7 +23,7 @@ export default function LineaTiempo({ historial, fotos = [] }) {
   const ultimo = etapas.at(-1);
   const resumen = [
     ultimo && `Ahora: ${ESTADOS[ultimo.estado]?.texto ?? ultimo.estado}`,
-    fotos.length > 0 && (fotos.length === 1 ? "1 foto" : `${fotos.length} fotos`),
+    fotos.length > 0 && textoFotos(fotos),
   ]
     .filter(Boolean)
     .join(" · ");
@@ -54,7 +54,7 @@ export default function LineaTiempo({ historial, fotos = [] }) {
                   <div className="mt-3">
                     <p className="mb-2 flex items-center gap-1.5 text-base text-gris">
                       <Camera aria-hidden="true" size={18} />
-                      {h.fotos.length === 1 ? "1 foto" : `${h.fotos.length} fotos`}
+                      {textoFotos(h.fotos)}
                     </p>
                     <Galeria fotos={h.fotos} />
                   </div>

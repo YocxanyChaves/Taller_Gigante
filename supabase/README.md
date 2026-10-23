@@ -29,6 +29,7 @@ coincide con la versión que guarda Supabase.
 | `20261017044908_fotos_evidencia.sql` | Fase 7. Fotos de evidencia: tabla `orden_fotos`, el depósito privado `fotos` y sus permisos. |
 | `20261023181708_kilometraje_al_recibir.sql` | `recibir_carro()` recibe el kilometraje cuando el carro ya está aquí: va al trabajo (`km_entrada`) y al carro si es mayor. |
 | `20261023183756_llegada_al_recibir.sql` | `recibir_carro()` también recibe la gasolina y las notas de cómo llegó, como «Llegó el carro» en una cita. |
+| `20261023210441_motor_millas_videos_visitas_y_proximo_pago.sql` | Tipo de motor; km o millas por carro y por lectura; videos en el depósito `fotos`; `anotar_visita_pasada()` (un trabajo puede nacer entregado); fecha del próximo pago en cuotas. |
 
 Antes de la fase 1 se sacó un respaldo de los datos en `respaldos/` (fuera de git).
 
@@ -52,24 +53,27 @@ clientes ──< vehiculos ──< ordenes ──< orden_items
 
 - **usuarios**: una fila por cuenta de login. Solo el tío/admin y el demo. La crea el trigger `on_auth_user_created` como `pendiente` (no ve nada hasta que un admin le cambie el rol desde Supabase; el sistema no tiene pantalla para eso).
 - **clientes**: la ficha del cliente en el taller. Los clientes no tienen cuenta.
-- **vehiculos**: pertenecen a un cliente. `id_cliente` puede quedar nulo si se borró el cliente conservando el historial. `kilometraje` y `anio` son enteros. La placa es única entre vehículos reales, sin importar mayúsculas, guiones ni espacios (índice `vehiculos_placa_unica`).
+- **vehiculos**: pertenecen a un cliente. `id_cliente` puede quedar nulo si se borró el cliente conservando el historial. `kilometraje` y `anio` son enteros. `kilometraje` es la última lectura del tablero, en la unidad del carro: `unidad_distancia` (`km` o `mi`, millas). `tipo_motor` es texto libre opcional ("Diésel", "1.5 gasolina"). La placa es única entre vehículos reales, sin importar mayúsculas, guiones ni espacios (índice `vehiculos_placa_unica`).
 - **ordenes**: en la interfaz se llaman **trabajos**. Campos principales:
   - `estado` (ver abajo), `problema_reportado` (obligatorio), `diagnostico`.
   - Cita y recepción: `fecha_cita`, `fecha_ingreso`, `km_entrada`, `nivel_combustible` (`vacio`, `1/4`, `1/2`, `3/4`, `lleno`), `notas_recepcion`.
   - Link del cliente: `token_publico` (uuid único).
   - Respuesta del cliente: `aprobada`, `respondida_en`, `comentario_cliente`.
-  - Cobro: `modalidad_pago` (`contado` o `cuotas`), `cobro_revision` (opcional, si no aprobó) y `fecha_entrega` (se llena sola al entregar).
+  - Lectura del tablero al llegar: `km_entrada` en `unidad_distancia` (`km` o `mi`), por si el carro cambia de unidad.
+  - Cobro: `modalidad_pago` (`contado` o `cuotas`), `cobro_revision` (opcional, si no aprobó), `fecha_entrega` (se llena sola al entregar) y `fecha_proximo_pago` (opcional, si queda debiendo; se borra sola al terminar de pagar).
 - **orden_items**: el detalle del precio. `tipo` es `repuesto`, `mano_obra` u `otro`. `subtotal` se calcula solo. `costo_unitario` es opcional (lo que le costó al taller, para la ganancia); el cliente nunca lo ve.
 - **pagos**: cada pago o abono. `metodo` es `efectivo`, `sinpe` o `transferencia`.
 - **orden_estados_historial**: cada cambio de estado con su fecha. `cambiado_por` nulo = lo hizo el cliente desde su link. Solo lo escribe un trigger.
-- **orden_fotos**: las fotos de evidencia de un trabajo (cómo llegó, el repuesto dañado, cómo quedó), con una `nota` opcional. `ruta` apunta al archivo en el depósito `fotos`, siempre dentro de la carpeta del trabajo (`<orden_id>/<uuid>.jpg`). Máximo 12 por trabajo (`trg_orden_fotos_limite`).
+- **orden_fotos**: las fotos y videos de evidencia de un trabajo (cómo llegó, el ruido que hace, el repuesto dañado, cómo quedó), con una `nota` opcional y `tipo` (`foto` o `video`). `ruta` apunta al archivo en el depósito `fotos`, siempre dentro de la carpeta del trabajo (`<orden_id>/<uuid>.jpg`, `.mp4`, `.mov` o `.webm`). Máximo 12 por trabajo y de esos 3 videos (`trg_orden_fotos_limite`).
 - **ordenes_totales** (vista): por orden, `total`, `pagado`, `saldo`, `costo_repuestos` y `costo_completo` (false si a algún repuesto le falta el costo). Si el cliente no aprobó, el total es solo el `cobro_revision`.
 
-## Fotos (Storage)
+## Fotos y videos (Storage)
 
-- **Depósito `fotos`**: privado, solo JPG, 2 MB máximo por archivo. El navegador
-  achica cada foto a 1600 px antes de subirla (unos 250 KB), así que el GB del
-  plan gratis alcanza para miles.
+- **Depósito `fotos`**: privado, JPG y videos (MP4, MOV, WebM), 50 MB máximo por
+  archivo. El navegador achica cada foto a 1600 px antes de subirla (unos
+  250 KB). Los videos no se pueden achicar en el celular y se suben tal cual
+  (unos 30 segundos caben en 50 MB): son los que más gastan el GB del plan
+  gratis, por eso el máximo de 3 por trabajo.
 - **Permisos** (`storage.objects`): admin y demo ven, suben y borran solo en
   carpetas de trabajos que pueden ver (`puede_usar_foto()`, que se apoya en el
   RLS de `ordenes`). Así el demo no toca fotos reales.
@@ -102,7 +106,8 @@ Pasos permitidos (los valida el trigger `trg_validar_cambio_estado`, venga de do
 `cita → en_revision → esperando_aprobacion → esperando_repuestos | en_reparacion | no_aprobado`,
 `esperando_repuestos → en_reparacion → listo → entregado`, `no_aprobado → entregado`.
 También se puede retroceder un paso para corregir, y cancelar mientras no esté entregado.
-Un trabajo nuevo empieza como `cita` o `en_revision`.
+Un trabajo nuevo empieza como `cita` o `en_revision`, salvo una visita que ya pasó
+(`anotar_visita_pasada`), que nace `entregado` con su fecha (y así queda en el historial de estados).
 
 ## Roles y seguridad (RLS)
 
@@ -132,15 +137,17 @@ La columna `es_demo` separa los datos de prueba de los reales y ya no se puede c
 | `resumen_inicio()` | admin, demo | Tarjetas de Inicio: carros en el taller, esperando respuesta, listos y total por cobrar. |
 | `resumen_plata(desde, hasta)` | admin, demo | Una fila por mes (hora de Costa Rica): `cobrado` (pagos del mes), `por_cobrar` (saldo de hoy de lo entregado ese mes), `ganancia` (total − costo de repuestos) y `ganancia_aproximada`. |
 | `etiqueta_estado(estado)` | admin, demo | El texto en pantalla de un estado. |
-| `buscar_vehiculo_por_placa(placa)` | admin, demo | El carro con esa placa ("dsf 456" = "DSF-456"), su dueño y si ya tiene un trabajo sin terminar. |
+| `buscar_vehiculo_por_placa(placa)` | admin, demo | El carro con esa placa ("dsf 456" = "DSF-456"), su dueño, si ya tiene un trabajo sin terminar, su motor y si marca km o millas. |
 | `buscar_cliente_por_telefono(tel)` | admin, demo | Clientes con ese teléfono (compara los últimos 8 números). |
-| `recibir_carro(...)` | admin, demo | Asistente "Recibir un carro": crea el cliente y el carro si son nuevos y el trabajo (en revisión si "ya está aquí", si no como cita). Todo o nada; se niega si el carro ya está en el taller. Devuelve el id del trabajo. |
+| `recibir_carro(...)` | admin, demo | Asistente "Recibir un carro": crea el cliente y el carro si son nuevos y el trabajo (en revisión si "ya está aquí", si no como cita). Todo o nada; se niega si el carro ya está en el taller. También recibe el motor (carro nuevo) y la unidad del tablero. Devuelve el id del trabajo. |
+| `anotar_visita_pasada(...)` | admin, demo | «Ya vino y se fue»: anota solo para el historial una visita que ya pasó (cliente y carro nuevos o existentes, como `recibir_carro`). El trabajo nace entregado en esa fecha, con la lectura del tablero y, si se cobró, un renglón con el monto y el pago con esa fecha (o queda debiendo, con próximo pago opcional). Devuelve el id del trabajo. |
+| `preparar_carro(...)` | admin, demo | Lo que comparten las dos de arriba: crea cliente y carro si son nuevos y devuelve el id del carro. |
 | `normalizar_placa(p)`, `normalizar_telefono(t)` | admin, demo | "dsf-456" → "DSF456"; "8888-1111" → "88881111". |
 | `buscar_clientes(texto)` | admin, demo | "Buscar un cliente": por nombre ("jose" = "José"), teléfono (3 números o más) o placa (o parte de ella). Por cliente: placas, `debe` (saldo de lo entregado), `en_taller` y última visita. Sin texto, los 8 con movimiento más reciente. |
 | `normalizar_nombre(n)` | admin, demo | "José Núñez" → "jose nunez". |
-| `entregar_trabajo(orden, modalidad, monto, metodo, cobro_revision, nota)` | admin, demo | "Entregar y cobrar". Desde `listo`: `contado` (el monto debe ser todo el saldo) o `cuotas` (abona lo que pueda, hasta 0). Desde `no_aprobado`: cobro de revisión opcional. Anota el pago (si hay) y pasa a `entregado`, todo o nada. Devuelve el saldo que queda. |
-| `registrar_abono(orden, monto, metodo, nota)` | admin, demo | Abono a un trabajo entregado; nunca más que el saldo. Devuelve el saldo que queda. |
-| `lista_cobros()` | admin, demo | "Quién debe": trabajos entregados con saldo, con cliente, carro, total, saldo, fecha de entrega, último abono y token del link (para el recordatorio). |
+| `entregar_trabajo(orden, modalidad, monto, metodo, cobro_revision, nota, proximo_pago)` | admin, demo | "Entregar y cobrar". Desde `listo`: `contado` (el monto debe ser todo el saldo) o `cuotas` (abona lo que pueda, hasta 0). Desde `no_aprobado`: cobro de revisión opcional. Anota el pago (si hay) y pasa a `entregado`, todo o nada. Si queda debiendo, guarda la fecha del próximo pago. Devuelve el saldo que queda. |
+| `registrar_abono(orden, monto, metodo, nota, proximo_pago)` | admin, demo | Abono a un trabajo entregado; nunca más que el saldo. Cambia la fecha del próximo pago (o la borra si ya pagó todo). Devuelve el saldo que queda. |
+| `lista_cobros()` | admin, demo | "Quién debe": trabajos entregados con saldo, con cliente, carro, total, saldo, fecha de entrega, último abono, token del link (para el recordatorio) y próximo pago. Primero los que tienen fecha de pago, de la más cercana a la más lejana. |
 | `get_trabajo_publico(token)` | **Sin login** | Lo que ve el cliente con su link: primer nombre, carro, estado e historial, problema, diagnóstico, ítems (sin costos del taller), total, pagado, saldo y si puede responder. Nunca teléfono, correo, dirección ni otros trabajos. Token que no existe → `null`. |
 | `responder_cotizacion(token, aprueba, comentario)` | **Sin login** | El cliente aprueba o rechaza. Solo si el trabajo espera respuesta; pasa a `esperando_repuestos` (si hay repuestos), `en_reparacion` o `no_aprobado`. Si ya respondió no cambia nada. |
 | `get_stats_publicas()` | Página de inicio (sin login) | Cuenta clientes, vehículos y trabajos entregados reales. |
@@ -163,4 +170,4 @@ demás corren con los permisos de quien llama.
 | `trg_ordenes_historial` | `ordenes` | Crear / cambiar estado | Anota el cambio en `orden_estados_historial`. |
 | `trg_*_es_demo` | `clientes`, `vehiculos`, `ordenes` | Crear/editar | Marca `es_demo` según el rol y lo vuelve inmutable. |
 | `trg_*_es_demo` | `orden_items`, `pagos`, `orden_estados_historial`, `orden_fotos` | Crear/editar | Copia `es_demo` de la orden. |
-| `trg_orden_fotos_limite` | `orden_fotos` | Crear | Se niega si el trabajo ya tiene 12 fotos. |
+| `trg_orden_fotos_limite` | `orden_fotos` | Crear | Se niega si el trabajo ya tiene 12 fotos y videos, o 3 videos. |

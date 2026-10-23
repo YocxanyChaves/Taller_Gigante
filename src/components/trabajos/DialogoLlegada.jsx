@@ -5,10 +5,10 @@ import { LLEGADA_VACIA, datosLlegada, llegadaLista } from "../../lib/llegada";
 import CamposLlegada from "./CamposLlegada";
 
 // "Ya llegó el carro": cómo llegó (ver CamposLlegada); con "Guardar" el carro
-// pasa a revisión.
+// pasa a revisión. Arranca en la unidad que ya se sabe del carro.
 
-export default function DialogoLlegada({ abierto, guardando, error, alGuardar, alCerrar }) {
-  const [valores, setValores] = useState(LLEGADA_VACIA);
+export default function DialogoLlegada({ abierto, unidad = "km", guardando, error, alGuardar, alCerrar }) {
+  const [valores, setValores] = useState({ ...LLEGADA_VACIA, unidad });
   const lista = llegadaLista(valores);
 
   return (
@@ -28,7 +28,7 @@ export default function DialogoLlegada({ abierto, guardando, error, alGuardar, a
         </>
       }
     >
-      <p>Anote el kilometraje que marca el tablero. La gasolina y las notas son opcionales.</p>
+      <p>Anote lo que marca el tablero. La gasolina y las notas son opcionales.</p>
       <div className="mt-5">
         <CamposLlegada valores={valores} alCambiar={(cambio) => setValores((v) => ({ ...v, ...cambio }))} />
         {error && <p role="alert" className="mt-5 text-lg font-bold text-rojo">{error}</p>}

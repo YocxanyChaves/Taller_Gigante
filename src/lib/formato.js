@@ -24,7 +24,19 @@ export function mesCorto(fecha) {
     .replace("sept", "set");
 }
 
-export const formatoKm = (km) => `${Number(km).toLocaleString("es-CR")} km`;
+// Cada carro marca kilómetros ("km") o millas ("mi") en el tablero.
+export const NOMBRE_UNIDAD = { km: "kilómetros", mi: "millas" };
+const CORTO_UNIDAD = { km: "km", mi: "millas" };
+
+// "85 000 km", "52 300 millas".
+export const formatoDistancia = (valor, unidad = "km") =>
+  `${Number(valor).toLocaleString("es-CR")} ${CORTO_UNIDAD[unidad] ?? "km"}`;
+
+// Pasa una lectura a otra unidad (por si el carro se anotó en km y luego en millas).
+export function convertirDistancia(valor, de, a) {
+  if (de === a) return valor;
+  return Math.round(de === "mi" ? valor * 1.609344 : valor / 1.609344);
+}
 
 // Un <input type="number"> vacío da "": en la base eso es null, no 0.
 export const numeroONull = (valor) =>
@@ -101,4 +113,18 @@ export function isoAFechaInput(iso) {
   const fecha = new Date(iso);
   const dosDigitos = (n) => String(n).padStart(2, "0");
   return `${fecha.getFullYear()}-${dosDigitos(fecha.getMonth() + 1)}-${dosDigitos(fecha.getDate())}`;
+}
+
+// Una fecha sin hora de la base ("AAAA-MM-DD") a medianoche en hora local.
+export function fechaDeDia(dia) {
+  const [anio, mes, d] = dia.split("-").map(Number);
+  return new Date(anio, mes - 1, d);
+}
+
+// Cuántos días faltan para el próximo pago (negativo = atrasado), o null.
+export function diasParaPagar(dia) {
+  if (!dia) return null;
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  return Math.round((fechaDeDia(dia) - hoy) / 86400000);
 }

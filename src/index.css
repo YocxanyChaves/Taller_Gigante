@@ -28,6 +28,11 @@
   --color-semaforo-rojo: #e0262f;
   --color-rojo-texto: #b3131f;
 
+  /* Las áreas fijas del precio: repuestos (azul), mano de obra (naranja) y
+     otros (gris). No son del semáforo para no confundirse con las etapas. */
+  --color-azul: #1d5fa8;
+  --color-naranja: #b4530a;
+
   --font-sans: "Atkinson Hyperlegible", Verdana, sans-serif;
 
   --radius-tarjeta: 0.75rem;

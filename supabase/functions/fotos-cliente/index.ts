@@ -1,6 +1,6 @@
-// Fotos para la página del cliente (sin cuenta). Recibe el código del link,
+// Fotos y videos para la página del cliente (sin cuenta). Recibe el código del link,
 // revisa que siga vigente (igual que get_trabajo_publico: vence al entregar el
-// carro sin deber nada) y devuelve las fotos con direcciones que vencen en 1
+// carro sin deber nada) y devuelve las fotos y videos con direcciones que vencen en 1
 // hora. El depósito `fotos` es privado: esta es la única puerta sin login.
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
 
   const { data: fotos, error: errorFotos } = await supabase
     .from("orden_fotos")
-    .select("ruta, nota, created_at")
+    .select("ruta, nota, tipo, created_at")
     .eq("orden_id", orden.id)
     .order("created_at");
   if (errorFotos) return responder({ error: "No se pudieron cargar las fotos" }, 500);
@@ -57,6 +57,6 @@ Deno.serve(async (req) => {
 
   const url = Object.fromEntries(firmadas.map((f) => [f.path, f.signedUrl]));
   return responder({
-    fotos: fotos.filter((f) => url[f.ruta]).map((f) => ({ url: url[f.ruta], nota: f.nota, fecha: f.created_at })),
+    fotos: fotos.filter((f) => url[f.ruta]).map((f) => ({ url: url[f.ruta], nota: f.nota, tipo: f.tipo, fecha: f.created_at })),
   });
 });

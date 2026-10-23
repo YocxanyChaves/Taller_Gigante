@@ -6,10 +6,12 @@ import Eleccion from "../ui/Eleccion";
 import Campo from "../ui/Campo";
 import Boton from "../ui/Boton";
 import { CampoMonto, ElegirMetodo } from "./CamposPago";
+import { CampoProximoPago } from "./ProximoPago";
 
 // "Entregar y cobrar" (carro listo) o "Se llevó el carro" (no aprobó).
 //   listo:       paga todo ahora, o en cuotas con un primer abono (puede ser 0).
 //   no_aprobado: cobro de la revisión opcional; si hay, lo paga ahora o después.
+// Si queda debiendo, se puede anotar cuándo es el próximo pago.
 // Se monta de nuevo cada vez que se abre, así arranca en blanco.
 
 export default function DialogoEntregar({ trabajo, guardando, error, alGuardar, alCerrar }) {
@@ -21,6 +23,7 @@ export default function DialogoEntregar({ trabajo, guardando, error, alGuardar, 
   const [cobro, setCobro] = useState("");
   const [metodo, setMetodo] = useState(null);
   const [nota, setNota] = useState("");
+  const [proximoPago, setProximoPago] = useState("");
   const [intento, setIntento] = useState(false);
 
   // Lo que se paga hoy.
@@ -31,6 +34,8 @@ export default function DialogoEntregar({ trabajo, guardando, error, alGuardar, 
 
   const montoDeuda = noAprobo ? montoDe(cobro) : total;
   const necesitaModalidad = noAprobo ? montoDe(cobro) > 0 : total > 0;
+  // Queda debiendo: se pregunta cuándo vuelve a pagar.
+  const quedaDebiendo = modalidad === "cuotas" && montoDeuda > 0 && monto < montoDeuda;
 
   const errores = {
     modalidad: necesitaModalidad && !modalidad ? "Escoja una opción." : undefined,
@@ -51,6 +56,7 @@ export default function DialogoEntregar({ trabajo, guardando, error, alGuardar, 
       metodo: monto > 0 ? metodo : null,
       cobroRevision: noAprobo ? montoDe(cobro) : null,
       nota: nota.trim() || null,
+      proximoPago: quedaDebiendo ? proximoPago : null,
     });
   };
 
@@ -121,6 +127,8 @@ export default function DialogoEntregar({ trabajo, guardando, error, alGuardar, 
             {intento && errores.metodo && <p role="alert" className="-mt-3 font-bold text-rojo">{errores.metodo}</p>}
           </>
         )}
+
+        {quedaDebiendo && <CampoProximoPago valor={proximoPago} alCambiar={setProximoPago} />}
 
         {montoDeuda > 0 && monto > 0 && (
           <Campo

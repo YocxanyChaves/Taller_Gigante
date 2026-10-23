@@ -20,3 +20,15 @@ export function fotosPorEtapa(historial, fotos) {
   }
   return etapas;
 }
+
+// "1 foto", "3 fotos y 1 video", "2 videos" (cada una con `tipo`).
+export function textoFotos(lista) {
+  const videos = lista.filter((f) => f.tipo === "video").length;
+  const fotos = lista.length - videos;
+  return [
+    fotos > 0 && (fotos === 1 ? "1 foto" : `${fotos} fotos`),
+    videos > 0 && (videos === 1 ? "1 video" : `${videos} videos`),
+  ]
+    .filter(Boolean)
+    .join(" y ");
+}

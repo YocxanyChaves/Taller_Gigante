@@ -226,7 +226,9 @@ function FotosDelCarro({ token, historial }) {
 
   return (
     <section className="aparecer rounded-tarjeta border border-linea bg-tarjeta p-6 shadow-tarjeta">
-      <h2 className="text-xl font-bold">Fotos de su carro</h2>
+      <h2 className="text-xl font-bold">
+        {fotos.some((f) => f.tipo === "video") ? "Fotos y videos de su carro" : "Fotos de su carro"}
+      </h2>
       <p className="mt-1 text-base text-gris">Toque una para verla grande.</p>
       {etapas.length ? (
         etapas.map((e, i) => (
@@ -245,7 +247,14 @@ function FotosDelCarro({ token, historial }) {
   );
 }
 
-// Qué tiene el carro y cuánto cuesta (sin los costos del taller).
+// Las mismas áreas y colores que ve el taller en «Diagnóstico y precio».
+const AREAS = [
+  { tipo: "repuesto", titulo: "Repuestos", color: "border-azul text-azul" },
+  { tipo: "mano_obra", titulo: "Mano de obra", color: "border-naranja text-naranja" },
+  { tipo: "otro", titulo: "Otros cobros", color: "border-gris text-gris" },
+];
+
+// Qué tiene el carro y cuánto cuesta (sin los costos del taller), por área.
 function Detalle({ trabajo }) {
   const items = trabajo.items ?? [];
   if (!trabajo.diagnostico && items.length === 0) return null;
@@ -259,25 +268,32 @@ function Detalle({ trabajo }) {
       <h2 className="text-xl font-bold">Lo que tiene y cuánto cuesta</h2>
       {trabajo.diagnostico && <p className="mt-3 text-lg whitespace-pre-line">{trabajo.diagnostico}</p>}
 
-      {items.length > 0 && (
-        <ul className="mt-4 divide-y divide-linea border-y border-linea">
-          {items.map((item, i) => (
-            <li key={i} className="flex items-start justify-between gap-4 py-3">
-              <p className="min-w-0 text-lg break-words">
-                {item.descripcion}
-                {Number(item.cantidad) !== 1 && <span className="text-gris"> × {Number(item.cantidad)}</span>}
-              </p>
-              <p className="numeros shrink-0 text-lg font-bold">{formatoColones(item.subtotal)}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+      {AREAS.map(({ tipo, titulo, color }) => {
+        const delArea = items.filter((i) => i.tipo === tipo);
+        if (!delArea.length) return null;
+        return (
+          <div key={tipo} className={`mt-4 border-l-[5px] pl-3 ${color}`}>
+            <h3 className="text-base font-bold tracking-wide uppercase">{titulo}</h3>
+            <ul className="divide-y divide-linea">
+              {delArea.map((item, i) => (
+                <li key={i} className="flex items-start justify-between gap-4 py-3 text-tinta">
+                  <p className="min-w-0 text-lg break-words">
+                    {item.descripcion}
+                    {Number(item.cantidad) !== 1 && <span className="text-gris"> × {Number(item.cantidad)}</span>}
+                  </p>
+                  <p className="numeros shrink-0 text-lg font-bold">{formatoColones(item.subtotal)}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
 
       {trabajo.aprobada === false && trabajo.cobro_revision > 0 && (
         <p className="mt-3 text-base text-gris">Como no se hizo el trabajo, solo se cobra la revisión.</p>
       )}
 
-      <div className="mt-4 flex items-baseline justify-between">
+      <div className="mt-4 flex items-baseline justify-between border-t-2 border-tinta pt-4">
         <p className="text-xl font-bold">Total</p>
         <p className="numeros text-3xl font-bold">{formatoColones(trabajo.total)}</p>
       </div>

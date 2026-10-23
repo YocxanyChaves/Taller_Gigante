@@ -13,15 +13,17 @@ export async function buscarClientes(texto) {
 }
 
 // El cliente con sus carros y, por carro, sus trabajos (el más nuevo primero)
-// con total, saldo y cuántas fotos tiene. null si no existe.
+// con total, saldo, sus fotos y videos (solo el tipo, para contarlos) y lo
+// que marcaba el tablero. null si no existe.
 export async function obtenerCliente(id) {
   const { data, error } = await supabase
     .from("clientes")
     .select(
       `id, nombre, telefono, correo, direccion, fecha_ingreso,
-       vehiculos ( id, placa, marca, modelo, anio, kilometraje, ultima_revision_tecnica,
+       vehiculos ( id, placa, marca, modelo, anio, kilometraje, tipo_motor, unidad_distancia, ultima_revision_tecnica,
          ordenes ( id, estado, problema_reportado, diagnostico, fecha_ingreso, fecha_cita, fecha_entrega,
-           fotos:orden_fotos ( count ) ) )`
+           km_entrada, unidad_distancia, fecha_proximo_pago,
+           fotos:orden_fotos ( tipo ) ) )`
     )
     .eq("id", id)
     .maybeSingle();
@@ -45,7 +47,7 @@ export async function obtenerCliente(id) {
           ...o,
           total: Number(porOrden[o.id]?.total ?? 0),
           saldo: Number(porOrden[o.id]?.saldo ?? 0),
-          fotos: o.fotos?.[0]?.count ?? 0,
+          fotos: o.fotos ?? [],
         }))
         .sort((a, b) => new Date(b.fecha_ingreso) - new Date(a.fecha_ingreso)),
     }))

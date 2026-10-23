@@ -4,8 +4,27 @@ import Confeti from "../ui/Confeti";
 import Placa from "../ui/Placa";
 
 // Pantalla de celebración al guardar: confeti, palomita y qué hacer después.
+// `tipo`: "aqui" (ya está en el taller), "cita" o "pasada" (visita que ya
+// pasó, anotada solo para el historial).
 
-export default function CarroRecibido({ trabajoId, placa, esCita, alRecibirOtro }) {
+const TEXTOS = {
+  aqui: {
+    titulo: "¡Carro agregado!",
+    frase: "Ya está en «Carros en el taller». El siguiente paso es revisarlo y anotar el diagnóstico.",
+  },
+  cita: {
+    titulo: "¡Cita anotada!",
+    frase: "Cuando el carro llegue, búsquelo en «Carros en el taller» y toque «Ya llegó el carro».",
+  },
+  pasada: {
+    titulo: "¡Visita anotada!",
+    frase: "Ya quedó en el historial del carro, como entregada. Si quiere, puede agregarle fotos o videos.",
+  },
+};
+
+export default function CarroRecibido({ trabajoId, placa, tipo, alRecibirOtro }) {
+  const { titulo, frase } = TEXTOS[tipo] ?? TEXTOS.aqui;
+
   return (
     <div className="relative mx-auto max-w-2xl">
       <Confeti />
@@ -15,20 +34,16 @@ export default function CarroRecibido({ trabajoId, placa, esCita, alRecibirOtro 
             <path className="dibujar" d="M5 12.5l4.5 4.5L19 7.5" />
           </svg>
         </span>
-        <h1 className="mt-6 text-4xl font-bold">{esCita ? "¡Cita anotada!" : "¡Carro agregado!"}</h1>
+        <h1 className="mt-6 text-4xl font-bold">{titulo}</h1>
         <div className="mt-4">
           <Placa grande>{placa}</Placa>
         </div>
-        <p className="mt-4 max-w-md text-lg text-gris">
-          {esCita
-            ? "Cuando el carro llegue, búsquelo en «Carros en el taller» y toque «Ya llegó el carro»."
-            : "Ya está en «Carros en el taller». El siguiente paso es revisarlo y anotar el diagnóstico."}
-        </p>
+        <p className="mt-4 max-w-md text-lg text-gris">{frase}</p>
         <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
           <Boton to={`/trabajos/${trabajoId}`} icono={ArrowRight}>
-            Ver el trabajo
+            {tipo === "pasada" ? "Ver la visita" : "Ver el trabajo"}
           </Boton>
-          {!esCita && (
+          {tipo === "aqui" && (
             <Boton variante="secundario" icono={Camera} to={`/trabajos/${trabajoId}?fotos=llegada`}>
               Tomar fotos de cómo llegó
             </Boton>

@@ -16,6 +16,7 @@ import Boton from "../components/ui/Boton";
 import Vacio from "../components/ui/Vacio";
 import DialogoWhatsApp from "../components/ui/DialogoWhatsApp";
 import DialogoAbono from "../components/cobros/DialogoAbono";
+import ProximoPago from "../components/cobros/ProximoPago";
 
 // "Cobrar y entregar": arriba cuánto le deben al taller; luego los carros que
 // esperan que los recojan (se entregan desde su ficha) y quién debe, con
@@ -106,7 +107,10 @@ export default function Cobros() {
 
           <section>
             <h2 className="mb-1 text-2xl font-bold">Quién debe</h2>
-            <p className="mb-4 text-lg text-gris">Del que debe hace más tiempo al más reciente.</p>
+            <p className="mb-4 text-lg text-gris">
+              Primero a quien ya le toca pagar (por la fecha del próximo pago); después, del que debe hace más tiempo
+              al más reciente.
+            </p>
             {datos.deudas.length === 0 ? (
               <Vacio icono={PartyPopper} titulo="Nadie le debe al taller">
                 Cuando alguien pague en cuotas, aquí va a aparecer lo que falta.
@@ -216,6 +220,7 @@ function TarjetaDeuda({ deuda, retraso, alAbonar, alRecordar }) {
           {nombreCarro(deuda)} · Entregado {dias === 0 ? "hoy" : `hace ${textoDias(dias)}`}
           {deuda.ultimo_abono && ` · Último abono: ${fechaLarga(deuda.ultimo_abono)}`}
         </p>
+        {deuda.fecha_proximo_pago && <ProximoPago dia={deuda.fecha_proximo_pago} className="self-start" />}
         <Link to={`/trabajos/${deuda.orden_id}`} className="self-start text-base font-bold text-gris underline underline-offset-4 hover:text-tinta">
           Ver el trabajo
         </Link>

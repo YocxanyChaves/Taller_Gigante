@@ -5,8 +5,9 @@ import { supabase } from "../lib/supabaseClient";
 
 const CAMPOS_TRABAJO = `
   id, estado, problema_reportado, diagnostico, modalidad_pago, cobro_revision, fecha_ingreso, fecha_cita, fecha_entrega,
-  km_entrada, nivel_combustible, notas_recepcion, aprobada, respondida_en, comentario_cliente, token_publico,
-  vehiculo:vehiculos ( id, placa, marca, modelo, anio, kilometraje,
+  km_entrada, unidad_distancia, nivel_combustible, notas_recepcion, aprobada, respondida_en, comentario_cliente,
+  token_publico, fecha_proximo_pago,
+  vehiculo:vehiculos ( id, placa, marca, modelo, anio, kilometraje, tipo_motor, unidad_distancia,
     cliente:clientes ( id, nombre, telefono ) )
 `;
 
@@ -30,7 +31,7 @@ export async function buscarClientesPorTelefono(telefono) {
 export async function listarCarros() {
   const { data, error } = await supabase
     .from("vehiculos")
-    .select("id, placa, marca, modelo, anio, cliente:clientes ( id, nombre, telefono ), ordenes ( id, estado )");
+    .select("id, placa, marca, modelo, anio, tipo_motor, unidad_distancia, cliente:clientes ( id, nombre, telefono ), ordenes ( id, estado )");
   if (error) throw error;
   return data.map(({ ordenes, cliente, ...v }) => ({
     ...v,
@@ -58,6 +59,8 @@ export async function recibirCarro(datos) {
     p_km: datos.km ?? null,
     p_combustible: datos.combustible ?? null,
     p_notas: datos.notas ?? null,
+    p_tipo_motor: datos.tipoMotor ?? null,
+    p_unidad: datos.unidad ?? null,
   });
   if (error) throw error;
   return data;
@@ -124,24 +127,70 @@ export async function avanzarEstado(id, estado) {
   if (error) throw error;
 }
 
-// "Ya llegó el carro": guarda la recepción (todo opcional) y pasa a revisión.
-// Si el kilometraje es mayor que el que tenía el carro, también lo actualiza.
-export async function registrarLlegada(trabajo, { km, combustible, notas }) {
+// "Ya llegó el carro": guarda la recepción y pasa a revisión. La lectura del
+// tablero queda en la unidad que se escogió (km o millas), que también pasa a
+// ser la del carro. Si la lectura es mayor que la que tenía el carro (o
+// cambió de unidad), también la actualiza.
+export async function registrarLlegada(trabajo, { km, unidad, combustible, notas }) {
   const { error } = await supabase
     .from("ordenes")
-    .update({ km_entrada: km, nivel_combustible: combustible, notas_recepcion: notas })
+    .update({ km_entrada: km, unidad_distancia: unidad, nivel_combustible: combustible, notas_recepcion: notas })
     .eq("id", trabajo.id);
   if (error) throw error;
 
-  if (km != null && km > (trabajo.vehiculo?.kilometraje ?? 0)) {
-    const { error: errorKm } = await supabase
-      .from("vehiculos")
-      .update({ kilometraje: km })
-      .eq("id", trabajo.vehiculo.id);
+  const carro = trabajo.vehiculo;
+  const cambioUnidad = unidad !== (carro?.unidad_distancia ?? "km");
+  const cambios = {
+    ...(cambioUnidad ? { unidad_distancia: unidad } : {}),
+    ...(km != null && (cambioUnidad || km > (carro?.kilometraje ?? 0)) ? { kilometraje: km } : {}),
+  };
+  if (carro && Object.keys(cambios).length) {
+    const { error: errorKm } = await supabase.from("vehiculos").update(cambios).eq("id", carro.id);
     if (errorKm) throw errorKm;
   }
 
   await avanzarEstado(trabajo.id, "en_revision");
+}
+
+// "Ya vino y se fue": anota una visita que ya pasó, solo para el historial
+// (el trabajo queda entregado con su fecha). Devuelve el id del trabajo.
+export async function anotarVisitaPasada(datos) {
+  const { data, error } = await supabase.rpc("anotar_visita_pasada", {
+    p_fecha: datos.fecha,
+    p_trabajo: datos.trabajo,
+    p_vehiculo_id: datos.vehiculoId ?? null,
+    p_placa: datos.placa ?? null,
+    p_marca: datos.marca ?? null,
+    p_modelo: datos.modelo ?? null,
+    p_anio: datos.anio ?? null,
+    p_tipo_motor: datos.tipoMotor ?? null,
+    p_cliente_id: datos.clienteId ?? null,
+    p_cliente_nombre: datos.clienteNombre ?? null,
+    p_cliente_telefono: datos.clienteTelefono ?? null,
+    p_km: datos.km ?? null,
+    p_unidad: datos.unidad ?? null,
+    p_monto: datos.monto ?? 0,
+    p_pagado: datos.pagado ?? true,
+    p_metodo: datos.metodo ?? null,
+    p_proximo_pago: datos.proximoPago ?? null,
+  });
+  if (error) throw error;
+  return data;
+}
+
+// "Cambiar datos del carro": marca, modelo, año, motor y qué marca el tablero.
+export async function actualizarCarro(id, { marca, modelo, anio, tipoMotor, unidad }) {
+  const { error } = await supabase
+    .from("vehiculos")
+    .update({
+      marca: marca.trim() || null,
+      modelo: modelo.trim() || null,
+      anio: anio ? Number(anio) : null,
+      tipo_motor: tipoMotor.trim() || null,
+      unidad_distancia: unidad,
+    })
+    .eq("id", id);
+  if (error) throw error;
 }
 
 // Guarda el diagnóstico y las filas del precio: borra las que se quitaron,
