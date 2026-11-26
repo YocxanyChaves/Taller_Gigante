@@ -21,9 +21,10 @@ const GOTAS = [
   { t: "18cqw", dx: "-160%", dy: "-110%", d: "0.1s", v: "0.6s", a: "1.9s" },
 ];
 
-export function MasaVenom() {
+// `origen`: 0 = sale del botón; 1, 2… = del 1.º, 2.º… `.venom-origen` (ver lib/venom).
+export function MasaVenom({ origen = 0 }) {
   return (
-    <span aria-hidden="true" className="venom-masa">
+    <span aria-hidden="true" className="venom-masa" data-origen={origen || undefined}>
       <span className="venom-gota venom-principal" />
       {GOTAS.map((g, i) => (
         <span
@@ -36,9 +37,9 @@ export function MasaVenom() {
   );
 }
 
-export function CapaVenom({ className = "", children }) {
+export function CapaVenom({ className = "", origen = 0, children }) {
   return (
-    <div aria-hidden="true" className={`venom-capa ${className}`}>
+    <div aria-hidden="true" className={`venom-capa ${className}`} data-origen={origen || undefined}>
       {children}
     </div>
   );

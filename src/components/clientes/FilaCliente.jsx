@@ -8,11 +8,14 @@ import { CapaVenom, MasaVenom } from "../ui/Venom";
 // nombre, teléfono, sus placas y, si aplica, cuántos carros tiene en el
 // taller y cuánto debe. Rayita roja a la izquierda; el botón y las placas son
 // rojos con letras blancas.
-// Al pasar el mouse (efecto venom, ui/Venom): el rojo sale del botón y pinta
-// toda la tarjeta; lo que era rojo (el botón y las placas) queda blanco con
-// letras rojas, y el texto se pone blanco conforme la masa lo cubre.
+// Al pasar el mouse (efecto venom, ui/Venom): el rojo sale del botón y de
+// cada placa a la vez, se junta y pinta toda la tarjeta; lo que era rojo (el
+// botón y las placas) queda blanco con letras rojas, y el texto se pone
+// blanco conforme la masa lo cubre.
 
 export default function FilaCliente({ cliente, retraso = 0 }) {
+  const origenes = [0, ...cliente.placas.map((_, i) => i + 1)];
+
   return (
     <Link
       to={`/clientes/${cliente.id}`}
@@ -21,12 +24,18 @@ export default function FilaCliente({ cliente, retraso = 0 }) {
       onFocus={apuntarVenom}
       className="venom-activador venom-zona tarjeta-carro tarjeta-fuerte group animar-entrada block rounded-tarjeta border-2 border-l-[10px] border-linea border-l-rojo bg-tarjeta shadow-tarjeta transition-[border-color] duration-500 hover:border-rojo"
     >
-      <MasaVenom />
+      {/* Una masa por cada punto de donde sale el rojo: el botón (0) y cada placa. */}
+      {origenes.map((o) => (
+        <MasaVenom key={o} origen={o} />
+      ))}
       <Contenido cliente={cliente} />
-      {/* La misma tarjeta en blanco sobre rojo, que aparece conforme la masa la cubre. */}
-      <CapaVenom>
-        <Contenido cliente={cliente} capa />
-      </CapaVenom>
+      {/* La misma tarjeta en blanco sobre rojo, que aparece conforme la masa la
+          cubre (una copia por punto de salida; donde se juntan, se suman). */}
+      {origenes.map((o) => (
+        <CapaVenom key={o} origen={o}>
+          <Contenido cliente={cliente} capa />
+        </CapaVenom>
+      ))}
     </Link>
   );
 }
@@ -55,7 +64,9 @@ function Contenido({ cliente, capa = false }) {
             cliente.placas.map((p) => (
               <span
                 key={p}
-                className={`inline-block rounded-md border-2 px-3 py-1 text-lg font-bold tracking-[0.12em] whitespace-nowrap ${placa}`}
+                className={`inline-block rounded-md border-2 px-3 py-1 text-lg font-bold tracking-[0.12em] whitespace-nowrap ${placa} ${
+                  capa ? "" : "venom-origen"
+                }`}
               >
                 {p}
               </span>
