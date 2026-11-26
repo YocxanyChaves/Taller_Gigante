@@ -38,6 +38,13 @@ export function convertirDistancia(valor, de, a) {
   return Math.round(de === "mi" ? valor * 1.609344 : valor / 1.609344);
 }
 
+// Las dos medidas juntas, siempre km primero: "85 000 km · 52 816 millas".
+export const formatoKmYMillas = (valor, unidad = "km") =>
+  `${formatoDistancia(convertirDistancia(Number(valor), unidad, "km"), "km")} · ${formatoDistancia(
+    convertirDistancia(Number(valor), unidad, "mi"),
+    "mi"
+  )}`;
+
 // Un <input type="number"> vacío da "": en la base eso es null, no 0.
 export const numeroONull = (valor) =>
   valor === "" || valor == null ? null : Number(valor);

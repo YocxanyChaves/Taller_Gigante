@@ -2,10 +2,11 @@ import { EyeOff } from "lucide-react";
 import { TEXTO_GASOLINA } from "../../lib/llegada";
 import Campo from "../ui/Campo";
 import Eleccion from "../ui/Eleccion";
+import { convertirDistancia, soloDigitos } from "../../lib/formato";
 
 // Cómo llegó el carro: lo que marca el tablero (obligatorio, aclara dudas
-// después, salvo que no se pueda ver), en kilómetros o millas, la gasolina y
-// notas. Lo usan «Llegó el carro» y el paso «¿Cómo llegó el carro?» de
+// después, salvo que no se pueda ver): kilometraje y debajo millas (al
+// escribir uno, el otro sale solo); luego la gasolina y notas. Lo usan «Llegó el carro» y el paso «¿Cómo llegó el carro?» de
 // «Agregar un carro» cuando ya está aquí. Con `soloLectura` pide solo lo del
 // tablero (para una visita que ya pasó).
 // Es controlado: `valores` empieza como LLEGADA_VACIA (lib/llegada) y
@@ -13,20 +14,39 @@ import Eleccion from "../ui/Eleccion";
 
 export default function CamposLlegada({ valores, alCambiar, grande = false, soloLectura = false }) {
   const { km, sinKm, unidad, gasolina, notas } = valores;
-  const millas = unidad === "mi";
+  // Se puede escribir en cualquiera de los dos: el otro se calcula solo. Se
+  // guarda el que se escribió (es lo que marca el tablero).
+  const lectura = soloDigitos(km);
+  const otro = lectura ? String(convertirDistancia(Number(lectura), unidad, unidad === "km" ? "mi" : "km")) : "";
+  const valorKm = unidad === "km" ? km : otro;
+  const valorMi = unidad === "mi" ? km : otro;
 
   return (
     <div className="flex flex-col gap-5 text-tinta">
-      <ElegirUnidad valor={unidad} alCambiar={(u) => alCambiar({ unidad: u })} />
       <Campo
-        etiqueta={millas ? "Millaje (millas)" : "Kilometraje (km)"}
+        etiqueta="Kilometraje (km)"
         grande={grande}
         autoFocus
         inputMode="numeric"
         autoComplete="off"
-        placeholder={millas ? "52 000" : "85 000"}
-        value={km}
-        onChange={(e) => alCambiar({ km: e.target.value, sinKm: false })}
+        placeholder="85000"
+        ayuda={unidad === "mi" && lectura ? "Calculado de las millas." : undefined}
+        value={valorKm}
+        onChange={(e) => alCambiar({ km: e.target.value, unidad: "km", sinKm: false })}
+      />
+      <Campo
+        etiqueta="Millas"
+        grande={grande}
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="52800"
+        ayuda={
+          unidad === "km" && lectura
+            ? "Calculado de los kilómetros."
+            : "Si el tablero marca millas, escríbalas aquí y los kilómetros salen solos."
+        }
+        value={valorMi}
+        onChange={(e) => alCambiar({ km: e.target.value, unidad: "mi", sinKm: false })}
       />
       <Eleccion
         icono={EyeOff}

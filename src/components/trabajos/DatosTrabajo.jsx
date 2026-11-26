@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone } from "lucide-react";
-import { formatoTelefono, formatoDistancia, fechaLarga, soloDigitos } from "../../lib/formato";
+import { formatoTelefono, formatoKmYMillas, fechaLarga, soloDigitos } from "../../lib/formato";
 import { TEXTO_GASOLINA } from "../../lib/llegada";
 import Desplegable from "../ui/Desplegable";
 
@@ -49,8 +49,8 @@ export default function DatosTrabajo({ trabajo }) {
         <Dato etiqueta="Anotado">{fechaLarga(trabajo.fecha_ingreso)}</Dato>
         {trabajo.vehiculo?.tipo_motor && <Dato etiqueta="Motor">{trabajo.vehiculo.tipo_motor}</Dato>}
         {trabajo.km_entrada != null && (
-          <Dato etiqueta={trabajo.unidad_distancia === "mi" ? "Millaje al llegar" : "Kilometraje al llegar"}>
-            {formatoDistancia(trabajo.km_entrada, trabajo.unidad_distancia)}
+          <Dato etiqueta="Kilometraje al llegar">
+            {formatoKmYMillas(trabajo.km_entrada, trabajo.unidad_distancia)}
           </Dato>
         )}
         {trabajo.nivel_combustible && (
