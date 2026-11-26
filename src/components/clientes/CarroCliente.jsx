@@ -47,7 +47,7 @@ export default function CarroCliente({ vehiculo, retraso = 0, alCambio }) {
     >
       <header className="flex flex-col gap-6 border-b border-linea p-6 sm:p-8">
         <div className="flex flex-col items-start gap-3">
-          <Placa grande roja>
+          <Placa grande>
             {placa || "SIN PLACA"}
           </Placa>
           <h3 className="text-2xl font-bold">{nombreCarro(vehiculo)}</h3>
@@ -212,7 +212,7 @@ function FilaHistorial({ orden, anterior }) {
         {orden.total > 0 && <span className="numeros text-lg">{formatoColones(orden.total)}</span>}
         {debe && <span className="numeros text-base font-bold text-rojo">Debe {formatoColones(orden.saldo)}</span>}
       </span>
-      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-rojo md:col-start-4 md:row-start-1">
+      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:text-tinta md:col-start-4 md:row-start-1">
         Ver
         <ArrowRight aria-hidden="true" size={20} className="transition-transform duration-200 group-hover:translate-x-1" />
       </span>

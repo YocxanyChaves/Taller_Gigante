@@ -5,8 +5,9 @@ import { TEXTO_GASOLINA } from "../../lib/llegada";
 import Desplegable from "../ui/Desplegable";
 
 // El carro, el cliente (con botón para llamar) y cómo llegó, usando todo el
-// ancho: arriba y al centro lo importante (el cliente y qué dijo); abajo, los
-// demás datos en cuadritos parejos.
+// ancho: arriba y al centro el cliente; «Qué dijo» justificado a todo lo
+// ancho; los demás datos en cuadritos parejos y, abajo del todo, el botón de
+// llamar a lo largo de toda la sección.
 
 function Dato({ etiqueta, emoji, children, ancho = false }) {
   return (
@@ -43,22 +44,13 @@ export default function DatosTrabajo({ trabajo }) {
           ) : (
             <p className="text-3xl font-bold">Sin dueño anotado</p>
           )}
-          {telefono.length === 8 && (
-            <a
-              href={`tel:+506${telefono}`}
-              className="flex min-h-14 items-center gap-2 rounded-control border-2 border-linea-fuerte px-6 text-lg font-bold transition-[border-color,translate] duration-200 hover:-translate-y-0.5 hover:border-tinta"
-            >
-              <Phone aria-hidden="true" size={20} />
-              Llamar al {formatoTelefono(telefono)}
-            </a>
-          )}
         </div>
 
         {/* Los cuadritos se reparten todo el ancho, sin dejar huecos a la derecha. */}
         <dl className="flex flex-wrap gap-4">
           <Dato etiqueta="Qué dijo el cliente" emoji="💬" ancho>
-            {/* Renglones parejos (justificado) y el último centrado. */}
-            <p className="mx-auto max-w-4xl text-justify text-2xl whitespace-pre-line [text-align-last:center]">
+            {/* Justificado: todos los renglones del mismo largo, de orilla a orilla. */}
+            <p className="w-full text-justify text-2xl whitespace-pre-line [text-align-last:left] [hyphens:auto]" lang="es">
               {trabajo.problema_reportado}
             </p>
           </Dato>
@@ -89,12 +81,23 @@ export default function DatosTrabajo({ trabajo }) {
           )}
           {trabajo.notas_recepcion && (
             <Dato etiqueta="Cómo llegó" emoji="📝" ancho>
-              <p className="mx-auto max-w-4xl text-justify whitespace-pre-line [text-align-last:center]">
+              <p className="w-full text-justify whitespace-pre-line [text-align-last:left] [hyphens:auto]" lang="es">
                 {trabajo.notas_recepcion}
               </p>
             </Dato>
           )}
         </dl>
+
+        {/* Llamar, abajo y a todo lo ancho de la sección. */}
+        {telefono.length === 8 && (
+          <a
+            href={`tel:+506${telefono}`}
+            className="flex min-h-16 w-full items-center justify-center gap-2.5 rounded-control border-2 border-linea-fuerte bg-tarjeta px-6 text-xl font-bold transition-[border-color,translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-tinta hover:shadow-elevada"
+          >
+            <Phone aria-hidden="true" size={22} />
+            Llamar a {cliente?.nombre ?? "el cliente"} al {formatoTelefono(telefono)}
+          </a>
+        )}
       </div>
     </Desplegable>
   );

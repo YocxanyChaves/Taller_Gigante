@@ -6,8 +6,9 @@ import Placa from "../ui/Placa";
 // La tarjeta de un cliente en "Buscar un cliente", a todo lo ancho y con aire:
 // nombre, teléfono, sus placas y, si aplica, cuántos carros tiene en el
 // taller y cuánto debe. Toda la tarjeta lleva a la ficha; al pasar el mouse se
-// levanta y se marca en rojo. Rayita roja a la izquierda, placas en rojo y el
-// botón siempre rojo (negro con letras rojas al pasar el mouse).
+// levanta y se marca en rojo. Rayita roja a la izquierda. El botón es rojo con
+// letras blancas (negras al pasar el mouse); las placas son negras y al pasar
+// el mouse se pintan de rojo con letras negras.
 
 export default function FilaCliente({ cliente, retraso = 0 }) {
   const debe = Number(cliente.debe);
@@ -29,7 +30,7 @@ export default function FilaCliente({ cliente, retraso = 0 }) {
         <div className="flex flex-wrap items-center gap-3">
           {cliente.placas.length ? (
             cliente.placas.map((placa) => (
-              <Placa key={placa} roja>
+              <Placa key={placa} tocable>
                 {placa}
               </Placa>
             ))
@@ -46,7 +47,7 @@ export default function FilaCliente({ cliente, retraso = 0 }) {
             {cliente.en_taller === 1 ? "🔧 1 carro en el taller" : `🔧 ${cliente.en_taller} carros en el taller`}
           </span>
         )}
-        <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-rojo">
+        <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:text-tinta">
           Ver el cliente
           <ArrowRight
             aria-hidden="true"
