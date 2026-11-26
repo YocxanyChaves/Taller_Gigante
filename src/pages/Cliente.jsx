@@ -12,9 +12,9 @@ import CarroCliente from "../components/clientes/CarroCliente";
 import DialogoCliente from "../components/clientes/DialogoCliente";
 import DialogoBorrarCliente from "../components/clientes/DialogoBorrarCliente";
 
-// Ficha del cliente: quién es y cómo contactarlo, lo que debe, sus carros con
-// el historial de cada uno, el botón para agregarle un carro y, al lado,
-// cambiar sus datos o borrarlo.
+// Ficha del cliente: quién es, el botón rojo (a todo lo ancho) para agregarle
+// un carro, lo que debe y sus carros con el historial de cada uno. Abajo,
+// siempre abiertos, el contacto y las otras acciones (cambiar datos, borrar).
 
 export default function Cliente() {
   const { id } = useParams();
@@ -81,89 +81,87 @@ export default function Cliente() {
 
   return (
     <>
-      <header className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="etiqueta mb-2">Cliente</p>
-          <h1 className="text-4xl font-bold">{cliente.nombre}</h1>
-          <p className="numeros mt-2 text-xl text-gris">{formatoTelefono(cliente.telefono)}</p>
-        </div>
-        <Boton icono={Car} to={`/trabajos/nuevo?cliente=${cliente.id}`}>
-          Agregar un carro de este cliente
-        </Boton>
+      <header className="mb-6">
+        <p className="etiqueta mb-2">Cliente</p>
+        <h1 className="text-4xl font-bold break-words">{cliente.nombre}</h1>
+        <p className="numeros mt-2 text-xl text-gris">{formatoTelefono(cliente.telefono)}</p>
       </header>
 
+      <Boton icono={Car} to={`/trabajos/nuevo?cliente=${cliente.id}`} anchoCompleto className="mb-8 min-h-16 text-xl">
+        Agregar un carro de este cliente
+      </Boton>
+
       {cliente.debe > 0 && (
-        <div className="mb-6">
+        <div className="mb-8">
           <Aviso tipo="alerta" titulo={`Debe ${formatoColones(cliente.debe)}`}>
             De trabajos ya entregados. Abajo, en cada carro, se ve cuál trabajo tiene saldo.
           </Aviso>
         </div>
       )}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <section className="flex flex-col gap-6">
-          <h2 className="sr-only">Carros</h2>
-          {cliente.vehiculos.length === 0 ? (
-            <Vacio icono={Car} titulo="No tiene carros anotados">
-              Toque «Agregar un carro de este cliente» para anotar el primero.
-            </Vacio>
-          ) : (
-            cliente.vehiculos.map((v, i) => <CarroCliente key={v.id} vehiculo={v} retraso={Math.min(i, 4) * 60} alCambio={cargar} />)
-          )}
+      <section aria-labelledby="carros" className="flex flex-col gap-8">
+        <h2 id="carros" className="text-2xl font-bold">
+          {cliente.vehiculos.length === 1 ? "🚗 Su carro" : "🚗 Sus carros"}
+        </h2>
+        {cliente.vehiculos.length === 0 ? (
+          <Vacio icono={Car} titulo="No tiene carros anotados">
+            Toque «Agregar un carro de este cliente» para anotar el primero.
+          </Vacio>
+        ) : (
+          cliente.vehiculos.map((v, i) => (
+            <CarroCliente key={v.id} vehiculo={v} retraso={Math.min(i, 4) * 60} alCambio={cargar} />
+          ))
+        )}
+      </section>
+
+      {/* Abajo, siempre abierto: cómo contactarlo y las acciones de poco uso. */}
+      <div className="mt-12 grid items-start gap-6 border-t-2 border-linea pt-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <section className="rounded-tarjeta border-2 border-linea bg-tarjeta shadow-tarjeta">
+          <h2 className="border-b border-linea px-6 py-4 text-2xl font-bold">📞 Contacto</h2>
+          <div className="flex flex-col gap-6 p-6">
+            {telefono.length === 8 ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <a
+                  href={`tel:+506${telefono}`}
+                  className="flex min-h-14 items-center justify-center gap-2.5 rounded-control border-2 border-linea-fuerte px-5 text-lg font-bold transition-[border-color,translate] duration-200 hover:-translate-y-0.5 hover:border-tinta"
+                >
+                  <Phone aria-hidden="true" size={22} />
+                  Llamar al {formatoTelefono(telefono)}
+                </a>
+                <Boton variante="whatsapp" icono={MessageCircle} href={enlaceWhatsApp(telefono, mensajeSaludo(cliente))}>
+                  Escribir por WhatsApp
+                </Boton>
+              </div>
+            ) : (
+              <p className="text-lg text-rojo">
+                El teléfono no tiene 8 números. Toque «Cambiar datos» para corregirlo.
+              </p>
+            )}
+
+            <dl className="grid gap-5 sm:grid-cols-3">
+              <Dato etiqueta="Correo">{cliente.correo || "No anotado"}</Dato>
+              <Dato etiqueta="Dirección">{cliente.direccion || "No anotada"}</Dato>
+              <Dato etiqueta="Cliente desde">{mesYAnio(cliente.fecha_ingreso)}</Dato>
+            </dl>
+          </div>
         </section>
 
-        <aside className="flex flex-col gap-6">
-          <section className="rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
-            <h2 className="border-b border-linea px-6 py-4 text-xl font-bold">Contacto</h2>
-            <div className="flex flex-col gap-3 p-6">
-              {telefono.length === 8 ? (
-                <>
-                  <a
-                    href={`tel:+506${telefono}`}
-                    className="flex min-h-14 items-center justify-center gap-2.5 rounded-control border-2 border-linea-fuerte px-5 text-lg font-bold transition-colors hover:border-tinta"
-                  >
-                    <Phone aria-hidden="true" size={22} />
-                    Llamar
-                  </a>
-                  <Boton variante="whatsapp" icono={MessageCircle} href={enlaceWhatsApp(telefono, mensajeSaludo(cliente))}>
-                    Escribir por WhatsApp
-                  </Boton>
-                </>
-              ) : (
-                <p className="text-lg text-rojo">
-                  El teléfono no tiene 8 números. Toque «Cambiar datos» para corregirlo.
-                </p>
-              )}
-
-              <dl className="mt-3 flex flex-col gap-4">
-                <Dato etiqueta="Correo">{cliente.correo || "No anotado"}</Dato>
-                <Dato etiqueta="Dirección">{cliente.direccion || "No anotada"}</Dato>
-                <Dato etiqueta="Cliente desde">{mesYAnio(cliente.fecha_ingreso)}</Dato>
-              </dl>
-            </div>
-          </section>
-
-          <section className="flex flex-col gap-2">
-            <p className="etiqueta">Otras acciones</p>
-            <Boton variante="gris" icono={Pencil} className="justify-start" onClick={() => setEditando(true)}>
+        <section className="rounded-tarjeta border-2 border-linea bg-tarjeta shadow-tarjeta">
+          <h2 className="border-b border-linea px-6 py-4 text-2xl font-bold">⚙️ Otras acciones</h2>
+          <div className="flex flex-col gap-3 p-6">
+            <Boton variante="secundario" icono={Pencil} anchoCompleto onClick={() => setEditando(true)}>
               Cambiar datos
             </Boton>
-            <Boton
-              variante="gris"
-              icono={Trash2}
-              className="justify-start"
-              onClick={() => setBorrando(true)}
-              disabled={enTaller}
-            >
+            <Boton variante="peligro" icono={Trash2} anchoCompleto onClick={() => setBorrando(true)} disabled={enTaller}>
               Borrar este cliente
             </Boton>
             {enTaller && (
-              <p className="px-1 text-base text-gris">
+              <p className="text-base text-gris">
                 Para borrarlo, primero entregue o cancele el carro que tiene en el taller.
               </p>
             )}
-          </section>
-        </aside>
+          </div>
+        </section>
       </div>
 
       {editando && (
