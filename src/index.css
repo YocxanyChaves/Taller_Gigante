@@ -216,8 +216,8 @@ body {
 }
 .venom-gota {
   position: absolute;
-  left: 50%;
-  top: calc(100% - var(--venom-abajo));
+  left: var(--venom-x, 50%);
+  top: var(--venom-y, calc(100% - var(--venom-abajo)));
   width: var(--t);
   aspect-ratio: 1;
   translate: -50% -50%;
@@ -259,11 +259,11 @@ body {
   z-index: 1;
   pointer-events: none;
   color: #fff;
-  clip-path: circle(0 at 50% calc(100% - var(--venom-abajo)));
+  clip-path: circle(0 at var(--venom-x, 50%) var(--venom-y, calc(100% - var(--venom-abajo))));
   transition: clip-path var(--venom-sale) var(--venom-curva);
 }
 .venom-activador:is(:hover, :focus-within) .venom-capa {
-  clip-path: circle(150cqw at 50% calc(100% - var(--venom-abajo)));
+  clip-path: circle(150cqw at var(--venom-x, 50%) var(--venom-y, calc(100% - var(--venom-abajo))));
   transition: clip-path var(--venom-entra) var(--venom-curva) 0.06s;
 }
 .venom-capa .etiqueta {

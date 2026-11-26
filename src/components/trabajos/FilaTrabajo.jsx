@@ -5,6 +5,7 @@ import { ESTADOS } from "../../lib/estados";
 import Placa from "../ui/Placa";
 import Semaforo from "../ui/Semaforo";
 import { CapaVenom, MasaVenom } from "../ui/Venom";
+import { apuntarVenom } from "../../lib/venom";
 
 // La tarjeta de un carro en "Carros en el taller", a todo lo ancho y con aire
 // (una debajo de la otra, nada apretado). A la izquierda: placa, carro, qué
@@ -78,6 +79,8 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
     <Link
       to={`/trabajos/${trabajo.id}`}
       style={{ "--retraso": `${retraso}ms` }}
+      onPointerEnter={apuntarVenom}
+      onFocus={apuntarVenom}
       className={
         "venom-activador tarjeta-carro tarjeta-fuerte group animar-entrada flex flex-col gap-2 rounded-[18px] border-[3px] border-l-[10px] bg-tarjeta p-2 shadow-tarjeta md:flex-row " +
         color.tarjeta
