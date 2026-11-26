@@ -5,7 +5,8 @@
 // cantidad en un circulito, y una flechita abajo que marca "aquí está".
 // En celular se desplazan de lado.
 
-export default function Pestanas({ opciones, valor, alCambiar, etiqueta }) {
+// `grande`: cuadros más altos y con letra más grande (la bitácora).
+export default function Pestanas({ opciones, valor, alCambiar, etiqueta, grande = false }) {
   return (
     <div role="group" aria-label={etiqueta} className="-mx-4 overflow-x-auto px-4 pt-1 pb-3 sm:mx-0 sm:px-0">
       <div className="grid min-w-max auto-cols-fr grid-flow-col gap-3 sm:min-w-0">
@@ -18,7 +19,8 @@ export default function Pestanas({ opciones, valor, alCambiar, etiqueta }) {
               aria-pressed={elegida}
               onClick={() => alCambiar(v)}
               className={
-                "chip-menu relative flex min-h-14 cursor-pointer flex-col items-center justify-center gap-2 rounded-tarjeta border-2 px-5 py-3 text-lg font-bold whitespace-nowrap " +
+                "chip-menu relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-tarjeta border-2 font-bold whitespace-nowrap " +
+                (grande ? "min-h-20 px-7 py-4 text-xl " : "min-h-14 px-5 py-3 text-lg ") +
                 (elegida
                   ? "border-tinta bg-tinta text-white shadow-elevada"
                   : "border-linea-fuerte bg-tarjeta text-tinta hover:border-tinta")

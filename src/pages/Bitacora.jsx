@@ -7,12 +7,12 @@ import ListaBitacora from "../components/bitacora/ListaBitacora";
 // sistema, quién y cuándo, con lo de antes y lo de después. Se llena sola.
 
 const FILTROS = [
-  { valor: "todo", texto: "Todo", tablas: null },
-  { valor: "trabajos", texto: "🚦 Trabajos", tablas: ["ordenes"] },
+  { valor: "todo", texto: "📚 Todo", tablas: null },
+  // Las fotos y videos son de un trabajo (de cómo llegó o de cada etapa).
+  { valor: "trabajos", texto: "🚦 Trabajos y fotos", tablas: ["ordenes", "orden_fotos"] },
   { valor: "precios", texto: "💲 Precios", tablas: ["orden_items"] },
   { valor: "pagos", texto: "💰 Pagos", tablas: ["pagos"] },
   { valor: "clientes", texto: "👤 Clientes y carros", tablas: ["clientes", "vehiculos"] },
-  { valor: "fotos", texto: "📷 Fotos", tablas: ["orden_fotos"] },
 ];
 
 export default function Bitacora() {
@@ -28,6 +28,7 @@ export default function Bitacora() {
       <div className="flex flex-col gap-8">
         <Pestanas
           etiqueta="Qué cambios ver"
+          grande
           opciones={FILTROS.map(({ valor, texto }) => ({ valor, texto, cantidad: null }))}
           valor={filtro}
           alCambiar={setFiltro}
