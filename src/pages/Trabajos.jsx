@@ -97,7 +97,7 @@ export default function Trabajos() {
               {VACIOS[filtro]}
             </Vacio>
           ) : (
-            <div key={filtro} className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div key={filtro} className="flex flex-col gap-6">
               {visibles.map((t, i) => (
                 <FilaTrabajo key={t.id} trabajo={t} retraso={Math.min(i, 8) * 45} />
               ))}
@@ -112,9 +112,9 @@ export default function Trabajos() {
 // Mientras carga: tarjetas grises que laten.
 function FilasCargando() {
   return (
-    <div aria-label="Cargando los carros" className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="flex h-64 animate-pulse flex-col gap-4 rounded-tarjeta border-2 border-linea bg-tarjeta p-5">
+    <div aria-label="Cargando los carros" className="flex flex-col gap-6">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex h-52 animate-pulse flex-col gap-4 rounded-tarjeta border-2 border-linea bg-tarjeta p-8">
           <span className="h-9 w-28 rounded-md bg-suave" />
           <span className="h-6 w-2/3 rounded bg-suave" />
           <span className="h-5 w-full rounded bg-suave" />
