@@ -10,12 +10,16 @@ import Desplegable from "../ui/Desplegable";
 
 function Dato({ etiqueta, emoji, children, ancho = false }) {
   return (
-    <div className={`flex flex-col items-center rounded-tarjeta bg-fondo p-5 text-center ${ancho ? "col-span-full" : ""}`}>
+    <div
+      className={`flex flex-col items-center justify-center rounded-tarjeta bg-fondo p-5 text-center ${
+        ancho ? "basis-full" : "min-w-[14rem] flex-1"
+      }`}
+    >
       <dt className="etiqueta">
         {emoji && <span aria-hidden="true" className="mr-1.5 not-italic">{emoji}</span>}
         {etiqueta}
       </dt>
-      <dd className="mt-2 text-xl break-words">{children}</dd>
+      <dd className="mt-2 w-full text-xl break-words">{children}</dd>
     </div>
   );
 }
@@ -50,9 +54,13 @@ export default function DatosTrabajo({ trabajo }) {
           )}
         </div>
 
-        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Los cuadritos se reparten todo el ancho, sin dejar huecos a la derecha. */}
+        <dl className="flex flex-wrap gap-4">
           <Dato etiqueta="Qué dijo el cliente" emoji="💬" ancho>
-            <span className="text-2xl whitespace-pre-line">{trabajo.problema_reportado}</span>
+            {/* Renglones parejos (justificado) y el último centrado. */}
+            <p className="mx-auto max-w-4xl text-justify text-2xl whitespace-pre-line [text-align-last:center]">
+              {trabajo.problema_reportado}
+            </p>
           </Dato>
           {trabajo.estado === "cita" && trabajo.fecha_cita && (
             <Dato etiqueta="Cita" emoji="📅">
@@ -81,7 +89,9 @@ export default function DatosTrabajo({ trabajo }) {
           )}
           {trabajo.notas_recepcion && (
             <Dato etiqueta="Cómo llegó" emoji="📝" ancho>
-              <span className="whitespace-pre-line">{trabajo.notas_recepcion}</span>
+              <p className="mx-auto max-w-4xl text-justify whitespace-pre-line [text-align-last:center]">
+                {trabajo.notas_recepcion}
+              </p>
             </Dato>
           )}
         </dl>

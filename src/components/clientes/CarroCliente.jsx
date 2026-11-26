@@ -212,7 +212,7 @@ function FilaHistorial({ orden, anterior }) {
         {orden.total > 0 && <span className="numeros text-lg">{formatoColones(orden.total)}</span>}
         {debe && <span className="numeros text-base font-bold text-rojo">Debe {formatoColones(orden.saldo)}</span>}
       </span>
-      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-[#ff5a63] md:col-start-4 md:row-start-1">
+      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-rojo md:col-start-4 md:row-start-1">
         Ver
         <ArrowRight aria-hidden="true" size={20} className="transition-transform duration-200 group-hover:translate-x-1" />
       </span>

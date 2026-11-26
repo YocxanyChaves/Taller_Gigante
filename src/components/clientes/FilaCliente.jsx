@@ -20,7 +20,7 @@ export default function FilaCliente({ cliente, retraso = 0 }) {
     >
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="min-w-0">
-          <h3 className="text-2xl font-bold break-words transition-colors group-hover:text-[#ff5a63]">{cliente.nombre}</h3>
+          <h3 className="text-2xl font-bold break-words transition-colors group-hover:text-rojo">{cliente.nombre}</h3>
           <p className="numeros mt-1 flex items-center gap-2 text-lg text-gris">
             <Phone aria-hidden="true" size={18} />
             {formatoTelefono(cliente.telefono)}
@@ -46,7 +46,7 @@ export default function FilaCliente({ cliente, retraso = 0 }) {
             {cliente.en_taller === 1 ? "🔧 1 carro en el taller" : `🔧 ${cliente.en_taller} carros en el taller`}
           </span>
         )}
-        <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-[#ff5a63]">
+        <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-rojo">
           Ver el cliente
           <ArrowRight
             aria-hidden="true"
