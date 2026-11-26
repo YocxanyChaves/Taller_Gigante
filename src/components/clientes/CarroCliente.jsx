@@ -190,7 +190,7 @@ function FilaHistorial({ orden, anterior }) {
   return (
     <Link
       to={`/trabajos/${orden.id}`}
-      className="tarjeta-carro group grid grid-cols-1 items-center gap-x-6 gap-y-4 rounded-tarjeta border-2 border-l-[10px] border-linea border-l-rojo bg-tarjeta p-5 hover:border-rojo hover:bg-rojo/[0.03] sm:p-6 md:grid-cols-[15rem_minmax(0,1fr)_12rem_auto]"
+      className="group grid grid-cols-1 items-center gap-x-6 gap-y-4 rounded-tarjeta border-2 border-l-[10px] border-linea border-l-rojo bg-tarjeta p-5 transition-[border-color] duration-200 hover:border-rojo sm:p-6 md:grid-cols-[15rem_minmax(0,1fr)_12rem_auto]"
     >
       <span className="flex flex-col gap-1.5">
         <span className="text-base text-gris first-letter:uppercase md:text-lg">{fechaLarga(fecha)}</span>
@@ -212,7 +212,7 @@ function FilaHistorial({ orden, anterior }) {
         {orden.total > 0 && <span className="numeros text-lg">{formatoColones(orden.total)}</span>}
         {debe && <span className="numeros text-base font-bold text-rojo">Debe {formatoColones(orden.saldo)}</span>}
       </span>
-      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:text-tinta md:col-start-4 md:row-start-1">
+      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white md:col-start-4 md:row-start-1">
         Ver
         <ArrowRight aria-hidden="true" size={20} className="transition-transform duration-200 group-hover:translate-x-1" />
       </span>
