@@ -182,84 +182,142 @@ body {
   box-shadow: 0 22px 40px -16px rgb(26 26 26 / 0.35), 0 4px 10px rgb(26 26 26 / 0.08);
 }
 
-/* «Siguiente paso» al pasar el mouse (por cualquier lado, hasta por una
-   esquinita): el rojo SALE DEL BOTÓN y se riega por toda la sección como un
-   líquido vivo (tipo Venom), mientras el blanco de la sección se pasa al
-   botón: cambian de lugar como agua y aceite, sin revolverse.
-   Cómo: dos manchas (::before la principal, ::after un borde más oscuro que
-   va un toque atrás) nacen en el centro del botón chiquititas y crecen hasta
-   tapar todo, deformándose. El botón se aclara al mismo tiempo que la mancha
-   lo deja, y las letras se ponen blancas cuando la mancha les llega. */
-.paso-venom {
-  overflow: hidden;
+/* ===== Efecto venom (ver components/ui/Venom.jsx) =====
+   Al pasar el mouse por `.venom-activador` (por cualquier lado), una masa
+   viva del color --venom-color sale del botón de la `.venom-zona` y la cubre.
+   --venom-abajo = distancia del centro del botón al borde de abajo.
+   La masa principal y el recorte de `.venom-capa` (el texto blanco) crecen
+   con el mismo tiempo y la misma curva, para que el texto cambie de color
+   justo cuando la masa le llega. */
+.venom-zona {
+  position: relative;
   isolation: isolate;
-  /* Centro del botón: está abajo, a lo ancho (padding 1.5rem + medio botón). */
-  --venom-y: calc(1.5rem + 2rem);
+  overflow: hidden;
+  container-type: inline-size;
 }
-.paso-venom::before,
-.paso-venom::after {
-  content: "";
+/* Los valores por defecto van en una capa, para que las clases de Tailwind
+   ([--venom-color:…]) de cada tarjeta los puedan cambiar. */
+@layer components {
+  .venom-zona {
+    --venom-color: var(--color-rojo);
+    --venom-oscuro: var(--color-rojo-oscuro);
+    --venom-abajo: 3.5rem;
+    --venom-entra: 0.85s;
+    --venom-sale: 0.7s;
+    --venom-curva: cubic-bezier(0.6, 0, 0.25, 1);
+  }
+}
+
+.venom-masa,
+.venom-venas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  filter: url(#venom-goo);
+}
+.venom-venas {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.venom-gota {
   position: absolute;
   left: 50%;
-  bottom: var(--venom-y);
-  width: 260%;
+  top: calc(100% - var(--venom-abajo));
+  width: var(--t);
   aspect-ratio: 1;
-  translate: -50% 50%;
-  scale: 0.02 0.008;
-  border-radius: 46% 54% 52% 48% / 50% 46% 54% 50%;
-  pointer-events: none;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--venom-color);
+  scale: 0;
+  /* Al salir se recogen todas, los tentáculos un toque antes. */
+  transition: scale var(--venom-sale) var(--venom-curva);
+  animation: venom-deriva var(--a, 3s) ease-in-out infinite alternate paused;
 }
-.paso-venom::before {
-  z-index: -1;
-  background: var(--color-rojo);
-  transition: scale 0.9s cubic-bezier(0.7, 0, 0.2, 1);
+.venom-principal {
+  width: 170cqw;
+  animation: venom-respira 3.4s ease-in-out infinite paused;
 }
-.paso-venom::after {
-  z-index: -2;
-  background: var(--color-rojo-oscuro);
-  transition: scale 0.9s cubic-bezier(0.7, 0, 0.2, 1) 0.06s;
+
+.venom-vena {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--t);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--venom-oscuro);
+  animation: venom-deriva var(--a) ease-in-out infinite alternate paused;
 }
-.paso-venom:hover::before,
-.paso-venom:focus-within::before {
+
+.venom-activador:is(:hover, :focus-within) .venom-gota {
   scale: 1;
-  animation: venom-vivo 4s ease-in-out 0.9s infinite;
+  transition: scale var(--v, var(--venom-entra)) var(--venom-curva) var(--d, 0s);
+  animation-play-state: running;
 }
-.paso-venom:hover::after,
-.paso-venom:focus-within::after {
-  scale: 1.04;
-  animation: venom-vivo 4s ease-in-out 1s infinite reverse;
+.venom-activador:is(:hover, :focus-within) .venom-principal {
+  transition: scale var(--venom-entra) var(--venom-curva) 0.06s;
 }
-@keyframes venom-vivo {
-  0%, 100% { border-radius: 46% 54% 52% 48% / 50% 46% 54% 50%; rotate: 0deg; }
-  25% { border-radius: 54% 46% 44% 56% / 46% 56% 44% 54%; rotate: 4deg; }
-  50% { border-radius: 49% 51% 57% 43% / 55% 45% 55% 45%; rotate: 0deg; }
-  75% { border-radius: 43% 57% 48% 52% / 48% 52% 48% 52%; rotate: -4deg; }
+.venom-activador:is(:hover, :focus-within) .venom-venas {
+  opacity: 0.45;
+  transition-delay: 0.7s;
+}
+.venom-activador:is(:hover, :focus-within) .venom-vena {
+  animation-play-state: running;
 }
 
-.paso-venom .venom-texto {
-  transition: color 0.3s ease;
+/* Cada tentáculo se va estirando y encogiendo a su ritmo, como con vida propia. */
+@keyframes venom-deriva {
+  0% { transform: translate(0, 0) scale(1); }
+  30% { transform: translate(var(--dx), var(--dy)) scale(1.15, 0.85); }
+  65% { transform: translate(calc(var(--dx) * -0.45), calc(var(--dy) * 0.7)) scale(0.85, 1.2); }
+  100% { transform: translate(calc(var(--dx) * 0.6), calc(var(--dy) * -0.3)) scale(1.05); }
 }
-.paso-venom:hover .venom-texto,
-.paso-venom:focus-within .venom-texto {
+@keyframes venom-respira {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.04, 0.97); }
+}
+
+/* La copia del texto en blanco, recortada por un círculo que nace del botón. */
+.venom-capa {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
   color: #fff;
-  transition-delay: 0.35s;
+  clip-path: circle(0 at 50% calc(100% - var(--venom-abajo)));
+  transition: clip-path var(--venom-sale) var(--venom-curva);
+}
+.venom-activador:is(:hover, :focus-within) .venom-capa {
+  clip-path: circle(85cqw at 50% calc(100% - var(--venom-abajo)));
+  transition: clip-path var(--venom-entra) var(--venom-curva) 0.06s;
+}
+.venom-capa .etiqueta {
+  color: inherit;
 }
 
-/* El botón: rojo → blanco con letras rojas. Al empezar se "encoge" un poquito
-   (como si soltara su color) y vuelve, ondulando como una gota. */
-.paso-venom .venom-boton {
-  transition: background-color 0.35s ease, color 0.35s ease, box-shadow 0.4s ease, scale 0.35s ease;
+/* El botón: tiene el color y lo suelta. Se aclara cuando la masa sale de él y
+   recupera su color cuando la masa vuelve (al final de la salida). */
+.venom-boton {
+  position: relative;
+  z-index: 2;
+  transition: background-color 0.3s ease calc(var(--venom-sale) - 0.25s),
+    color 0.3s ease calc(var(--venom-sale) - 0.25s), border-color 0.3s ease calc(var(--venom-sale) - 0.25s),
+    box-shadow 0.4s ease, scale 0.3s ease;
 }
-.paso-venom:hover .venom-boton,
-.paso-venom:focus-within .venom-boton {
+.venom-activador:is(:hover, :focus-within) .venom-boton {
   background-color: #fff;
-  color: var(--color-rojo);
+  border-color: #fff;
+  color: var(--venom-texto, var(--color-rojo));
   box-shadow: 0 12px 28px -12px rgb(0 0 0 / 0.5);
+  transition-delay: 0s;
   animation: venom-soltar 0.6s cubic-bezier(0.3, 0.7, 0.3, 1.4), venom-gota 3s ease-in-out 0.6s infinite;
 }
 @keyframes venom-soltar {
   0% { scale: 1; }
-  35% { scale: 0.94 0.9; }
+  35% { scale: 0.93 0.88; }
   100% { scale: 1; }
 }
 @keyframes venom-gota {
