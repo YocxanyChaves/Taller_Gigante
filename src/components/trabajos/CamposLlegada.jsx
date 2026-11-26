@@ -1,25 +1,21 @@
 import { EyeOff } from "lucide-react";
-import { TEXTO_GASOLINA } from "../../lib/llegada";
+import { TEXTO_GASOLINA, cambioLectura } from "../../lib/llegada";
 import Campo from "../ui/Campo";
 import Eleccion from "../ui/Eleccion";
-import { convertirDistancia, soloDigitos } from "../../lib/formato";
 
 // Cómo llegó el carro: lo que marca el tablero (obligatorio, aclara dudas
-// después, salvo que no se pueda ver): kilometraje y debajo millas (al
-// escribir uno, el otro sale solo); luego la gasolina y notas. Lo usan «Llegó el carro» y el paso «¿Cómo llegó el carro?» de
-// «Agregar un carro» cuando ya está aquí. Con `soloLectura` pide solo lo del
-// tablero (para una visita que ya pasó).
+// después, salvo que no se pueda ver): kilometraje y debajo millas. Al
+// escribir uno, el otro se llena solo, pero se puede corregir a mano; luego la
+// gasolina y notas. Lo usan «Llegó el carro» y el paso «¿Cómo llegó el
+// carro?» de «Agregar un carro» cuando ya está aquí. Con `soloLectura` pide
+// solo lo del tablero (para una visita que ya pasó).
 // Es controlado: `valores` empieza como LLEGADA_VACIA (lib/llegada) y
 // `alCambiar` recibe solo lo que cambió.
 
 export default function CamposLlegada({ valores, alCambiar, grande = false, soloLectura = false }) {
-  const { km, sinKm, unidad, gasolina, notas } = valores;
-  // Se puede escribir en cualquiera de los dos: el otro se calcula solo. Se
-  // guarda el que se escribió (es lo que marca el tablero).
-  const lectura = soloDigitos(km);
-  const otro = lectura ? String(convertirDistancia(Number(lectura), unidad, unidad === "km" ? "mi" : "km")) : "";
-  const valorKm = unidad === "km" ? km : otro;
-  const valorMi = unidad === "mi" ? km : otro;
+  const { km, millas, kmAMano, millasAMano, sinKm, gasolina, notas } = valores;
+  const ayudaDe = (esteAMano, otroAMano, de) =>
+    !esteAMano && otroAMano ? `Calculado de ${de}. Si no cuadra con el tablero, corríjalo aquí.` : undefined;
 
   return (
     <div className="flex flex-col gap-5 text-tinta">
@@ -30,9 +26,9 @@ export default function CamposLlegada({ valores, alCambiar, grande = false, solo
         inputMode="numeric"
         autoComplete="off"
         placeholder="85000"
-        ayuda={unidad === "mi" && lectura ? "Calculado de las millas." : undefined}
-        value={valorKm}
-        onChange={(e) => alCambiar({ km: e.target.value, unidad: "km", sinKm: false })}
+        ayuda={ayudaDe(kmAMano, millasAMano, "las millas")}
+        value={km}
+        onChange={(e) => alCambiar(cambioLectura(valores, "km", e.target.value))}
       />
       <Campo
         etiqueta="Millas"
@@ -41,19 +37,18 @@ export default function CamposLlegada({ valores, alCambiar, grande = false, solo
         autoComplete="off"
         placeholder="52800"
         ayuda={
-          unidad === "km" && lectura
-            ? "Calculado de los kilómetros."
-            : "Si el tablero marca millas, escríbalas aquí y los kilómetros salen solos."
+          ayudaDe(millasAMano, kmAMano, "los kilómetros") ??
+          (millasAMano ? undefined : "Si el tablero marca millas, escríbalas aquí y los kilómetros salen solos.")
         }
-        value={valorMi}
-        onChange={(e) => alCambiar({ km: e.target.value, unidad: "mi", sinKm: false })}
+        value={millas}
+        onChange={(e) => alCambiar(cambioLectura(valores, "mi", e.target.value))}
       />
       <Eleccion
         icono={EyeOff}
         titulo="No se puede ver el tablero"
         ayuda="Sigo sin anotarlo"
         elegida={sinKm}
-        onClick={() => alCambiar({ sinKm: !sinKm, km: "" })}
+        onClick={() => alCambiar({ sinKm: !sinKm, km: "", millas: "", kmAMano: false, millasAMano: false })}
       />
 
       {!soloLectura && (

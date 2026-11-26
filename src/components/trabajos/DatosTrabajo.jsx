@@ -50,7 +50,7 @@ export default function DatosTrabajo({ trabajo }) {
         {trabajo.vehiculo?.tipo_motor && <Dato etiqueta="Motor">{trabajo.vehiculo.tipo_motor}</Dato>}
         {trabajo.km_entrada != null && (
           <Dato etiqueta="Kilometraje al llegar">
-            {formatoKmYMillas(trabajo.km_entrada, trabajo.unidad_distancia)}
+            {formatoKmYMillas(trabajo.km_entrada, trabajo.unidad_distancia, trabajo.millas_entrada)}
           </Dato>
         )}
         {trabajo.nivel_combustible && (

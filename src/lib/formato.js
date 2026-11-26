@@ -39,9 +39,10 @@ export function convertirDistancia(valor, de, a) {
 }
 
 // Las dos medidas juntas, siempre km primero: "85 000 km · 52 816 millas".
-export const formatoKmYMillas = (valor, unidad = "km") =>
+// Si las millas se anotaron a mano (`millas`), van esas y no la conversión.
+export const formatoKmYMillas = (valor, unidad = "km", millas = null) =>
   `${formatoDistancia(convertirDistancia(Number(valor), unidad, "km"), "km")} · ${formatoDistancia(
-    convertirDistancia(Number(valor), unidad, "mi"),
+    millas ?? convertirDistancia(Number(valor), unidad, "mi"),
     "mi"
   )}`;
 

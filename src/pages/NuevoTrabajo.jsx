@@ -5,13 +5,13 @@ import { buscarVehiculoPorPlaca, buscarClientesPorTelefono, recibirCarro, anotar
 import { obtenerClienteBasico } from "../services/clientes";
 import { textoMetodo } from "../services/cobros";
 import useBusqueda from "../lib/useBusqueda";
-import { LLEGADA_VACIA, TEXTO_GASOLINA, datosLlegada, kmLlegada, llegadaLista } from "../lib/llegada";
+import { LLEGADA_VACIA, TEXTO_GASOLINA, datosLlegada, lecturaLlegada, llegadaLista } from "../lib/llegada";
 import { mensajeError } from "../lib/errores";
 import {
   normalizarPlaca,
   soloDigitos,
   formatoTelefono,
-  formatoDistancia,
+  formatoKmYMillas,
   formatoColones,
   montoDe,
   nombreCarro,
@@ -58,8 +58,8 @@ const VACIO = {
   cuando: null, // "ya" | "hoy" | "manana" | "fecha" | "pasada"
   fecha: "", // día de la cita o, si "pasada", el día en que vino
   // Lo que marca el tablero, gasolina y notas, si ya está aquí (o solo el
-  // tablero si ya vino y se fue). unidad null = la que ya tenga el carro.
-  llegada: { ...LLEGADA_VACIA, unidad: null },
+  // tablero si ya vino y se fue).
+  llegada: LLEGADA_VACIA,
   // Si ya vino y se fue: cuánto se cobró y si ya pagó.
   monto: "",
   pagado: null, // "si" | "no" | null
@@ -193,9 +193,8 @@ export default function NuevoTrabajo() {
     : clienteFijo
       ? clienteFijo.telefono
       : telefono;
-  // La unidad del tablero: la que se escogió o, si no, la que ya tiene el carro.
-  const llegada = { ...datos.llegada, unidad: datos.llegada.unidad ?? vehiculo?.unidad_distancia ?? "km" };
-  const km = kmLlegada(llegada);
+  const llegada = datos.llegada;
+  const lectura = lecturaLlegada(llegada);
   const monto = montoDe(datos.monto);
   const textoCuando =
     datos.cuando === "ya"
@@ -235,8 +234,7 @@ export default function NuevoTrabajo() {
             ...comunes,
             fecha: fechaVisita(datos.fecha),
             trabajo: datos.problema,
-            km,
-            unidad: llegada.unidad,
+            ...lectura,
             monto,
             pagado: datos.pagado !== "no",
             metodo: monto > 0 && datos.pagado === "si" ? datos.metodo : null,
@@ -632,8 +630,11 @@ export default function NuevoTrabajo() {
               ...(datos.cuando === "ya" || pasada
                 ? [
                     {
-                      etiqueta: llegada.unidad === "mi" ? "Millaje" : "Kilometraje",
-                      valor: km === null ? "No se pudo ver el tablero" : formatoDistancia(km, llegada.unidad),
+                      etiqueta: "Kilometraje",
+                      valor:
+                        lectura.km === null
+                          ? "No se pudo ver el tablero"
+                          : formatoKmYMillas(lectura.km, lectura.unidad, lectura.millas),
                       paso: "llegada",
                     },
                     ...(pasada ? [{ etiqueta: "Cobro", valor: textoCobro, paso: "cobro" }] : []),
