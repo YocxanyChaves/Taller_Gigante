@@ -26,6 +26,7 @@ const PUNTO = {
   verde: "bg-verde",
   amarillo: "bg-amarillo",
   rojo: "bg-semaforo-rojo",
+  cita: "bg-gris-claro",
 };
 
 const VACIOS = {
@@ -96,7 +97,7 @@ export default function Trabajos() {
               {VACIOS[filtro]}
             </Vacio>
           ) : (
-            <div key={filtro} className="overflow-hidden rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
+            <div key={filtro} className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {visibles.map((t, i) => (
                 <FilaTrabajo key={t.id} trabajo={t} retraso={Math.min(i, 8) * 45} />
               ))}
@@ -108,17 +109,16 @@ export default function Trabajos() {
   );
 }
 
-// Mientras carga: filas grises que laten.
+// Mientras carga: tarjetas grises que laten.
 function FilasCargando() {
   return (
-    <div aria-label="Cargando los carros" className="overflow-hidden rounded-tarjeta border border-linea bg-tarjeta">
-      {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="flex animate-pulse items-center gap-6 border-b border-linea px-6 py-5 last:border-b-0">
+    <div aria-label="Cargando los carros" className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex h-64 animate-pulse flex-col gap-4 rounded-tarjeta border-2 border-linea bg-tarjeta p-5">
           <span className="h-9 w-28 rounded-md bg-suave" />
-          <span className="flex flex-1 flex-col gap-2">
-            <span className="h-5 w-2/3 rounded bg-suave" />
-            <span className="h-4 w-1/3 rounded bg-suave" />
-          </span>
+          <span className="h-6 w-2/3 rounded bg-suave" />
+          <span className="h-5 w-full rounded bg-suave" />
+          <span className="mt-auto h-5 w-1/2 rounded bg-suave" />
         </div>
       ))}
     </div>
