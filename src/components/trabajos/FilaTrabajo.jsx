@@ -24,7 +24,7 @@ const DIAS_ALERTA = 3;
 const COLOR = {
   verde: {
     tarjeta: "border-verde",
-    zona: "border-verde/40 [--venom-color:var(--color-verde)] [--venom-oscuro:var(--color-verde-texto)] [--venom-texto:var(--color-verde-texto)]",
+    zona: "border-verde/40 group-hover:border-verde [--venom-color:var(--color-verde)] [--venom-texto:var(--color-verde-texto)]",
     texto: "text-verde-texto",
     capa: "text-white",
     boton: "bg-verde text-white",
@@ -32,7 +32,7 @@ const COLOR = {
   },
   amarillo: {
     tarjeta: "border-amarillo",
-    zona: "border-amarillo/60 [--venom-color:var(--color-amarillo)] [--venom-oscuro:#d29c00] [--venom-texto:var(--color-amarillo-texto)]",
+    zona: "border-amarillo/60 group-hover:border-amarillo [--venom-color:var(--color-amarillo)] [--venom-texto:var(--color-amarillo-texto)]",
     texto: "text-amarillo-texto",
     capa: "text-tinta",
     boton: "bg-amarillo text-tinta",
@@ -40,7 +40,7 @@ const COLOR = {
   },
   rojo: {
     tarjeta: "border-semaforo-rojo",
-    zona: "border-semaforo-rojo/40 [--venom-color:var(--color-semaforo-rojo)] [--venom-oscuro:var(--color-rojo)] [--venom-texto:var(--color-rojo-texto)]",
+    zona: "border-semaforo-rojo/40 group-hover:border-semaforo-rojo [--venom-color:var(--color-semaforo-rojo)] [--venom-texto:var(--color-rojo-texto)]",
     texto: "text-rojo-texto",
     capa: "text-white",
     boton: "bg-semaforo-rojo text-white",
@@ -48,7 +48,7 @@ const COLOR = {
   },
   apagado: {
     tarjeta: "border-linea-fuerte",
-    zona: "border-linea-fuerte [--venom-color:var(--color-tinta)] [--venom-oscuro:#000] [--venom-texto:var(--color-tinta)]",
+    zona: "border-linea-fuerte group-hover:border-tinta [--venom-color:var(--color-tinta)] [--venom-texto:var(--color-tinta)]",
     texto: "text-gris",
     capa: "text-white",
     boton: "bg-tinta text-white",
@@ -110,7 +110,7 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       </div>
 
       <div
-        className={`venom-zona flex shrink-0 flex-col justify-center gap-4 rounded-[12px] border-2 bg-tarjeta p-5 [--venom-abajo:2.75rem] sm:p-6 sm:[--venom-abajo:3rem] md:w-72 ${color.zona}`}
+        className={`venom-zona flex shrink-0 flex-col justify-center gap-4 rounded-[12px] border-2 bg-tarjeta p-5 transition-[border-color] duration-500 [--venom-abajo:2.75rem] sm:p-6 sm:[--venom-abajo:3rem] md:w-72 ${color.zona}`}
       >
         <MasaVenom />
         <div className={color.texto}>

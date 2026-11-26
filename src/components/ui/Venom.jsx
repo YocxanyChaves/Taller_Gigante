@@ -1,8 +1,7 @@
 // Efecto «venom»: al pasar el mouse por el `.venom-activador`, una masa viva
 // del color `--venom-color` nace del botón (centro abajo de la `.venom-zona`),
 // estira tentáculos que se mueven solos y se funden entre sí (filtro "goo"),
-// y cubre toda la zona; debajo laten unas venas más oscuras. Al quitar el
-// mouse se recoge de vuelta hacia el botón.
+// y cubre toda la zona. Al quitar el mouse se recoge de vuelta hacia el botón.
 //
 // <MasaVenom /> va adentro de la zona (detrás del contenido).
 // <CapaVenom> es una copia del texto en otro color (blanco), recortada con un
@@ -22,35 +21,18 @@ const GOTAS = [
   { t: "18cqw", dx: "-160%", dy: "-110%", d: "0.1s", v: "0.6s", a: "1.9s" },
 ];
 
-const VENAS = [
-  { t: "30cqw", x: "18%", y: "30%", dx: "40%", dy: "25%", a: "5.5s" },
-  { t: "24cqw", x: "75%", y: "20%", dx: "-50%", dy: "35%", a: "6.8s" },
-  { t: "36cqw", x: "55%", y: "80%", dx: "-30%", dy: "-40%", a: "7.6s" },
-];
-
 export function MasaVenom() {
   return (
-    <>
-      <span aria-hidden="true" className="venom-masa">
-        <span className="venom-gota venom-principal" />
-        {GOTAS.map((g, i) => (
-          <span
-            key={i}
-            className="venom-gota"
-            style={{ "--t": g.t, "--dx": g.dx, "--dy": g.dy, "--d": g.d, "--v": g.v, "--a": g.a }}
-          />
-        ))}
-      </span>
-      <span aria-hidden="true" className="venom-venas">
-        {VENAS.map((v, i) => (
-          <span
-            key={i}
-            className="venom-vena"
-            style={{ "--t": v.t, "--x": v.x, "--y": v.y, "--dx": v.dx, "--dy": v.dy, "--a": v.a }}
-          />
-        ))}
-      </span>
-    </>
+    <span aria-hidden="true" className="venom-masa">
+      <span className="venom-gota venom-principal" />
+      {GOTAS.map((g, i) => (
+        <span
+          key={i}
+          className="venom-gota"
+          style={{ "--t": g.t, "--dx": g.dx, "--dy": g.dy, "--d": g.d, "--v": g.v, "--a": g.a }}
+        />
+      ))}
+    </span>
   );
 }
 

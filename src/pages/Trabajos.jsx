@@ -59,7 +59,7 @@ export default function Trabajos() {
     valor,
     texto,
     cantidad: trabajos?.filter(cumple).length ?? 0,
-    marca: <Semaforo luz={LUZ[valor]} grande />,
+    marca: (elegida) => <Semaforo luz={LUZ[valor]} grande encendido={elegida} />,
   }));
   const visibles = trabajos?.filter(FILTROS.find((f) => f.valor === filtro).cumple) ?? [];
 

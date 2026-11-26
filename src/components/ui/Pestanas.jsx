@@ -24,8 +24,12 @@ export default function Pestanas({ opciones, valor, alCambiar, etiqueta }) {
                   : "border-linea-fuerte bg-tarjeta text-tinta hover:border-tinta")
               }
             >
+              {/* `marca` puede ser una función que recibe si está elegida
+                  (el semaforito se enciende solo en la elegida). */}
               {marca && (
-                <span className={`inline-flex rounded-full ${elegida ? "ring-2 ring-white/60" : ""}`}>{marca}</span>
+                <span className={`inline-flex rounded-full ring-2 ${elegida ? "aro-encender ring-white" : "ring-white/0"}`}>
+                  {typeof marca === "function" ? marca(elegida) : marca}
+                </span>
               )}
               <span className="flex items-center gap-2">
                 {texto}
