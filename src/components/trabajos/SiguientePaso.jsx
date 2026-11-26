@@ -197,21 +197,21 @@ export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
   return (
     // Toda la tarjeta reacciona al mouse (se levanta y se marca en rojo), no
     // solo el botón: así se nota que esto es lo que toca hacer.
-    <section className="seccion-viva group/paso relative rounded-tarjeta border-2 border-rojo/20 bg-tarjeta p-6 shadow-elevada hover:border-rojo hover:bg-rojo/[0.03]">
+    <section className="paso-venom seccion-viva group/paso relative rounded-tarjeta border-2 border-rojo/20 bg-tarjeta p-6 shadow-elevada hover:border-rojo">
       {celebrando && <Confeti />}
-      <p className="etiqueta">Siguiente paso</p>
-      <p className="mt-2 text-xl">{paso.frase}</p>
+      <p className="etiqueta venom-texto">Siguiente paso</p>
+      <p className="venom-texto mt-2 text-xl">{paso.frase}</p>
       <Boton
         icono={paso.icono}
         onClick={tocar}
         disabled={guardando}
         anchoCompleto
-        className="mt-5 min-h-16 text-xl group-hover/paso:-translate-y-0.5 group-hover/paso:bg-rojo-oscuro group-hover/paso:shadow-boton-rojo"
+        className="venom-boton mt-5 min-h-16 text-xl"
       >
         {guardando && !dialogo ? "Guardando…" : paso.boton}
       </Boton>
       {error && !dialogo && (
-        <p role="alert" className="aparecer mt-3 text-lg font-bold text-rojo">
+        <p role="alert" className="venom-texto aparecer mt-3 text-lg font-bold text-rojo">
           {error}
         </p>
       )}
