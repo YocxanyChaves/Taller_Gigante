@@ -35,7 +35,7 @@ export default function Pagos({ trabajo, alCambio }) {
   // línea, sin "Total ₡0 · Pagado completo ✓" que confunde.
   if (total === 0 && pagos.length === 0) {
     return (
-      <Desplegable titulo="Pagos" resumen="No se le cobró nada">
+      <Desplegable emoji="💰" titulo="Pagos" resumen="No se le cobró nada">
         <p className="p-6 text-lg text-gris">No se le cobró nada.</p>
       </Desplegable>
     );
@@ -50,7 +50,7 @@ export default function Pagos({ trabajo, alCambio }) {
     .join(" · ");
 
   return (
-    <Desplegable titulo="Pagos" resumen={resumen}>
+    <Desplegable emoji="💰" titulo="Pagos" resumen={resumen}>
       <div className="flex flex-col gap-4 p-6">
         {pagos.length === 0 ? (
           <p className="text-lg text-gris">Todavía no ha pagado nada.</p>

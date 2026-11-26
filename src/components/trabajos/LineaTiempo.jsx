@@ -29,7 +29,7 @@ export default function LineaTiempo({ historial, fotos = [] }) {
     .join(" · ");
 
   return (
-    <Desplegable titulo="Por dónde ha pasado" resumen={resumen || null}>
+    <Desplegable emoji="🛣️" titulo="Por dónde ha pasado" resumen={resumen || null}>
       <ol className="p-6">
         {etapas.map((h, i) => {
           const actual = i === etapas.length - 1;

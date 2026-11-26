@@ -48,7 +48,7 @@ export default function LinkCliente({ trabajo, alCambio }) {
   };
 
   return (
-    <Desplegable titulo="Link del cliente" resumen="Para que vea su carro desde el celular">
+    <Desplegable emoji="🔗" titulo="Link del cliente" resumen="Para que vea su carro desde el celular">
       <div className="flex flex-col gap-3 p-6">
         <p className="text-base text-gris">
           El cliente lo abre en su celular, sin cuenta, para ver cómo va su carro

@@ -20,7 +20,7 @@ export default function DatosTrabajo({ trabajo }) {
   const telefono = soloDigitos(cliente?.telefono).slice(-8);
 
   return (
-    <Desplegable titulo="Datos" resumen={`Cliente: ${cliente?.nombre ?? "sin dueño anotado"}`}>
+    <Desplegable emoji="📋" titulo="Datos" resumen={`Cliente: ${cliente?.nombre ?? "sin dueño anotado"}`}>
       <dl className="flex flex-col gap-4 p-6">
         <Dato etiqueta="Cliente">
           {cliente ? (

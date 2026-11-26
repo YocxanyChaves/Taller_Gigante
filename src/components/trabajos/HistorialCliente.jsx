@@ -39,7 +39,7 @@ export default function HistorialCliente({ trabajo, fotos }) {
   };
 
   return (
-    <Desplegable titulo="Historial para el cliente" resumen="Un PDF para que se lo quede">
+    <Desplegable emoji="📄" titulo="Historial para el cliente" resumen="Un PDF para que se lo quede">
       <div className="flex flex-col gap-3 p-6">
         <p className="text-base text-gris">
           Trae por dónde pasó el carro con sus fotos, lo que tenía, el precio y los pagos. No trae lo que le costaron
