@@ -22,10 +22,11 @@ import Fotos from "../components/trabajos/Fotos";
 import HistorialCliente from "../components/trabajos/HistorialCliente";
 import { listarFotos } from "../services/fotos";
 
-// Ficha de un trabajo: arriba el carro y su estado; al centro el botón del
-// siguiente paso, el precio y las fotos; al lado los datos, por dónde ha pasado
-// (con las fotos de cada etapa), el historial en PDF para el cliente y las
-// acciones de poco uso (volver un paso, cancelar), siempre con confirmación.
+// Ficha de un trabajo: arriba el carro y su estado y, a todo lo ancho, el botón
+// del siguiente paso, el diagnóstico y precio y las fotos. Abajo, en «Más sobre
+// este carro», los pagos, los datos, el link del cliente, por dónde ha pasado
+// (con las fotos de cada etapa), el historial en PDF y las acciones de poco uso
+// (volver un paso, cancelar), siempre con confirmación.
 
 export default function Trabajo() {
   const { id } = useParams();
@@ -152,30 +153,37 @@ export default function Trabajo() {
         <Insignia estado={trabajo.estado} grande />
       </header>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="flex flex-col gap-6">
-          {!editandoPrecio && <SiguientePaso trabajo={trabajo} alEditarPrecio={abrirEditor} alCambio={cargar} />}
-          <div id="precio" className="scroll-mt-24">
-            <Cotizacion
-              trabajo={trabajo}
-              editando={editandoPrecio}
-              alEditar={(si) => (si ? abrirEditor() : setEditandoPrecio(false))}
-              alGuardado={async () => {
-                setEditandoPrecio(false);
-                await cargar();
-              }}
-            />
-          </div>
-          <Fotos
+      {/* Arriba, a todo lo ancho, lo del trabajo en sí: el siguiente paso, el
+          diagnóstico y precio, y las fotos. */}
+      <div className="flex flex-col gap-6">
+        {!editandoPrecio && <SiguientePaso trabajo={trabajo} alEditarPrecio={abrirEditor} alCambio={cargar} />}
+        <div id="precio" className="scroll-mt-24">
+          <Cotizacion
             trabajo={trabajo}
-            fotos={fotos}
-            error={errorFotos}
-            alCambio={cargarFotos}
-            pedirLlegada={busqueda.get("fotos") === "llegada"}
+            editando={editandoPrecio}
+            alEditar={(si) => (si ? abrirEditor() : setEditandoPrecio(false))}
+            alGuardado={async () => {
+              setEditandoPrecio(false);
+              await cargar();
+            }}
           />
         </div>
+        <Fotos
+          trabajo={trabajo}
+          fotos={fotos}
+          error={errorFotos}
+          alCambio={cargarFotos}
+          pedirLlegada={busqueda.get("fotos") === "llegada"}
+        />
+      </div>
 
-        <div className="flex flex-col gap-6">
+      {/* Abajo, lo de consulta: pagos, datos, link del cliente, por dónde ha
+          pasado, historial y las acciones de poco uso. */}
+      <section aria-labelledby="mas-info" className="mt-12 border-t-2 border-linea pt-8">
+        <h2 id="mas-info" className="mb-5 text-2xl font-bold">
+          Más sobre este carro
+        </h2>
+        <div className="grid items-start gap-6 md:grid-cols-2">
           <Pagos trabajo={trabajo} alCambio={cargar} />
           <DatosTrabajo trabajo={trabajo} />
           {trabajo.estado !== "cancelado" && <LinkCliente trabajo={trabajo} alCambio={cargar} />}
@@ -196,7 +204,7 @@ export default function Trabajo() {
             </section>
           )}
         </div>
-      </div>
+      </section>
 
       <Confirmar
         abierto={preguntando !== null}
