@@ -3,6 +3,8 @@ import { fechaLarga } from "../../lib/formato";
 
 // Los pasos del carro contados para el cliente: lo hecho con palomita verde,
 // el paso actual con su luz del semáforo latiendo y lo que falta en gris.
+// Con `ancho` (en la ficha del taller), en pantalla grande los pasos van en
+// fila, centrados y a todo lo ancho; en celular siguen uno debajo del otro.
 
 const PASOS = [
   "Recibimos su carro",
@@ -29,7 +31,7 @@ const LUZ_ACTUAL = {
   4: "bg-verde",
 };
 
-export default function ProgresoCliente({ trabajo }) {
+export default function ProgresoCliente({ trabajo, ancho = false }) {
   const posicion = POSICION[trabajo.estado];
   if (posicion === undefined) return null;
 
@@ -40,7 +42,7 @@ export default function ProgresoCliente({ trabajo }) {
   };
 
   return (
-    <ol className="flex flex-col">
+    <ol className={ancho ? "flex flex-col md:grid md:grid-cols-5 md:gap-2" : "flex flex-col"}>
       {PASOS.map((texto, i) => {
         const hecho = i < posicion;
         const actual = i === posicion;
@@ -51,12 +53,18 @@ export default function ProgresoCliente({ trabajo }) {
           <li
             key={texto}
             style={{ "--retraso": `${i * 90}ms` }}
-            className="animar-entrada relative flex gap-4 pb-6 last:pb-0"
+            className={
+              "animar-entrada relative flex gap-4 pb-6 last:pb-0" +
+              (ancho ? " md:flex-col md:items-center md:pb-0 md:text-center" : "")
+            }
           >
             {i < PASOS.length - 1 && (
               <span
                 aria-hidden="true"
-                className={`absolute top-8 left-[15px] h-[calc(100%-1.5rem)] w-0.5 ${hecho ? "bg-verde" : "bg-linea"}`}
+                className={
+                  `absolute top-8 left-[15px] h-[calc(100%-1.5rem)] w-0.5 ${hecho ? "bg-verde" : "bg-linea"}` +
+                  (ancho ? " md:top-[15px] md:left-[calc(50%_+_1.25rem)] md:h-0.5 md:w-[calc(100%_-_2rem)]" : "")
+                }
               />
             )}
             <span
@@ -68,7 +76,7 @@ export default function ProgresoCliente({ trabajo }) {
             >
               {hecho && <Check size={18} strokeWidth={3} />}
             </span>
-            <div className="pt-0.5">
+            <div className={ancho ? "pt-0.5 md:pt-0" : "pt-0.5"}>
               <p className={`text-lg ${actual ? "font-bold" : hecho ? "" : "text-gris"}`}>
                 {textoActual}
                 <span className="sr-only">{hecho ? " (hecho)" : actual ? " (ahora)" : " (falta)"}</span>
