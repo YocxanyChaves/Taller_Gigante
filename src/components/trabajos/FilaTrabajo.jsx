@@ -4,6 +4,7 @@ import { nombreCarro, diasDesde, textoDias, fechaLarga, formatoKmYMillas } from 
 import { ESTADOS } from "../../lib/estados";
 import Placa from "../ui/Placa";
 import Semaforo from "../ui/Semaforo";
+import { CapaVenom, MasaVenom } from "../ui/Venom";
 
 // La tarjeta de un carro en "Carros en el taller", a todo lo ancho y con aire
 // (una debajo de la otra, nada apretado). A la izquierda: placa, carro, qué
@@ -16,15 +17,43 @@ import Semaforo from "../ui/Semaforo";
 const DIAS_ALERTA = 3;
 
 // El color de la etapa: borde grueso y sólido alrededor (más grueso a la
-// izquierda) y la zona del semáforo como un recuadro de ese mismo color
-// sólido, siempre. La tarjeta no cambia de color al pasar el mouse: solo se
-// levanta. El botón «Ver el carro» es blanco y se pone negro al pasar el
-// mouse por el recuadro.
+// izquierda). La tarjeta es blanca, también el recuadro del semáforo; al
+// pasar el mouse por la tarjeta, el color de la etapa sale del botón «Ver el
+// carro» como una masa viva y llena solo ese recuadro (efecto venom, ui/Venom);
+// el botón se queda blanco. Al quitar el mouse, todo vuelve a blanco.
 const COLOR = {
-  verde: { tarjeta: "border-verde", zona: "bg-verde text-white", luz: "verde" },
-  amarillo: { tarjeta: "border-amarillo", zona: "bg-amarillo text-tinta", luz: "amarillo" },
-  rojo: { tarjeta: "border-semaforo-rojo", zona: "bg-semaforo-rojo text-white", luz: "rojo" },
-  apagado: { tarjeta: "border-linea-fuerte", zona: "bg-linea-fuerte text-tinta", luz: null },
+  verde: {
+    tarjeta: "border-verde",
+    zona: "border-verde/40 [--venom-color:var(--color-verde)] [--venom-oscuro:var(--color-verde-texto)] [--venom-texto:var(--color-verde-texto)]",
+    texto: "text-verde-texto",
+    capa: "text-white",
+    boton: "bg-verde text-white",
+    luz: "verde",
+  },
+  amarillo: {
+    tarjeta: "border-amarillo",
+    zona: "border-amarillo/60 [--venom-color:var(--color-amarillo)] [--venom-oscuro:#d29c00] [--venom-texto:var(--color-amarillo-texto)]",
+    texto: "text-amarillo-texto",
+    capa: "text-tinta",
+    boton: "bg-amarillo text-tinta",
+    luz: "amarillo",
+  },
+  rojo: {
+    tarjeta: "border-semaforo-rojo",
+    zona: "border-semaforo-rojo/40 [--venom-color:var(--color-semaforo-rojo)] [--venom-oscuro:var(--color-rojo)] [--venom-texto:var(--color-rojo-texto)]",
+    texto: "text-rojo-texto",
+    capa: "text-white",
+    boton: "bg-semaforo-rojo text-white",
+    luz: "rojo",
+  },
+  apagado: {
+    tarjeta: "border-linea-fuerte",
+    zona: "border-linea-fuerte [--venom-color:var(--color-tinta)] [--venom-oscuro:#000] [--venom-texto:var(--color-tinta)]",
+    texto: "text-gris",
+    capa: "text-white",
+    boton: "bg-tinta text-white",
+    luz: null,
+  },
 };
 
 export default function FilaTrabajo({ trabajo, retraso = 0 }) {
@@ -50,7 +79,7 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       to={`/trabajos/${trabajo.id}`}
       style={{ "--retraso": `${retraso}ms` }}
       className={
-        "tarjeta-carro tarjeta-fuerte group animar-entrada flex flex-col gap-2 rounded-[18px] border-[3px] border-l-[10px] bg-tarjeta p-2 shadow-tarjeta md:flex-row " +
+        "venom-activador tarjeta-carro tarjeta-fuerte group animar-entrada flex flex-col gap-2 rounded-[18px] border-[3px] border-l-[10px] bg-tarjeta p-2 shadow-tarjeta md:flex-row " +
         color.tarjeta
       }
     >
@@ -81,19 +110,19 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       </div>
 
       <div
-        className={`group/zona flex shrink-0 flex-col justify-center gap-4 rounded-[12px] p-5 sm:p-6 md:w-72 ${color.zona}`}
+        className={`venom-zona flex shrink-0 flex-col justify-center gap-4 rounded-[12px] border-2 bg-tarjeta p-5 [--venom-abajo:2.75rem] sm:p-6 sm:[--venom-abajo:3rem] md:w-72 ${color.zona}`}
       >
-        <div className="flex flex-col gap-1">
-          <span className="inline-flex items-center gap-2.5 text-lg font-bold">
-            <Semaforo luz={color.luz} />
-            {ESTADOS[trabajo.estado]?.texto ?? trabajo.estado}
-          </span>
-          <span className={`text-lg ${demorado ? "font-bold underline decoration-2 underline-offset-4" : "opacity-90"}`}>
-            {demorado ? `¡Lleva ${textoDias(dias)} sin responder!` : tiempo}
-          </span>
+        <MasaVenom />
+        <div className={color.texto}>
+          <TextoZona trabajo={trabajo} luz={color.luz} demorado={demorado} dias={dias} tiempo={tiempo} />
         </div>
+        {/* El mismo texto en blanco, que aparece conforme la masa lo cubre. */}
+        <CapaVenom className={`flex flex-col justify-center gap-4 p-5 sm:p-6 ${color.capa}`}>
+          <TextoZona trabajo={trabajo} luz={color.luz} demorado={demorado} dias={dias} tiempo={tiempo} />
+          <span className="min-h-12" />
+        </CapaVenom>
         <span
-          className="flex min-h-12 items-center justify-center gap-2 rounded-control bg-tarjeta px-4 text-lg font-bold text-tinta shadow-tarjeta transition-colors duration-200 group-hover/zona:bg-tinta group-hover/zona:text-white"
+          className={`venom-boton flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-transparent px-4 text-lg font-bold shadow-tarjeta ${color.boton}`}
         >
           Ver el carro
           <ArrowRight
@@ -104,5 +133,21 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
         </span>
       </div>
     </Link>
+  );
+}
+
+// El estado con su semaforito y cuánto lleva así (va dos veces: normal y en
+// la copia en blanco del efecto).
+function TextoZona({ trabajo, luz, demorado, dias, tiempo }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="inline-flex items-center gap-2.5 text-lg font-bold">
+        <Semaforo luz={luz} />
+        {ESTADOS[trabajo.estado]?.texto ?? trabajo.estado}
+      </span>
+      <span className={`text-lg ${demorado ? "font-bold underline decoration-2 underline-offset-4" : ""}`}>
+        {demorado ? `¡Lleva ${textoDias(dias)} sin responder!` : tiempo}
+      </span>
+    </div>
   );
 }
