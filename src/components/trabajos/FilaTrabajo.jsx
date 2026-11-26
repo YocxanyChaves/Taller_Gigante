@@ -15,24 +15,30 @@ import Insignia from "../ui/Insignia";
 // Más de 3 días esperando respuesta del cliente: se marca en rojo.
 const DIAS_ALERTA = 3;
 
-// El color de la etapa: la franja de la izquierda, el borde y el fondo de la
-// zona del semáforo; al pasar el mouse se pinta toda la tarjeta.
+// El color de la etapa: borde grueso y sólido alrededor (más grueso a la
+// izquierda), la zona del semáforo como un recuadro redondeado por dentro y el
+// botón «Ver el carro», que al pasar el mouse se pinta del mismo color sólido
+// del borde. Al pasar el mouse se pinta también toda la tarjeta.
 const COLOR = {
   verde: {
-    tarjeta: "before:bg-verde border-verde/40 hover:border-verde hover:bg-verde/8",
-    zona: "bg-verde/10 border-verde/30 group-hover:bg-verde/20",
+    tarjeta: "border-verde hover:bg-verde/8",
+    zona: "bg-verde/12 group-hover:bg-verde/20",
+    boton: "border-verde text-verde-texto group-hover:bg-verde group-hover:text-white",
   },
   amarillo: {
-    tarjeta: "before:bg-amarillo border-amarillo/50 hover:border-amarillo hover:bg-amarillo/10",
-    zona: "bg-amarillo/12 border-amarillo/40 group-hover:bg-amarillo/25",
+    tarjeta: "border-amarillo hover:bg-amarillo/10",
+    zona: "bg-amarillo/15 group-hover:bg-amarillo/25",
+    boton: "border-amarillo text-amarillo-texto group-hover:bg-amarillo group-hover:text-tinta",
   },
   rojo: {
-    tarjeta: "before:bg-semaforo-rojo border-semaforo-rojo/30 hover:border-semaforo-rojo hover:bg-semaforo-rojo/5",
-    zona: "bg-semaforo-rojo/8 border-semaforo-rojo/25 group-hover:bg-semaforo-rojo/15",
+    tarjeta: "border-semaforo-rojo hover:bg-semaforo-rojo/5",
+    zona: "bg-semaforo-rojo/8 group-hover:bg-semaforo-rojo/15",
+    boton: "border-semaforo-rojo text-rojo-texto group-hover:bg-semaforo-rojo group-hover:text-white",
   },
   apagado: {
-    tarjeta: "before:bg-linea-fuerte border-linea hover:border-tinta hover:bg-suave/60",
-    zona: "bg-suave border-linea group-hover:bg-suave",
+    tarjeta: "border-linea-fuerte hover:bg-suave/60",
+    zona: "bg-suave group-hover:bg-linea/60",
+    boton: "border-linea-fuerte text-tinta group-hover:bg-tinta group-hover:text-white",
   },
 };
 
@@ -59,12 +65,11 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       to={`/trabajos/${trabajo.id}`}
       style={{ "--retraso": `${retraso}ms` }}
       className={
-        "tarjeta-carro group animar-entrada relative flex flex-col overflow-hidden rounded-tarjeta border-2 bg-tarjeta shadow-tarjeta md:flex-row " +
-        "before:absolute before:inset-y-0 before:left-0 before:w-2 before:content-[''] " +
+        "tarjeta-carro group animar-entrada flex flex-col gap-2 rounded-[18px] border-[3px] border-l-[10px] bg-tarjeta p-2 shadow-tarjeta md:flex-row " +
         color.tarjeta
       }
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-4 p-6 pl-8 sm:p-8 sm:pl-10">
+      <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 sm:p-6">
         <span className="self-start">
           <Placa>{vehiculo?.placa?.toUpperCase() ?? "SIN PLACA"}</Placa>
         </span>
@@ -91,7 +96,7 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       </div>
 
       <div
-        className={`flex shrink-0 flex-col justify-center gap-4 border-t-2 p-6 pl-8 transition-colors duration-200 sm:px-8 md:w-72 md:border-t-0 md:border-l-2 md:pl-8 ${color.zona}`}
+        className={`flex shrink-0 flex-col justify-center gap-4 rounded-[12px] p-5 transition-colors duration-200 sm:p-6 md:w-72 ${color.zona}`}
       >
         <div className="flex flex-col gap-1">
           <Insignia estado={trabajo.estado} />
@@ -99,7 +104,9 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
             {demorado ? `¡Lleva ${textoDias(dias)} sin responder!` : tiempo}
           </span>
         </div>
-        <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-linea-fuerte px-4 text-lg font-bold transition-colors duration-200 bg-tarjeta group-hover:border-tinta group-hover:bg-tinta group-hover:text-white">
+        <span
+          className={`flex min-h-12 items-center justify-center gap-2 rounded-control border-[3px] bg-tarjeta px-4 text-lg font-bold transition-colors duration-200 ${color.boton}`}
+        >
           Ver el carro
           <ArrowRight
             aria-hidden="true"
