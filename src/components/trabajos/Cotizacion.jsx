@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Check, Cog, ListChecks, Pencil, Plus, Receipt, Trash2, Wrench } from "lucide-react";
+import { Check, ChevronDown, Cog, ListChecks, Pencil, Plus, Receipt, Trash2, Wrench } from "lucide-react";
 import { guardarCotizacion } from "../../services/trabajos";
 import { formatoColones, soloDigitos } from "../../lib/formato";
 import { mensajeError } from "../../lib/errores";
@@ -31,6 +31,7 @@ const SECCIONES = [
       boton: "border-azul text-azul",
       relleno: "bg-azul",
       rellenoSuave: "bg-azul/20",
+      activo: "focus-within:border-azul focus-within:bg-azul/8",
     },
   },
   {
@@ -47,6 +48,7 @@ const SECCIONES = [
       boton: "border-amarillo text-amarillo-texto",
       relleno: "bg-amarillo",
       rellenoSuave: "bg-amarillo/30",
+      activo: "focus-within:border-amarillo focus-within:bg-amarillo/12",
     },
   },
   {
@@ -63,6 +65,7 @@ const SECCIONES = [
       boton: "border-verde text-verde-texto",
       relleno: "bg-verde",
       rellenoSuave: "bg-verde/20",
+      activo: "focus-within:border-verde focus-within:bg-verde/8",
     },
   },
 ];
@@ -141,7 +144,7 @@ export default function Cotizacion({ trabajo, editando, alEditar, alGuardado }) 
         )}
 
         {editable && (trabajo.items.length > 0 || trabajo.diagnostico) && (
-          <Boton variante="secundario" icono={Pencil} className="mt-6" onClick={() => alEditar(true)}>
+          <Boton icono={Pencil} className="mt-6" onClick={() => alEditar(true)}>
             Cambiar el precio
           </Boton>
         )}
@@ -160,7 +163,7 @@ function Total({ monto, grande = false }) {
 }
 
 // Encabezado de un área: círculo de color con su ícono, el nombre y el subtotal.
-function EncabezadoArea({ seccion, monto }) {
+function EncabezadoArea({ seccion, monto, extra }) {
   const { titulo, icono: Icono, color } = seccion;
   return (
     <header className={`flex items-center justify-between gap-3 px-4 py-3 ${color.fondo}`}>
@@ -171,6 +174,7 @@ function EncabezadoArea({ seccion, monto }) {
         {titulo}
       </h3>
       {monto != null && <p className={`numeros text-lg font-bold ${color.texto}`}>{formatoColones(monto)}</p>}
+      {extra}
     </header>
   );
 }
@@ -406,6 +410,8 @@ function Plantilla({ seccion, fila, cambiando, refPrimerCampo, alCambiar, alAgre
   const lista = hechos === reqs.length;
   const faltan = reqs.filter((r) => !r.listo).map((r) => r.texto);
   const [intento, setIntento] = useState(false);
+  const [conCosto, setConCosto] = useState(false);
+  const verCosto = fila.tipo === "repuesto" && (conCosto || fila.costo !== "");
   const mostrarCantidad = fila.tipo === "repuesto" || fila.cantidad !== "1";
 
   const enviar = (e) => {
@@ -422,9 +428,32 @@ function Plantilla({ seccion, fila, cambiando, refPrimerCampo, alCambiar, alAgre
     <form
       onSubmit={enviar}
       aria-label={seccion.titulo}
-      className={`overflow-hidden rounded-tarjeta border border-linea border-l-[6px] ${color.borde}`}
+      className={`seccion-viva overflow-hidden rounded-tarjeta border-2 border-linea border-l-[6px] bg-tarjeta ${color.borde} ${color.activo}`}
     >
-      <EncabezadoArea seccion={seccion} />
+      <EncabezadoArea
+        seccion={seccion}
+        extra={
+          fila.tipo === "repuesto" && (
+            <button
+              type="button"
+              aria-expanded={verCosto}
+              onClick={() => {
+                if (verCosto) alCambiar("costo", "");
+                setConCosto(!verCosto);
+              }}
+              className={`flex min-h-11 items-center gap-1 rounded-control px-3 text-base font-bold transition-colors hover:bg-tarjeta ${color.texto}`}
+            >
+              {verCosto ? "Quitar «me costó»" : "Me costó"}
+              <ChevronDown
+                aria-hidden="true"
+                size={20}
+                strokeWidth={2.6}
+                className={`transition-transform duration-200 ${verCosto ? "rotate-180" : ""}`}
+              />
+            </button>
+          )
+        }
+      />
       <div className="flex flex-col gap-4 p-4">
         {cambiando && <p className="text-base font-bold text-gris">Cambiando un renglón de la lista.</p>}
         <div className={`grid gap-4 ${mostrarCantidad ? "sm:grid-cols-[minmax(0,1fr)_6rem]" : ""}`}>
@@ -444,7 +473,7 @@ function Plantilla({ seccion, fila, cambiando, refPrimerCampo, alCambiar, alAgre
             />
           )}
         </div>
-        <div className={`grid gap-4 ${fila.tipo === "repuesto" ? "sm:grid-cols-2" : ""}`}>
+        <div className={`grid gap-4 ${verCosto ? "sm:grid-cols-2" : ""}`}>
           <Campo
             etiqueta="Precio al cliente (₡)"
             inputMode="numeric"
@@ -452,12 +481,13 @@ function Plantilla({ seccion, fila, cambiando, refPrimerCampo, alCambiar, alAgre
             value={fila.precio}
             onChange={(e) => alCambiar("precio", e.target.value)}
           />
-          {fila.tipo === "repuesto" && (
+          {verCosto && (
             <Campo
+              className="aparecer"
               etiqueta="Me costó (₡)"
               opcional
               inputMode="numeric"
-              ayuda="El cliente no lo ve."
+              ayuda="Para su ganancia. El cliente no lo ve."
               value={fila.costo}
               onChange={(e) => alCambiar("costo", e.target.value)}
             />

@@ -164,6 +164,18 @@ body {
   scale: 0.98;
 }
 
+/* Sección entera que reacciona al mouse (el siguiente paso, la plantilla
+   en la que se está escribiendo): se levanta. */
+.seccion-viva {
+  transition: translate 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.seccion-viva:hover,
+.seccion-viva:focus-within {
+  translate: 0 -4px;
+  box-shadow: 0 18px 36px -14px rgb(26 26 26 / 0.28), 0 3px 8px rgb(26 26 26 / 0.06);
+}
+
 /* El botón de "Agregar" de la cotización se va llenando de color. */
 .relleno-progreso { transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
