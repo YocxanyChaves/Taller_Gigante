@@ -250,8 +250,8 @@ function FotosDelCarro({ token, historial }) {
 // Las mismas áreas y colores que ve el taller en «Diagnóstico y precio».
 const AREAS = [
   { tipo: "repuesto", titulo: "Repuestos", color: "border-azul text-azul" },
-  { tipo: "mano_obra", titulo: "Mano de obra", color: "border-naranja text-naranja" },
-  { tipo: "otro", titulo: "Otros cobros", color: "border-gris text-gris" },
+  { tipo: "mano_obra", titulo: "Mano de obra", color: "border-amarillo text-amarillo-texto" },
+  { tipo: "otro", titulo: "Otros cobros", color: "border-verde text-verde-texto" },
 ];
 
 // Qué tiene el carro y cuánto cuesta (sin los costos del taller), por área.
