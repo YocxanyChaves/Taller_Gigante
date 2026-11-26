@@ -6,6 +6,7 @@ import { mensajeError } from "../lib/errores";
 import useRefrescar from "../lib/useRefrescar";
 import Encabezado from "../components/layout/Encabezado";
 import Pestanas from "../components/ui/Pestanas";
+import Semaforo from "../components/ui/Semaforo";
 import Aviso from "../components/ui/Aviso";
 import Boton from "../components/ui/Boton";
 import Vacio from "../components/ui/Vacio";
@@ -22,12 +23,8 @@ const FILTROS = [
   { valor: "cita", texto: "Citas", cumple: (t) => t.estado === "cita" },
 ];
 
-const PUNTO = {
-  verde: "bg-verde",
-  amarillo: "bg-amarillo",
-  rojo: "bg-semaforo-rojo",
-  cita: "bg-gris-claro",
-};
+// La luz del semaforito de cada filtro (el mismo de las tarjetas).
+const LUZ = { todos: "todas", verde: "verde", amarillo: "amarillo", rojo: "rojo", cita: null };
 
 const VACIOS = {
   todos: "Todavía no hay carros en el taller. Toque «Agregar un carro al sistema» para anotar el primero.",
@@ -62,7 +59,7 @@ export default function Trabajos() {
     valor,
     texto,
     cantidad: trabajos?.filter(cumple).length ?? 0,
-    marca: PUNTO[valor] ? <span aria-hidden="true" className={`size-3 rounded-full ${PUNTO[valor]}`} /> : null,
+    marca: <Semaforo luz={LUZ[valor]} grande />,
   }));
   const visibles = trabajos?.filter(FILTROS.find((f) => f.valor === filtro).cumple) ?? [];
 

@@ -15,10 +15,25 @@ import Insignia from "../ui/Insignia";
 // Más de 3 días esperando respuesta del cliente: se marca en rojo.
 const DIAS_ALERTA = 3;
 
-const FRANJA = {
-  verde: "before:bg-verde hover:border-verde",
-  amarillo: "before:bg-amarillo hover:border-amarillo",
-  rojo: "before:bg-semaforo-rojo hover:border-semaforo-rojo",
+// El color de la etapa: la franja de la izquierda, el borde y el fondo de la
+// zona del semáforo; al pasar el mouse se pinta toda la tarjeta.
+const COLOR = {
+  verde: {
+    tarjeta: "before:bg-verde border-verde/40 hover:border-verde hover:bg-verde/8",
+    zona: "bg-verde/10 border-verde/30 group-hover:bg-verde/20",
+  },
+  amarillo: {
+    tarjeta: "before:bg-amarillo border-amarillo/50 hover:border-amarillo hover:bg-amarillo/10",
+    zona: "bg-amarillo/12 border-amarillo/40 group-hover:bg-amarillo/25",
+  },
+  rojo: {
+    tarjeta: "before:bg-semaforo-rojo border-semaforo-rojo/30 hover:border-semaforo-rojo hover:bg-semaforo-rojo/5",
+    zona: "bg-semaforo-rojo/8 border-semaforo-rojo/25 group-hover:bg-semaforo-rojo/15",
+  },
+  apagado: {
+    tarjeta: "before:bg-linea-fuerte border-linea hover:border-tinta hover:bg-suave/60",
+    zona: "bg-suave border-linea group-hover:bg-suave",
+  },
 };
 
 export default function FilaTrabajo({ trabajo, retraso = 0 }) {
@@ -28,7 +43,7 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
   const lectura = trabajo.km_entrada ?? vehiculo?.kilometraje;
   const unidad = trabajo.km_entrada != null ? trabajo.unidad_distancia : vehiculo?.unidad_distancia;
   const millas = trabajo.km_entrada != null ? trabajo.millas_entrada : null;
-  const franja = FRANJA[ESTADOS[trabajo.estado]?.luz] ?? "before:bg-linea-fuerte hover:border-tinta";
+  const color = COLOR[ESTADOS[trabajo.estado]?.luz] ?? COLOR.apagado;
 
   const tiempo =
     trabajo.estado === "cita"
@@ -44,12 +59,12 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       to={`/trabajos/${trabajo.id}`}
       style={{ "--retraso": `${retraso}ms` }}
       className={
-        "tarjeta-carro group animar-entrada relative flex flex-col gap-6 overflow-hidden rounded-tarjeta border-2 border-linea bg-tarjeta p-6 pl-8 shadow-tarjeta sm:p-8 sm:pl-10 md:flex-row md:items-center md:justify-between md:gap-10 " +
+        "tarjeta-carro group animar-entrada relative flex flex-col overflow-hidden rounded-tarjeta border-2 bg-tarjeta shadow-tarjeta md:flex-row " +
         "before:absolute before:inset-y-0 before:left-0 before:w-2 before:content-[''] " +
-        franja
+        color.tarjeta
       }
     >
-      <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-4 p-6 pl-8 sm:p-8 sm:pl-10">
         <span className="self-start">
           <Placa>{vehiculo?.placa?.toUpperCase() ?? "SIN PLACA"}</Placa>
         </span>
@@ -75,14 +90,16 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
         </div>
       </div>
 
-      <div className="flex shrink-0 flex-col gap-4 border-t border-linea pt-5 md:w-64 md:border-t-0 md:border-l md:pt-0 md:pl-10">
+      <div
+        className={`flex shrink-0 flex-col justify-center gap-4 border-t-2 p-6 pl-8 transition-colors duration-200 sm:px-8 md:w-72 md:border-t-0 md:border-l-2 md:pl-8 ${color.zona}`}
+      >
         <div className="flex flex-col gap-1">
           <Insignia estado={trabajo.estado} />
           <span className={`text-lg ${demorado ? "font-bold text-rojo" : "text-gris"}`}>
             {demorado ? `¡Lleva ${textoDias(dias)} sin responder!` : tiempo}
           </span>
         </div>
-        <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-linea-fuerte px-4 text-lg font-bold transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-white">
+        <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-linea-fuerte px-4 text-lg font-bold transition-colors duration-200 bg-tarjeta group-hover:border-tinta group-hover:bg-tinta group-hover:text-white">
           Ver el carro
           <ArrowRight
             aria-hidden="true"

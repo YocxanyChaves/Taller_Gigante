@@ -1,5 +1,6 @@
 // Semaforito de 3 luces con la del estado encendida. La roja late: hay algo
 // esperando. Es decorativo: el texto del estado siempre va al lado.
+// luz="todas" enciende las tres (el filtro «Todos»).
 
 const LUCES = [
   { nombre: "rojo", encendida: "bg-semaforo-rojo shadow-[0_0_8px_rgb(224_38_47/0.9)] latido" },
@@ -18,7 +19,7 @@ export default function Semaforo({ luz, grande = false }) {
       {LUCES.map(({ nombre, encendida }) => (
         <span
           key={nombre}
-          className={`${tamano} rounded-full transition-colors duration-300 ${luz === nombre ? encendida : "bg-white/15"}`}
+          className={`${tamano} rounded-full transition-colors duration-300 ${luz === nombre || luz === "todas" ? encendida : "bg-white/15"}`}
         />
       ))}
     </span>

@@ -1,4 +1,5 @@
-// Menú para filtrar una lista ("Todos 6", "Listos 2"). Cada opción es un
+// Menú para filtrar una lista ("Todos 6", "Listos 2"). Todas del mismo
+// tamaño, con su `marca` arriba (en «Carros en el taller», el semaforito). Cada opción es un
 // botón de verdad (aria-pressed) que se ve tocable: borde, se levanta al pasar
 // el mouse y se aprieta al tocarlo. La elegida queda rellena en negro con su
 // cantidad en un circulito, y una flechita abajo que marca "aquí está".
@@ -7,7 +8,7 @@
 export default function Pestanas({ opciones, valor, alCambiar, etiqueta }) {
   return (
     <div role="group" aria-label={etiqueta} className="-mx-4 overflow-x-auto px-4 pt-1 pb-3 sm:mx-0 sm:px-0">
-      <div className="flex gap-3">
+      <div className="grid min-w-max auto-cols-fr grid-flow-col gap-3 sm:min-w-0">
         {opciones.map(({ valor: v, texto, cantidad, marca }) => {
           const elegida = v === valor;
           return (
@@ -17,28 +18,28 @@ export default function Pestanas({ opciones, valor, alCambiar, etiqueta }) {
               aria-pressed={elegida}
               onClick={() => alCambiar(v)}
               className={
-                "chip-menu relative flex min-h-14 shrink-0 cursor-pointer items-center gap-3 rounded-tarjeta border-2 px-5 text-lg font-bold whitespace-nowrap " +
+                "chip-menu relative flex min-h-14 cursor-pointer flex-col items-center justify-center gap-2 rounded-tarjeta border-2 px-5 py-3 text-lg font-bold whitespace-nowrap " +
                 (elegida
                   ? "border-tinta bg-tinta text-white shadow-elevada"
                   : "border-linea-fuerte bg-tarjeta text-tinta hover:border-tinta")
               }
             >
               {marca && (
-                <span className={`grid size-6 place-items-center rounded-full ${elegida ? "bg-white" : "bg-suave"}`}>
-                  {marca}
-                </span>
+                <span className={`inline-flex rounded-full ${elegida ? "ring-2 ring-white/60" : ""}`}>{marca}</span>
               )}
-              {texto}
-              {cantidad != null && (
-                <span
-                  className={
-                    "numeros grid min-w-8 place-items-center rounded-full px-2 py-0.5 text-base " +
-                    (elegida ? "bg-white text-tinta" : "bg-suave text-gris")
-                  }
-                >
-                  {cantidad}
-                </span>
-              )}
+              <span className="flex items-center gap-2">
+                {texto}
+                {cantidad != null && (
+                  <span
+                    className={
+                      "numeros grid min-w-8 place-items-center rounded-full px-2 py-0.5 text-base " +
+                      (elegida ? "bg-white text-tinta" : "bg-suave text-gris")
+                    }
+                  >
+                    {cantidad}
+                  </span>
+                )}
+              </span>
               {elegida && (
                 <span
                   aria-hidden="true"
