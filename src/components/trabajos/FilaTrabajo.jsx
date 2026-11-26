@@ -3,7 +3,7 @@ import { ArrowRight, Gauge, User } from "lucide-react";
 import { nombreCarro, diasDesde, textoDias, fechaLarga, formatoKmYMillas } from "../../lib/formato";
 import { ESTADOS } from "../../lib/estados";
 import Placa from "../ui/Placa";
-import Insignia from "../ui/Insignia";
+import Semaforo from "../ui/Semaforo";
 
 // La tarjeta de un carro en "Carros en el taller", a todo lo ancho y con aire
 // (una debajo de la otra, nada apretado). A la izquierda: placa, carro, qué
@@ -16,30 +16,15 @@ import Insignia from "../ui/Insignia";
 const DIAS_ALERTA = 3;
 
 // El color de la etapa: borde grueso y sólido alrededor (más grueso a la
-// izquierda), la zona del semáforo como un recuadro redondeado por dentro y el
-// botón «Ver el carro», que al pasar el mouse se pinta del mismo color sólido
-// del borde. Al pasar el mouse se pinta también toda la tarjeta.
+// izquierda) y la zona del semáforo como un recuadro de ese mismo color
+// sólido, siempre. La tarjeta no cambia de color al pasar el mouse: solo se
+// levanta. El botón «Ver el carro» es blanco y se pone negro al pasar el
+// mouse por el recuadro.
 const COLOR = {
-  verde: {
-    tarjeta: "border-verde hover:bg-verde/8",
-    zona: "bg-verde/12 group-hover:bg-verde/20",
-    boton: "border-verde text-verde-texto group-hover:bg-verde group-hover:text-white",
-  },
-  amarillo: {
-    tarjeta: "border-amarillo hover:bg-amarillo/10",
-    zona: "bg-amarillo/15 group-hover:bg-amarillo/25",
-    boton: "border-amarillo text-amarillo-texto group-hover:bg-amarillo group-hover:text-tinta",
-  },
-  rojo: {
-    tarjeta: "border-semaforo-rojo hover:bg-semaforo-rojo/5",
-    zona: "bg-semaforo-rojo/8 group-hover:bg-semaforo-rojo/15",
-    boton: "border-semaforo-rojo text-rojo-texto group-hover:bg-semaforo-rojo group-hover:text-white",
-  },
-  apagado: {
-    tarjeta: "border-linea-fuerte hover:bg-suave/60",
-    zona: "bg-suave group-hover:bg-linea/60",
-    boton: "border-linea-fuerte text-tinta group-hover:bg-tinta group-hover:text-white",
-  },
+  verde: { tarjeta: "border-verde", zona: "bg-verde text-white", luz: "verde" },
+  amarillo: { tarjeta: "border-amarillo", zona: "bg-amarillo text-tinta", luz: "amarillo" },
+  rojo: { tarjeta: "border-semaforo-rojo", zona: "bg-semaforo-rojo text-white", luz: "rojo" },
+  apagado: { tarjeta: "border-linea-fuerte", zona: "bg-linea-fuerte text-tinta", luz: null },
 };
 
 export default function FilaTrabajo({ trabajo, retraso = 0 }) {
@@ -65,7 +50,7 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       to={`/trabajos/${trabajo.id}`}
       style={{ "--retraso": `${retraso}ms` }}
       className={
-        "tarjeta-carro group animar-entrada flex flex-col gap-2 rounded-[18px] border-[3px] border-l-[10px] bg-tarjeta p-2 shadow-tarjeta md:flex-row " +
+        "tarjeta-carro tarjeta-fuerte group animar-entrada flex flex-col gap-2 rounded-[18px] border-[3px] border-l-[10px] bg-tarjeta p-2 shadow-tarjeta md:flex-row " +
         color.tarjeta
       }
     >
@@ -96,16 +81,19 @@ export default function FilaTrabajo({ trabajo, retraso = 0 }) {
       </div>
 
       <div
-        className={`flex shrink-0 flex-col justify-center gap-4 rounded-[12px] p-5 transition-colors duration-200 sm:p-6 md:w-72 ${color.zona}`}
+        className={`group/zona flex shrink-0 flex-col justify-center gap-4 rounded-[12px] p-5 sm:p-6 md:w-72 ${color.zona}`}
       >
         <div className="flex flex-col gap-1">
-          <Insignia estado={trabajo.estado} />
-          <span className={`text-lg ${demorado ? "font-bold text-rojo" : "text-gris"}`}>
+          <span className="inline-flex items-center gap-2.5 text-lg font-bold">
+            <Semaforo luz={color.luz} />
+            {ESTADOS[trabajo.estado]?.texto ?? trabajo.estado}
+          </span>
+          <span className={`text-lg ${demorado ? "font-bold underline decoration-2 underline-offset-4" : "opacity-90"}`}>
             {demorado ? `¡Lleva ${textoDias(dias)} sin responder!` : tiempo}
           </span>
         </div>
         <span
-          className={`flex min-h-12 items-center justify-center gap-2 rounded-control border-[3px] bg-tarjeta px-4 text-lg font-bold transition-colors duration-200 ${color.boton}`}
+          className="flex min-h-12 items-center justify-center gap-2 rounded-control bg-tarjeta px-4 text-lg font-bold text-tinta shadow-tarjeta transition-colors duration-200 group-hover/zona:bg-tinta group-hover/zona:text-white"
         >
           Ver el carro
           <ArrowRight
