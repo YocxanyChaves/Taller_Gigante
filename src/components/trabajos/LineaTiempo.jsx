@@ -8,7 +8,7 @@ import ProgresoCliente from "../publico/ProgresoCliente";
 
 // Por dónde ha pasado el carro. Es el mismo dibujo que ve el cliente en su
 // link (todos los pasos, con palomita los hechos y la luz en el de ahora),
-// a todo lo ancho; debajo, las fotos y videos de cada etapa. Si el trabajo no
+// en vertical y centrado, marcándose paso por paso al abrirse; debajo, las fotos y videos de cada etapa. Si el trabajo no
 // sigue esos pasos (cita, no aprobó, cancelado), se muestra la lista de
 // etapas por las que pasó.
 
@@ -39,7 +39,7 @@ export default function LineaTiempo({ historial, fotos = [] }) {
       {ultimo && CON_PASOS.includes(ultimo.estado) ? (
         <div className="flex flex-col gap-8 p-6 sm:p-10">
           <ProgresoCliente
-            ancho
+            animado
             trabajo={{
               estado: ultimo.estado,
               fecha_ingreso: etapas[0]?.created_at,
