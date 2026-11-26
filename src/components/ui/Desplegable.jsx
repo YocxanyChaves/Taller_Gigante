@@ -1,27 +1,64 @@
-import { createContext, useContext, useId, useState } from "react";
-import { createPortal } from "react-dom";
+import { createContext, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 
 // Tarjeta que se abre y se cierra tocando el título, para que la página no
 // sea tan larga. Cerrada sigue diciendo qué tiene (`resumen`) y lleva escrito
 // «Ver» u «Ocultar»: nada queda escondido sin aviso.
 //
-// Dentro de un <GrupoDesplegables> se portan como un menú: cada una es un
-// botón (con su emoji) y lo de adentro se abre ABAJO de todos los botones, a
-// todo el ancho. Solo una abierta a la vez: abrir otra cierra la anterior.
+// Dentro de un <GrupoDesplegables> se portan como un menú en cuadrícula: cada
+// una es un cuadro (con su emoji) y lo de adentro se abre a todo el ancho
+// JUSTO DEBAJO de la fila del cuadro que se tocó; las filas de abajo bajan
+// junto con lo desplegado. Solo una abierta a la vez.
+// Cómo: cada cuadro y su panel son hijos de la misma cuadrícula; a los cuadros
+// se les pone `order` según su lugar (0, 2, 4…) y al panel abierto el número
+// impar que va después del último cuadro de su fila.
 
 const Grupo = createContext(null);
 
 export function GrupoDesplegables({ children, etiqueta }) {
   const [abierto, setAbierto] = useState(null);
-  const [destino, setDestino] = useState(null);
+  const [ordenPanel, setOrdenPanel] = useState(0);
+  const cuadricula = useRef(null);
+
+  const cuadros = () => [...(cuadricula.current?.querySelectorAll(":scope > [data-cuadro]") ?? [])];
+
+  // Después del último cuadro de la fila del que está abierto.
+  const calcularOrden = useCallback((id) => {
+    const lista = cuadros();
+    const i = lista.findIndex((el) => el.getAttribute("aria-controls") === id);
+    if (i < 0) return 0;
+    const columnas = getComputedStyle(cuadricula.current).gridTemplateColumns.split(" ").filter(Boolean).length || 1;
+    const finDeFila = Math.min(Math.floor(i / columnas) * columnas + columnas - 1, lista.length - 1);
+    return finDeFila * 2 + 1;
+  }, []);
+
+  // Cada cuadro en su lugar (algunos no se muestran, así que se cuenta en pantalla).
+  useLayoutEffect(() => {
+    cuadros().forEach((el, i) => (el.style.order = String(i * 2)));
+  });
+
+  // Si cambia el ancho (cambian las columnas), el panel se vuelve a acomodar.
+  useEffect(() => {
+    if (!abierto) return;
+    const acomodar = () => setOrdenPanel(calcularOrden(abierto));
+    window.addEventListener("resize", acomodar);
+    return () => window.removeEventListener("resize", acomodar);
+  }, [abierto, calcularOrden]);
+
+  const alternar = (id) => {
+    if (abierto === id) {
+      setAbierto(null);
+      return;
+    }
+    setOrdenPanel(calcularOrden(id));
+    setAbierto(id);
+  };
 
   return (
-    <Grupo.Provider value={{ abierto, setAbierto, destino }}>
-      <div role="group" aria-label={etiqueta} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <Grupo.Provider value={{ abierto, alternar, ordenPanel }}>
+      <div ref={cuadricula} role="group" aria-label={etiqueta} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {children}
       </div>
-      <div ref={setDestino} className="scroll-mt-24" />
     </Grupo.Provider>
   );
 }
@@ -37,10 +74,11 @@ export default function Desplegable({ titulo, resumen, emoji, abiertoAlInicio = 
       <>
         <button
           type="button"
+          data-cuadro
           aria-expanded={abierto}
           aria-controls={id}
           onClick={() => {
-            grupo.setAbierto(abierto ? null : id);
+            grupo.alternar(id);
             if (!abierto) {
               requestAnimationFrame(() =>
                 document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "nearest" })
@@ -71,32 +109,30 @@ export default function Desplegable({ titulo, resumen, emoji, abiertoAlInicio = 
             />
           </span>
         </button>
-        {abierto &&
-          grupo.destino &&
-          createPortal(
-            <section
-              id={id}
-              aria-label={titulo}
-              className="aparecer mt-6 rounded-tarjeta border-2 border-rojo bg-tarjeta shadow-elevada"
-            >
-              <header className="flex items-center justify-between gap-4 border-b border-linea px-6 py-4">
-                <h3 className="flex items-center gap-3 text-2xl font-bold">
-                  {emoji && <span aria-hidden="true">{emoji}</span>}
-                  {titulo}
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => grupo.setAbierto(null)}
-                  className="flex min-h-12 items-center gap-2 rounded-control px-3 text-lg font-bold text-gris transition-colors hover:bg-suave hover:text-tinta"
-                >
-                  <X aria-hidden="true" size={22} />
-                  Cerrar
-                </button>
-              </header>
-              {children}
-            </section>,
-            grupo.destino
-          )}
+        {abierto && (
+          <section
+            id={id}
+            aria-label={titulo}
+            style={{ order: grupo.ordenPanel }}
+            className="aparecer col-span-full scroll-mt-24 rounded-tarjeta border-2 border-rojo bg-tarjeta shadow-elevada"
+          >
+            <header className="flex items-center justify-between gap-4 border-b border-linea px-6 py-4">
+              <h3 className="flex items-center gap-3 text-2xl font-bold">
+                {emoji && <span aria-hidden="true">{emoji}</span>}
+                {titulo}
+              </h3>
+              <button
+                type="button"
+                onClick={() => grupo.alternar(id)}
+                className="flex min-h-12 items-center gap-2 rounded-control px-3 text-lg font-bold text-gris transition-colors hover:bg-suave hover:text-tinta"
+              >
+                <X aria-hidden="true" size={22} />
+                Cerrar
+              </button>
+            </header>
+            {children}
+          </section>
+        )}
       </>
     );
   }

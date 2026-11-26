@@ -21,7 +21,12 @@ export default function HistorialCliente({ trabajo, fotos }) {
     setError("");
     try {
       // Los videos no caben en un PDF: solo van las fotos.
-      setPdf(await armarHistorialPdf(trabajo, (fotos ?? []).filter((f) => f.tipo !== "video")));
+      setPdf(
+        await armarHistorialPdf(
+          trabajo,
+          (fotos ?? []).filter((f) => f.tipo !== "video"),
+        ),
+      );
     } catch {
       setError("No se pudo hacer el PDF. Revise el internet e intente de nuevo.");
     } finally {
@@ -40,36 +45,46 @@ export default function HistorialCliente({ trabajo, fotos }) {
 
   return (
     <Desplegable emoji="📄" titulo="Historial para el cliente" resumen="Un PDF para que se lo quede">
-      <div className="flex flex-col gap-3 p-6">
-        <p className="text-base text-gris">
+      <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-2 lg:items-center">
+        <p className="text-lg text-gris">
           Trae por dónde pasó el carro con sus fotos, lo que tenía, el precio y los pagos. No trae lo que le costaron
           los repuestos al taller. El cliente se lo queda aunque el link venza.
         </p>
-
-        {!pdf ? (
-          <Boton variante="secundario" icono={FileText} onClick={preparar} disabled={preparando || fotos === undefined}>
-            {preparando ? "Preparando…" : "Preparar el PDF"}
-          </Boton>
-        ) : (
-          <>
-            <p role="status" className="font-bold text-verde-texto">
-              ¡Listo! {pdf.nombre}
-            </p>
-            {compartible && (
-              <Boton variante="whatsapp" icono={Share2} onClick={compartir}>
-                Mandarlo por WhatsApp
+        <div className="flex flex-col gap-3">
+          {!pdf ? (
+            <Boton
+              variante="secundario"
+              icono={FileText}
+              onClick={preparar}
+              disabled={preparando || fotos === undefined}
+            >
+              {preparando ? "Preparando…" : "Preparar el PDF"}
+            </Boton>
+          ) : (
+            <>
+              <p role="status" className="font-bold text-verde-texto">
+                ¡Listo! {pdf.nombre}
+              </p>
+              {compartible && (
+                <Boton variante="whatsapp" icono={Share2} onClick={compartir}>
+                  Mandarlo por WhatsApp
+                </Boton>
+              )}
+              <Boton variante="secundario" icono={Download} onClick={() => pdf.doc.save(pdf.nombre)}>
+                Descargarlo
               </Boton>
-            )}
-            <Boton variante="secundario" icono={Download} onClick={() => pdf.doc.save(pdf.nombre)}>
-              Descargarlo
-            </Boton>
-            <Boton variante="gris" className="justify-start" onClick={() => setPdf(null)}>
-              Hacerlo de nuevo
-            </Boton>
-          </>
-        )}
+              <Boton variante="gris" className="justify-start" onClick={() => setPdf(null)}>
+                Hacerlo de nuevo
+              </Boton>
+            </>
+          )}
 
-        {error && <p role="alert" className="font-bold text-rojo">{error}</p>}
+          {error && (
+            <p role="alert" className="font-bold text-rojo">
+              {error}
+            </p>
+          )}
+        </div>
       </div>
     </Desplegable>
   );

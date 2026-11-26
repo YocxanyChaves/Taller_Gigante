@@ -197,23 +197,21 @@ export default function Trabajo() {
               <ListaBitacora ordenId={trabajo.id} enlaces={false} />
             </div>
           </Desplegable>
-        </GrupoDesplegables>
-
-        <div>
           {activo && (
-            <section className="mt-10 flex flex-col gap-2 border-t border-linea pt-6">
-              <p className="etiqueta">Otras acciones</p>
-              {anterior && anterior !== trabajo.estado && (
-                <Boton variante="gris" icono={Undo2} className="justify-start" onClick={() => setPreguntando("volver")}>
-                  Volver a «{ESTADOS[anterior]?.texto ?? anterior}»
+            <Desplegable emoji="⚙️" titulo="Otras acciones" resumen="Volver un paso o cancelar el trabajo">
+              <div className="grid gap-4 p-6 sm:grid-cols-2">
+                {anterior && anterior !== trabajo.estado && (
+                  <Boton variante="secundario" icono={Undo2} anchoCompleto onClick={() => setPreguntando("volver")}>
+                    Volver a «{ESTADOS[anterior]?.texto ?? anterior}»
+                  </Boton>
+                )}
+                <Boton variante="peligro" icono={Ban} anchoCompleto onClick={() => setPreguntando("cancelar")}>
+                  Cancelar este trabajo
                 </Boton>
-              )}
-              <Boton variante="gris" icono={Ban} className="justify-start" onClick={() => setPreguntando("cancelar")}>
-                Cancelar este trabajo
-              </Boton>
-            </section>
+              </div>
+            </Desplegable>
           )}
-        </div>
+        </GrupoDesplegables>
       </section>
 
       <Confirmar

@@ -49,26 +49,30 @@ export default function LinkCliente({ trabajo, alCambio }) {
 
   return (
     <Desplegable emoji="🔗" titulo="Link del cliente" resumen="Para que vea su carro desde el celular">
-      <div className="flex flex-col gap-3 p-6">
-        <p className="text-base text-gris">
-          El cliente lo abre en su celular, sin cuenta, para ver cómo va su carro
-          {trabajo.estado === "esperando_aprobacion" ? " y responder si hacemos el trabajo" : ""}.
-        </p>
-        <p className="rounded-control bg-suave px-3 py-2 text-base break-all text-gris">{link}</p>
-        <Boton variante="whatsapp" icono={MessageCircle} onClick={() => setMandando(true)}>
-          Mandarlo por WhatsApp
-        </Boton>
-        <div className="grid grid-cols-2 gap-3">
-          <Boton variante="secundario" icono={copiado ? Check : Copy} onClick={alCopiar} className="px-3">
-            {copiado ? "¡Copiado!" : "Copiar"}
+      <div className="grid gap-6 p-6 sm:p-8 lg:grid-cols-2 lg:items-center">
+        <div className="flex flex-col gap-3">
+          <p className="text-lg text-gris">
+            El cliente lo abre en su celular, sin cuenta, para ver cómo va su carro
+            {trabajo.estado === "esperando_aprobacion" ? " y responder si hacemos el trabajo" : ""}.
+          </p>
+          <p className="rounded-control bg-suave px-4 py-3 text-base break-all text-gris">{link}</p>
+        </div>
+        <div className="flex flex-col gap-3">
+          <Boton variante="whatsapp" icono={MessageCircle} onClick={() => setMandando(true)}>
+            Mandarlo por WhatsApp
           </Boton>
-          <Boton variante="secundario" icono={ExternalLink} href={link} className="px-3">
-            Ver
+          <div className="grid grid-cols-2 gap-3">
+            <Boton variante="secundario" icono={copiado ? Check : Copy} onClick={alCopiar} className="px-3">
+              {copiado ? "¡Copiado!" : "Copiar"}
+            </Boton>
+            <Boton variante="secundario" icono={ExternalLink} href={link} className="px-3">
+              Ver
+            </Boton>
+          </div>
+          <Boton variante="gris" icono={RefreshCw} className="justify-start" onClick={() => setPreguntando(true)}>
+            Hacer un link nuevo
           </Boton>
         </div>
-        <Boton variante="gris" icono={RefreshCw} className="justify-start" onClick={() => setPreguntando(true)}>
-          Hacer un link nuevo
-        </Boton>
       </div>
 
       <DialogoWhatsApp
@@ -92,7 +96,11 @@ export default function LinkCliente({ trabajo, alCambio }) {
         }}
       >
         El link que ya se mandó va a dejar de funcionar. Úselo si lo mandó a un número equivocado.
-        {error && <p role="alert" className="mt-3 font-bold text-rojo">{error}</p>}
+        {error && (
+          <p role="alert" className="mt-3 font-bold text-rojo">
+            {error}
+          </p>
+        )}
       </Confirmar>
     </Desplegable>
   );
