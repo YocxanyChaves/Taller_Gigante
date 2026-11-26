@@ -115,10 +115,11 @@ export default function Cliente() {
       </section>
 
       {/* Abajo, siempre abierto: cómo contactarlo y las acciones de poco uso. */}
-      <div className="mt-12 grid items-start gap-6 border-t-2 border-linea pt-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <section className="rounded-tarjeta border-2 border-linea bg-tarjeta shadow-tarjeta">
+      {/* Los dos cuadros del mismo alto (la cuadrícula los estira). */}
+      <div className="mt-12 grid items-stretch gap-6 border-t-2 border-linea pt-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <section className="flex flex-col rounded-tarjeta border-2 border-linea bg-tarjeta shadow-tarjeta">
           <h2 className="border-b border-linea px-6 py-4 text-2xl font-bold">📞 Contacto</h2>
-          <div className="flex flex-col gap-6 p-6">
+          <div className="flex flex-1 flex-col gap-6 p-6">
             {telefono.length === 8 ? (
               <div className="grid gap-3 sm:grid-cols-2">
                 <a
@@ -146,9 +147,9 @@ export default function Cliente() {
           </div>
         </section>
 
-        <section className="rounded-tarjeta border-2 border-linea bg-tarjeta shadow-tarjeta">
+        <section className="flex flex-col rounded-tarjeta border-2 border-linea bg-tarjeta shadow-tarjeta">
           <h2 className="border-b border-linea px-6 py-4 text-2xl font-bold">⚙️ Otras acciones</h2>
-          <div className="flex flex-col gap-3 p-6">
+          <div className="flex flex-1 flex-col justify-center gap-3 p-6">
             <Boton variante="secundario" icono={Pencil} anchoCompleto onClick={() => setEditando(true)}>
               Cambiar datos
             </Boton>

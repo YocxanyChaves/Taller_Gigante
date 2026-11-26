@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Camera,
   Car,
-  ChevronRight,
+  ArrowRight,
   Fuel,
   Gauge,
   History,
@@ -47,7 +47,9 @@ export default function CarroCliente({ vehiculo, retraso = 0, alCambio }) {
     >
       <header className="flex flex-col gap-6 border-b border-linea p-6 sm:p-8">
         <div className="flex flex-col items-start gap-3">
-          <Placa grande>{placa || "SIN PLACA"}</Placa>
+          <Placa grande roja>
+            {placa || "SIN PLACA"}
+          </Placa>
           <h3 className="text-2xl font-bold">{nombreCarro(vehiculo)}</h3>
           <div className="flex flex-wrap gap-2">
             {vehiculo.tipo_motor && <Chip icono={Fuel}>Motor: {vehiculo.tipo_motor}</Chip>}
@@ -188,18 +190,13 @@ function FilaHistorial({ orden, anterior }) {
   return (
     <Link
       to={`/trabajos/${orden.id}`}
-      className="tarjeta-carro group grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-3 rounded-tarjeta border-2 border-linea bg-tarjeta p-5 hover:border-rojo hover:bg-rojo/[0.03] sm:p-6 md:grid-cols-[15rem_minmax(0,1fr)_12rem_auto]"
+      className="tarjeta-carro group grid grid-cols-1 items-center gap-x-6 gap-y-4 rounded-tarjeta border-2 border-l-[10px] border-linea border-l-rojo bg-tarjeta p-5 hover:border-rojo hover:bg-rojo/[0.03] sm:p-6 md:grid-cols-[15rem_minmax(0,1fr)_12rem_auto]"
     >
       <span className="flex flex-col gap-1.5">
         <span className="text-base text-gris first-letter:uppercase md:text-lg">{fechaLarga(fecha)}</span>
         <Lectura orden={orden} anterior={anterior} />
       </span>
-      <ChevronRight
-        aria-hidden="true"
-        size={22}
-        className="col-start-2 row-start-1 text-gris transition-[translate,color] duration-200 group-hover:translate-x-1 group-hover:text-rojo md:col-start-4"
-      />
-      <span className="col-span-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1">
+      <span className="min-w-0 md:col-start-2 md:row-start-1">
         <span className="block truncate text-lg font-bold">{orden.diagnostico || orden.problema_reportado}</span>
         <span className="flex flex-wrap items-center gap-3">
           <Insignia estado={orden.estado} />
@@ -211,9 +208,13 @@ function FilaHistorial({ orden, anterior }) {
           )}
         </span>
       </span>
-      <span className="col-span-2 flex flex-col md:col-span-1 md:col-start-3 md:row-start-1 md:items-end">
+      <span className="flex flex-col md:col-start-3 md:row-start-1 md:items-end">
         {orden.total > 0 && <span className="numeros text-lg">{formatoColones(orden.total)}</span>}
         {debe && <span className="numeros text-base font-bold text-rojo">Debe {formatoColones(orden.saldo)}</span>}
+      </span>
+      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white transition-colors duration-200 group-hover:border-tinta group-hover:bg-tinta group-hover:text-[#ff5a63] md:col-start-4 md:row-start-1">
+        Ver
+        <ArrowRight aria-hidden="true" size={20} className="transition-transform duration-200 group-hover:translate-x-1" />
       </span>
     </Link>
   );
