@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, House, LogOut, FlaskConical } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -14,6 +15,11 @@ import { FiltroVenom } from "../ui/Venom";
 export default function Marco() {
   const { esDemo, cerrarSesion } = useAuth();
   const { pathname } = useLocation();
+  // Cada pantalla abre siempre desde arriba (si no, al tocar «Volver al
+  // inicio», que está abajo, Inicio se abría ya bajado).
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
   const enInicio = pathname === "/inicio";
   const recibiendo = pathname === "/trabajos/nuevo";
   const puedeRegresar = useRegresar();
