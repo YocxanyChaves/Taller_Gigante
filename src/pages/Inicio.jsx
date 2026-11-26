@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, List, Search, Wallet, CalendarDays, CalendarClock, ChartLine, ClipboardCheck } from "lucide-react";
+import { Plus, List, Search, Wallet, CalendarDays, CalendarClock, ChartLine, ClipboardCheck, ScrollText } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { obtenerResumenInicio } from "../services/inicio";
 import OpcionMenu from "../components/ui/OpcionMenu";
 import Semaforo from "../components/ui/Semaforo";
 
 // Inicio es un menú: "¿Qué desea hacer?" con las 4 cosas que se hacen en el
-// taller más "Cómo va el taller", y abajo lo que hay para hoy.
+// taller más "Cómo va el taller" y la bitácora, y abajo lo que hay para hoy.
 
 const OPCIONES = [
   {
@@ -21,6 +21,7 @@ const OPCIONES = [
   { to: "/clientes", icono: Search, titulo: "Buscar un cliente", ayuda: "Por placa, nombre o teléfono" },
   { to: "/cobros", icono: Wallet, titulo: "Cobrar y entregar", ayuda: "Hacer la cuenta y ver quién debe" },
   { to: "/taller", icono: ChartLine, titulo: "Cómo va el taller", ayuda: "La plata y los carros del mes" },
+  { to: "/bitacora", icono: ScrollText, titulo: "Bitácora de cambios", ayuda: "Quién cambió qué y cuándo" },
 ];
 
 function saludo() {

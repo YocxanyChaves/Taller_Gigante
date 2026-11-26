@@ -21,6 +21,8 @@ import Pagos from "../components/trabajos/Pagos";
 import Fotos from "../components/trabajos/Fotos";
 import HistorialCliente from "../components/trabajos/HistorialCliente";
 import { listarFotos } from "../services/fotos";
+import Desplegable, { GrupoDesplegables } from "../components/ui/Desplegable";
+import ListaBitacora from "../components/bitacora/ListaBitacora";
 
 // Ficha de un trabajo: arriba el carro y su estado y, a todo lo ancho, el botón
 // del siguiente paso, el diagnóstico y precio y las fotos. Abajo, en «Más sobre
@@ -180,18 +182,26 @@ export default function Trabajo() {
       {/* Abajo, lo de consulta: pagos, datos, link del cliente, por dónde ha
           pasado, historial y las acciones de poco uso. */}
       <section aria-labelledby="mas-info" className="mt-12 border-t-2 border-linea pt-8">
-        <h2 id="mas-info" className="mb-5 text-2xl font-bold">
+        <h2 id="mas-info" className="mb-1 text-2xl font-bold">
           Más sobre este carro
         </h2>
-        <div className="grid items-start gap-6 md:grid-cols-2">
+        <p className="mb-5 text-lg text-gris">Toque una opción y se abre abajo.</p>
+        <GrupoDesplegables etiqueta="Más sobre este carro">
           <Pagos trabajo={trabajo} alCambio={cargar} />
           <DatosTrabajo trabajo={trabajo} />
           {trabajo.estado !== "cancelado" && <LinkCliente trabajo={trabajo} alCambio={cargar} />}
           <LineaTiempo historial={trabajo.historial} fotos={fotos ?? []} />
           <HistorialCliente trabajo={trabajo} fotos={fotos} />
+          <Desplegable emoji="📝" titulo="Cambios" resumen="Quién cambió qué en este trabajo">
+            <div className="p-6">
+              <ListaBitacora ordenId={trabajo.id} enlaces={false} />
+            </div>
+          </Desplegable>
+        </GrupoDesplegables>
 
+        <div>
           {activo && (
-            <section className="flex flex-col gap-2">
+            <section className="mt-10 flex flex-col gap-2 border-t border-linea pt-6">
               <p className="etiqueta">Otras acciones</p>
               {anterior && anterior !== trabajo.estado && (
                 <Boton variante="gris" icono={Undo2} className="justify-start" onClick={() => setPreguntando("volver")}>

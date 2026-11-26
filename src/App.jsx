@@ -12,6 +12,7 @@ import TrabajoPublico from "./pages/TrabajoPublico";
 import Clientes from "./pages/Clientes";
 import Cliente from "./pages/Cliente";
 import Cobros from "./pages/Cobros";
+import Bitacora from "./pages/Bitacora";
 import NoEncontrada from "./pages/NoEncontrada";
 import SiFallaLaCarga from "./components/ui/SiFallaLaCarga";
 import cargarPagina from "./lib/cargarPagina";
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/clientes" element={<Clientes />} />
             <Route path="/clientes/:id" element={<Cliente />} />
             <Route path="/cobros" element={<Cobros />} />
+            <Route path="/bitacora" element={<Bitacora />} />
             <Route
               path="/taller"
               element={
