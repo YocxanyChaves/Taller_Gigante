@@ -1,16 +1,26 @@
 import { Link } from "react-router-dom";
 import { Phone } from "lucide-react";
-import { formatoTelefono, formatoDistancia, fechaLarga, soloDigitos } from "../../lib/formato";
+import { formatoKmYMillas, fechaLarga, soloDigitos } from "../../lib/formato";
 import { TEXTO_GASOLINA } from "../../lib/llegada";
 import Desplegable from "../ui/Desplegable";
 
-// El carro, el cliente (con botón para llamar) y cómo llegó.
+// El carro, el cliente (con botón para llamar) y cómo llegó, usando todo el
+// ancho: arriba y al centro el cliente; «Qué dijo» justificado a todo lo
+// ancho; los demás datos en cuadritos parejos y, abajo del todo, el botón de
+// llamar a lo largo de toda la sección.
 
-function Dato({ etiqueta, children }) {
+function Dato({ etiqueta, emoji, children, ancho = false }) {
   return (
-    <div>
-      <dt className="text-base text-gris">{etiqueta}</dt>
-      <dd className="mt-0.5 text-lg break-words">{children}</dd>
+    <div
+      className={`flex flex-col items-center justify-center rounded-tarjeta bg-fondo p-5 text-center ${
+        ancho ? "basis-full" : "min-w-[14rem] flex-1"
+      }`}
+    >
+      <dt className="etiqueta">
+        {emoji && <span aria-hidden="true" className="mr-1.5 not-italic">{emoji}</span>}
+        {etiqueta}
+      </dt>
+      <dd className="mt-2 w-full text-xl break-words">{children}</dd>
     </div>
   );
 }
@@ -20,48 +30,76 @@ export default function DatosTrabajo({ trabajo }) {
   const telefono = soloDigitos(cliente?.telefono).slice(-8);
 
   return (
-    <Desplegable titulo="Datos" resumen={`Cliente: ${cliente?.nombre ?? "sin dueño anotado"}`}>
-      <dl className="flex flex-col gap-4 p-6">
-        <Dato etiqueta="Cliente">
+    <Desplegable emoji="📋" titulo="Datos" resumen={`Cliente: ${cliente?.nombre ?? "sin dueño anotado"}`}>
+      <div className="flex flex-col gap-6 p-6 sm:p-8">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p className="etiqueta">Cliente</p>
           {cliente ? (
-            <Link to={`/clientes/${cliente.id}`} className="font-bold underline decoration-linea-fuerte underline-offset-4 hover:decoration-tinta">
+            <Link
+              to={`/clientes/${cliente.id}`}
+              className="text-3xl font-bold break-words underline decoration-linea-fuerte underline-offset-[6px] transition-colors hover:text-rojo hover:decoration-rojo"
+            >
               {cliente.nombre}
             </Link>
           ) : (
-            <span className="font-bold">Sin dueño anotado</span>
+            <p className="text-3xl font-bold">Sin dueño anotado</p>
           )}
-          {telefono.length === 8 && (
-            <a
-              href={`tel:+506${telefono}`}
-              className="mt-2 flex min-h-12 w-fit items-center gap-2 rounded-control border-2 border-linea-fuerte px-4 font-bold transition-colors hover:border-tinta"
-            >
-              <Phone aria-hidden="true" size={20} />
-              Llamar al {formatoTelefono(telefono)}
-            </a>
+        </div>
+
+        {/* Los cuadritos se reparten todo el ancho, sin dejar huecos a la derecha. */}
+        <dl className="flex flex-wrap gap-4">
+          <Dato etiqueta="Qué dijo el cliente" emoji="💬" ancho>
+            {/* Un bloque centrado con todos los renglones del mismo largo
+                (justificado) y el último centrado. */}
+            <p className="mx-auto max-w-3xl text-justify text-2xl whitespace-pre-line [text-align-last:center] [hyphens:auto]" lang="es">
+              {trabajo.problema_reportado}
+            </p>
+          </Dato>
+          {trabajo.estado === "cita" && trabajo.fecha_cita && (
+            <Dato etiqueta="Cita" emoji="📅">
+              {fechaLarga(trabajo.fecha_cita)}
+            </Dato>
           )}
-        </Dato>
-        <Dato etiqueta="Qué dijo el cliente">
-          <span className="whitespace-pre-line">{trabajo.problema_reportado}</span>
-        </Dato>
-        {trabajo.estado === "cita" && trabajo.fecha_cita && (
-          <Dato etiqueta="Cita">{fechaLarga(trabajo.fecha_cita)}</Dato>
-        )}
-        <Dato etiqueta="Anotado">{fechaLarga(trabajo.fecha_ingreso)}</Dato>
-        {trabajo.vehiculo?.tipo_motor && <Dato etiqueta="Motor">{trabajo.vehiculo.tipo_motor}</Dato>}
-        {trabajo.km_entrada != null && (
-          <Dato etiqueta={trabajo.unidad_distancia === "mi" ? "Millaje al llegar" : "Kilometraje al llegar"}>
-            {formatoDistancia(trabajo.km_entrada, trabajo.unidad_distancia)}
+          <Dato etiqueta="Anotado" emoji="🗓️">
+            {fechaLarga(trabajo.fecha_ingreso)}
           </Dato>
+          {trabajo.vehiculo?.tipo_motor && (
+            <Dato etiqueta="Motor" emoji="⚙️">
+              {trabajo.vehiculo.tipo_motor}
+            </Dato>
+          )}
+          {trabajo.km_entrada != null && (
+            <Dato etiqueta="Kilometraje al llegar" emoji="🧭">
+              <span className="numeros">
+                {formatoKmYMillas(trabajo.km_entrada, trabajo.unidad_distancia, trabajo.millas_entrada)}
+              </span>
+            </Dato>
+          )}
+          {trabajo.nivel_combustible && (
+            <Dato etiqueta="Gasolina al llegar" emoji="⛽">
+              {TEXTO_GASOLINA[trabajo.nivel_combustible]}
+            </Dato>
+          )}
+          {trabajo.notas_recepcion && (
+            <Dato etiqueta="Cómo llegó" emoji="📝" ancho>
+              <p className="mx-auto max-w-3xl text-justify whitespace-pre-line [text-align-last:center] [hyphens:auto]" lang="es">
+                {trabajo.notas_recepcion}
+              </p>
+            </Dato>
+          )}
+        </dl>
+
+        {/* Llamar, abajo y a todo lo ancho de la sección. */}
+        {telefono.length === 8 && (
+          <a
+            href={`tel:+506${telefono}`}
+            className="flex min-h-16 w-full items-center justify-center gap-2.5 rounded-control border-2 border-linea-fuerte bg-tarjeta px-6 text-xl font-bold transition-[border-color,translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-tinta hover:shadow-elevada"
+          >
+            <Phone aria-hidden="true" size={22} />
+            Llamar a {cliente?.nombre ?? "el cliente"}
+          </a>
         )}
-        {trabajo.nivel_combustible && (
-          <Dato etiqueta="Gasolina al llegar">{TEXTO_GASOLINA[trabajo.nivel_combustible]}</Dato>
-        )}
-        {trabajo.notas_recepcion && (
-          <Dato etiqueta="Cómo llegó">
-            <span className="whitespace-pre-line">{trabajo.notas_recepcion}</span>
-          </Dato>
-        )}
-      </dl>
+      </div>
     </Desplegable>
   );
 }

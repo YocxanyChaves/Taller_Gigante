@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 import {
   Camera,
   Car,
-  Check,
-  ChevronRight,
-  ClipboardCheck,
+  ArrowRight,
   Fuel,
   Gauge,
   History,
@@ -14,9 +12,6 @@ import {
   TrendingUp,
   Wrench,
 } from "lucide-react";
-import { calcularEstadoDekra } from "../../lib/dekra";
-import { marcarDekra } from "../../services/clientes";
-import { mensajeError } from "../../lib/errores";
 import {
   formatoColones,
   formatoDistancia,
@@ -29,6 +24,7 @@ import Placa from "../ui/Placa";
 import Insignia from "../ui/Insignia";
 import Boton from "../ui/Boton";
 import DialogoCarro from "./DialogoCarro";
+import BarraDekra from "./BarraDekra";
 import { textoFotos } from "../../lib/etapas";
 
 // Un carro del cliente con su historial de trabajos (el más nuevo arriba).
@@ -47,11 +43,13 @@ export default function CarroCliente({ vehiculo, retraso = 0, alCambio }) {
   return (
     <section
       style={{ "--retraso": `${retraso}ms` }}
-      className="animar-entrada rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta"
+      className="animar-entrada rounded-tarjeta border-2 border-linea bg-tarjeta shadow-tarjeta"
     >
-      <header className="flex flex-col gap-4 border-b border-linea px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col items-start gap-2">
-          <Placa grande>{placa || "SIN PLACA"}</Placa>
+      <header className="flex flex-col gap-6 border-b border-linea p-6 sm:p-8">
+        <div className="flex flex-col items-start gap-3">
+          <Placa grande>
+            {placa || "SIN PLACA"}
+          </Placa>
           <h3 className="text-2xl font-bold">{nombreCarro(vehiculo)}</h3>
           <div className="flex flex-wrap gap-2">
             {vehiculo.tipo_motor && <Chip icono={Fuel}>Motor: {vehiculo.tipo_motor}</Chip>}
@@ -62,43 +60,53 @@ export default function CarroCliente({ vehiculo, retraso = 0, alCambio }) {
             </Chip>
           </div>
         </div>
-        <div className="flex flex-col gap-2 sm:items-stretch">
+        <div className="grid gap-3 md:grid-cols-3">
           {activo ? (
-            <Boton variante="secundario" icono={Wrench} to={`/trabajos/${activo.id}`}>
+            <Boton variante="secundario" icono={Wrench} anchoCompleto to={`/trabajos/${activo.id}`}>
               Ver el trabajo de ahora
             </Boton>
           ) : (
-            <Boton variante="secundario" icono={Car} to={`/trabajos/nuevo?placa=${encodeURIComponent(placa)}`}>
+            <Boton
+              variante="secundario"
+              icono={Car}
+              anchoCompleto
+              to={`/trabajos/nuevo?placa=${encodeURIComponent(placa)}`}
+            >
               Abrir una ficha nueva
             </Boton>
           )}
           <Boton
-            variante="gris"
+            variante="secundario"
             icono={History}
-            className="justify-start"
+            anchoCompleto
             to={`/trabajos/nuevo?placa=${encodeURIComponent(placa)}&visita=pasada`}
           >
             Anotar una visita que ya pasó
           </Boton>
-          <Boton variante="gris" icono={Pencil} className="justify-start" onClick={() => setEditando(true)}>
+          <Boton variante="secundario" icono={Pencil} anchoCompleto onClick={() => setEditando(true)}>
             Cambiar datos del carro
           </Boton>
         </div>
       </header>
 
-      <Dekra vehiculo={vehiculo} alCambio={alCambio} />
+      <div className="flex flex-col gap-8 p-6 sm:p-8">
+        <BarraDekra vehiculo={vehiculo} alCambio={alCambio} />
 
-      {vehiculo.ordenes.length === 0 ? (
-        <p className="px-6 py-5 text-lg text-gris">Este carro todavía no tiene trabajos anotados.</p>
-      ) : (
-        <ol aria-label={`Trabajos del ${nombreCarro(vehiculo)} ${placa}`}>
-          {vehiculo.ordenes.map((o, i) => (
-            <li key={o.id} className="border-b border-linea last:border-b-0">
-              <FilaHistorial orden={o} anterior={visitaAnteriorConLectura(vehiculo.ordenes, i)} />
-            </li>
-          ))}
-        </ol>
-      )}
+        <section className="flex flex-col gap-4">
+          <h4 className="text-xl font-bold">🗂️ Visitas al taller</h4>
+          {vehiculo.ordenes.length === 0 ? (
+            <p className="text-lg text-gris">Este carro todavía no tiene trabajos anotados.</p>
+          ) : (
+            <ol aria-label={`Trabajos del ${nombreCarro(vehiculo)} ${placa}`} className="flex flex-col gap-4">
+              {vehiculo.ordenes.map((o, i) => (
+                <li key={o.id}>
+                  <FilaHistorial orden={o} anterior={visitaAnteriorConLectura(vehiculo.ordenes, i)} />
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+      </div>
 
       {editando && (
         <DialogoCarro
@@ -175,50 +183,6 @@ function Lectura({ orden, anterior }) {
   );
 }
 
-function Dekra({ vehiculo, alCambio }) {
-  const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState("");
-  const estado = calcularEstadoDekra(vehiculo.placa, vehiculo.ultima_revision_tecnica);
-  if (!estado) return null;
-
-  const marcar = async () => {
-    setGuardando(true);
-    setError("");
-    try {
-      await marcarDekra(vehiculo.id);
-      await alCambio();
-    } catch (e) {
-      setError(mensajeError(e));
-    } finally {
-      setGuardando(false);
-    }
-  };
-
-  return (
-    <div
-      className={`flex flex-col gap-3 border-b border-linea px-6 py-4 sm:flex-row sm:items-center sm:justify-between ${estado.dentroDeVentana ? "bg-rojo/5" : ""}`}
-    >
-      <p className="flex items-center gap-3 text-lg">
-        <ClipboardCheck aria-hidden="true" size={22} className={estado.dentroDeVentana ? "text-rojo" : "text-gris"} />
-        {estado.dentroDeVentana ? (
-          <span>
-            <strong>Le toca DEKRA</strong>: tiene hasta el final de {estado.nombreMes}
-            {estado.diasParaVencer <= 31 && ` (${estado.diasParaVencer === 1 ? "1 día" : `${estado.diasParaVencer} días`})`}.
-          </span>
-        ) : (
-          <span className="text-gris">DEKRA: le toca en {estado.nombreMes}.</span>
-        )}
-      </p>
-      {estado.dentroDeVentana && (
-        <Boton variante="secundario" icono={Check} onClick={marcar} disabled={guardando}>
-          {guardando ? "Guardando…" : "Ya pasó DEKRA"}
-        </Boton>
-      )}
-      {error && <p role="alert" className="font-bold text-rojo">{error}</p>}
-    </div>
-  );
-}
-
 function FilaHistorial({ orden, anterior }) {
   const fecha = orden.estado === "cita" && orden.fecha_cita ? orden.fecha_cita : orden.fecha_ingreso;
   const debe = orden.estado === "entregado" && orden.saldo > 0;
@@ -226,18 +190,13 @@ function FilaHistorial({ orden, anterior }) {
   return (
     <Link
       to={`/trabajos/${orden.id}`}
-      className="group grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-6 py-4 transition-colors duration-200 hover:bg-fondo md:grid-cols-[15rem_minmax(0,1fr)_12rem_auto]"
+      className="group grid grid-cols-1 items-center gap-x-6 gap-y-4 rounded-tarjeta border-2 border-l-[10px] border-linea border-l-rojo bg-tarjeta p-5 transition-[border-color] duration-200 hover:border-rojo sm:p-6 md:grid-cols-[15rem_minmax(0,1fr)_12rem_auto]"
     >
       <span className="flex flex-col gap-1.5">
         <span className="text-base text-gris first-letter:uppercase md:text-lg">{fechaLarga(fecha)}</span>
         <Lectura orden={orden} anterior={anterior} />
       </span>
-      <ChevronRight
-        aria-hidden="true"
-        size={22}
-        className="col-start-2 row-start-1 text-gris transition-transform duration-200 group-hover:translate-x-1 md:col-start-4"
-      />
-      <span className="col-span-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1">
+      <span className="min-w-0 md:col-start-2 md:row-start-1">
         <span className="block truncate text-lg font-bold">{orden.diagnostico || orden.problema_reportado}</span>
         <span className="flex flex-wrap items-center gap-3">
           <Insignia estado={orden.estado} />
@@ -249,9 +208,13 @@ function FilaHistorial({ orden, anterior }) {
           )}
         </span>
       </span>
-      <span className="col-span-2 flex flex-col md:col-span-1 md:col-start-3 md:row-start-1 md:items-end">
+      <span className="flex flex-col md:col-start-3 md:row-start-1 md:items-end">
         {orden.total > 0 && <span className="numeros text-lg">{formatoColones(orden.total)}</span>}
         {debe && <span className="numeros text-base font-bold text-rojo">Debe {formatoColones(orden.saldo)}</span>}
+      </span>
+      <span className="flex min-h-12 items-center justify-center gap-2 rounded-control border-2 border-rojo bg-rojo px-4 text-lg font-bold text-white md:col-start-4 md:row-start-1">
+        Ver
+        <ArrowRight aria-hidden="true" size={20} className="transition-transform duration-200 group-hover:translate-x-1" />
       </span>
     </Link>
   );

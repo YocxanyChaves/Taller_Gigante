@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabaseClient";
 
 const CAMPOS_TRABAJO = `
   id, estado, problema_reportado, diagnostico, modalidad_pago, cobro_revision, fecha_ingreso, fecha_cita, fecha_entrega,
-  km_entrada, unidad_distancia, nivel_combustible, notas_recepcion, aprobada, respondida_en, comentario_cliente,
+  km_entrada, unidad_distancia, millas_entrada, nivel_combustible, notas_recepcion, aprobada, respondida_en, comentario_cliente,
   token_publico, fecha_proximo_pago,
   vehiculo:vehiculos ( id, placa, marca, modelo, anio, kilometraje, tipo_motor, unidad_distancia,
     cliente:clientes ( id, nombre, telefono ) )
@@ -63,7 +63,16 @@ export async function recibirCarro(datos) {
     p_unidad: datos.unidad ?? null,
   });
   if (error) throw error;
+  await guardarMillas(data, datos.millas);
   return data;
+}
+
+// Las millas anotadas a mano (cuando no cuadran con la conversión de los km)
+// van en su propia columna; las funciones de la base no las reciben.
+async function guardarMillas(trabajoId, millas) {
+  if (millas == null) return;
+  const { error } = await supabase.from("ordenes").update({ millas_entrada: millas }).eq("id", trabajoId);
+  if (error) throw error;
 }
 
 // ===== Lista de carros en el taller =====
@@ -131,10 +140,16 @@ export async function avanzarEstado(id, estado) {
 // tablero queda en la unidad que se escogió (km o millas), que también pasa a
 // ser la del carro. Si la lectura es mayor que la que tenía el carro (o
 // cambió de unidad), también la actualiza.
-export async function registrarLlegada(trabajo, { km, unidad, combustible, notas }) {
+export async function registrarLlegada(trabajo, { km, unidad, millas, combustible, notas }) {
   const { error } = await supabase
     .from("ordenes")
-    .update({ km_entrada: km, unidad_distancia: unidad, nivel_combustible: combustible, notas_recepcion: notas })
+    .update({
+      km_entrada: km,
+      unidad_distancia: unidad,
+      millas_entrada: millas ?? null,
+      nivel_combustible: combustible,
+      notas_recepcion: notas,
+    })
     .eq("id", trabajo.id);
   if (error) throw error;
 
@@ -175,6 +190,7 @@ export async function anotarVisitaPasada(datos) {
     p_proximo_pago: datos.proximoPago ?? null,
   });
   if (error) throw error;
+  await guardarMillas(data, datos.millas);
   return data;
 }
 

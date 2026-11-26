@@ -76,14 +76,14 @@ export default function Clientes() {
 
       {busqueda.estado === "listo" && clientes.length > 0 && (
         <section>
-          <h2 className="etiqueta mb-3">
+          <h2 className="etiqueta mb-4">
             {clave
               ? clientes.length === 1
                 ? "1 cliente encontrado"
                 : `${clientes.length} clientes encontrados`
               : "Últimos clientes"}
           </h2>
-          <div className="overflow-hidden rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
+          <div className="flex flex-col gap-6">
             {clientes.map((c, i) => (
               <FilaCliente key={c.id} cliente={c} retraso={Math.min(i, 8) * 45} />
             ))}
@@ -94,16 +94,14 @@ export default function Clientes() {
   );
 }
 
-// Mientras busca: filas grises que laten.
+// Mientras busca: tarjetas grises que laten.
 function FilasCargando() {
   return (
-    <div aria-label="Buscando clientes" className="overflow-hidden rounded-tarjeta border border-linea bg-tarjeta">
+    <div aria-label="Buscando clientes" className="flex flex-col gap-6">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="flex animate-pulse items-center gap-6 border-b border-linea px-6 py-5 last:border-b-0">
-          <span className="flex w-64 flex-col gap-2">
-            <span className="h-5 w-3/4 rounded bg-suave" />
-            <span className="h-4 w-1/2 rounded bg-suave" />
-          </span>
+        <div key={i} className="flex h-40 animate-pulse flex-col gap-4 rounded-tarjeta border-2 border-linea bg-tarjeta p-8">
+          <span className="h-6 w-1/3 rounded bg-suave" />
+          <span className="h-5 w-1/4 rounded bg-suave" />
           <span className="h-9 w-28 rounded-md bg-suave" />
         </div>
       ))}

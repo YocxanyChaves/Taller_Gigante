@@ -1,9 +1,11 @@
+import { useLayoutEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, House, LogOut, FlaskConical } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import Boton from "../ui/Boton";
 import useRegresar from "../../lib/useRegresar";
 import logo from "../../assets/logo-oscuro.png";
+import { FiltroVenom } from "../ui/Venom";
 
 // Marco de todas las pantallas con sesión. Inicio es el menú ("¿Qué desea
 // hacer?"); las demás pantallas tienen arriba "← Inicio" para volver (o
@@ -13,6 +15,11 @@ import logo from "../../assets/logo-oscuro.png";
 export default function Marco() {
   const { esDemo, cerrarSesion } = useAuth();
   const { pathname } = useLocation();
+  // Cada pantalla abre siempre desde arriba (si no, al tocar «Volver al
+  // inicio», que está abajo, Inicio se abría ya bajado).
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [pathname]);
   const enInicio = pathname === "/inicio";
   const recibiendo = pathname === "/trabajos/nuevo";
   const puedeRegresar = useRegresar();
@@ -30,6 +37,7 @@ export default function Marco() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <FiltroVenom />
       <header className="sticky top-0 z-30 border-b border-linea bg-tarjeta/90 backdrop-blur">
         <div className="mx-auto flex h-18 max-w-6xl items-center justify-between gap-3 px-4 sm:px-8">
           {enInicio ? (

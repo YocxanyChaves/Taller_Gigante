@@ -7,6 +7,8 @@ import { linkCliente } from "../../lib/taller";
 import { mensajeCotizacion, mensajeListo } from "../../lib/whatsapp";
 import Boton from "../ui/Boton";
 import Confeti from "../ui/Confeti";
+import { CapaVenom, MasaVenom } from "../ui/Venom";
+import { apuntarVenom } from "../../lib/venom";
 import DialogoLlegada from "./DialogoLlegada";
 import DialogoRespuesta from "./DialogoRespuesta";
 import DialogoWhatsApp from "../ui/DialogoWhatsApp";
@@ -195,15 +197,32 @@ export default function SiguientePaso({ trabajo, alEditarPrecio, alCambio }) {
   }
 
   return (
-    <section className="relative rounded-tarjeta border-2 border-rojo/20 bg-tarjeta p-6 shadow-elevada">
+    // Toda la tarjeta reacciona al mouse, no solo el botón: el rojo sale del
+    // botón como una masa viva y cubre la tarjeta (efecto venom, ui/Venom).
+    <section
+      onPointerEnter={apuntarVenom}
+      onFocus={apuntarVenom}
+      className="venom-activador venom-zona seccion-viva rounded-tarjeta border-2 border-rojo/20 bg-tarjeta p-6 shadow-elevada hover:border-rojo">
+      <MasaVenom />
       {celebrando && <Confeti />}
       <p className="etiqueta">Siguiente paso</p>
       <p className="mt-2 text-xl">{paso.frase}</p>
-      <Boton icono={paso.icono} onClick={tocar} disabled={guardando} anchoCompleto className="mt-5 min-h-16 text-xl">
+      {/* La misma frase en blanco, que aparece conforme la masa la cubre. */}
+      <CapaVenom className="p-6">
+        <p className="etiqueta">Siguiente paso</p>
+        <p className="mt-2 text-xl">{paso.frase}</p>
+      </CapaVenom>
+      <Boton
+        icono={paso.icono}
+        onClick={tocar}
+        disabled={guardando}
+        anchoCompleto
+        className="venom-boton mt-5 min-h-16 text-xl"
+      >
         {guardando && !dialogo ? "Guardando…" : paso.boton}
       </Boton>
       {error && !dialogo && (
-        <p role="alert" className="aparecer mt-3 text-lg font-bold text-rojo">
+        <p role="alert" className="aparecer relative z-[3] mt-3 rounded-control bg-tarjeta px-3 py-2 text-lg font-bold text-rojo">
           {error}
         </p>
       )}

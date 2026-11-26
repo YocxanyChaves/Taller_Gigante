@@ -6,6 +6,7 @@ import { mensajeError } from "../lib/errores";
 import useRefrescar from "../lib/useRefrescar";
 import Encabezado from "../components/layout/Encabezado";
 import Pestanas from "../components/ui/Pestanas";
+import Semaforo from "../components/ui/Semaforo";
 import Aviso from "../components/ui/Aviso";
 import Boton from "../components/ui/Boton";
 import Vacio from "../components/ui/Vacio";
@@ -22,11 +23,8 @@ const FILTROS = [
   { valor: "cita", texto: "Citas", cumple: (t) => t.estado === "cita" },
 ];
 
-const PUNTO = {
-  verde: "bg-verde",
-  amarillo: "bg-amarillo",
-  rojo: "bg-semaforo-rojo",
-};
+// La luz del semaforito de cada filtro (el mismo de las tarjetas).
+const LUZ = { todos: "todas", verde: "verde", amarillo: "amarillo", rojo: "rojo", cita: null };
 
 const VACIOS = {
   todos: "Todavía no hay carros en el taller. Toque «Agregar un carro al sistema» para anotar el primero.",
@@ -61,7 +59,7 @@ export default function Trabajos() {
     valor,
     texto,
     cantidad: trabajos?.filter(cumple).length ?? 0,
-    marca: PUNTO[valor] ? <span aria-hidden="true" className={`size-3 rounded-full ${PUNTO[valor]}`} /> : null,
+    marca: (elegida) => <Semaforo luz={LUZ[valor]} grande encendido={elegida} />,
   }));
   const visibles = trabajos?.filter(FILTROS.find((f) => f.valor === filtro).cumple) ?? [];
 
@@ -96,7 +94,7 @@ export default function Trabajos() {
               {VACIOS[filtro]}
             </Vacio>
           ) : (
-            <div key={filtro} className="overflow-hidden rounded-tarjeta border border-linea bg-tarjeta shadow-tarjeta">
+            <div key={filtro} className="flex flex-col gap-6">
               {visibles.map((t, i) => (
                 <FilaTrabajo key={t.id} trabajo={t} retraso={Math.min(i, 8) * 45} />
               ))}
@@ -108,17 +106,16 @@ export default function Trabajos() {
   );
 }
 
-// Mientras carga: filas grises que laten.
+// Mientras carga: tarjetas grises que laten.
 function FilasCargando() {
   return (
-    <div aria-label="Cargando los carros" className="overflow-hidden rounded-tarjeta border border-linea bg-tarjeta">
-      {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="flex animate-pulse items-center gap-6 border-b border-linea px-6 py-5 last:border-b-0">
+    <div aria-label="Cargando los carros" className="flex flex-col gap-6">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex h-52 animate-pulse flex-col gap-4 rounded-tarjeta border-2 border-linea bg-tarjeta p-8">
           <span className="h-9 w-28 rounded-md bg-suave" />
-          <span className="flex flex-1 flex-col gap-2">
-            <span className="h-5 w-2/3 rounded bg-suave" />
-            <span className="h-4 w-1/3 rounded bg-suave" />
-          </span>
+          <span className="h-6 w-2/3 rounded bg-suave" />
+          <span className="h-5 w-full rounded bg-suave" />
+          <span className="mt-auto h-5 w-1/2 rounded bg-suave" />
         </div>
       ))}
     </div>

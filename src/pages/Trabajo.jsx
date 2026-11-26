@@ -21,11 +21,14 @@ import Pagos from "../components/trabajos/Pagos";
 import Fotos from "../components/trabajos/Fotos";
 import HistorialCliente from "../components/trabajos/HistorialCliente";
 import { listarFotos } from "../services/fotos";
+import Desplegable, { GrupoDesplegables } from "../components/ui/Desplegable";
+import ListaBitacora from "../components/bitacora/ListaBitacora";
 
-// Ficha de un trabajo: arriba el carro y su estado; al centro el botón del
-// siguiente paso, el precio y las fotos; al lado los datos, por dónde ha pasado
-// (con las fotos de cada etapa), el historial en PDF para el cliente y las
-// acciones de poco uso (volver un paso, cancelar), siempre con confirmación.
+// Ficha de un trabajo: arriba el carro y su estado y, a todo lo ancho, el botón
+// del siguiente paso, el diagnóstico y precio y las fotos. Abajo, en «Más sobre
+// este carro», los pagos, los datos, el link del cliente, por dónde ha pasado
+// (con las fotos de cada etapa), el historial en PDF y las acciones de poco uso
+// (volver un paso, cancelar), siempre con confirmación.
 
 export default function Trabajo() {
   const { id } = useParams();
@@ -152,51 +155,64 @@ export default function Trabajo() {
         <Insignia estado={trabajo.estado} grande />
       </header>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="flex flex-col gap-6">
-          {!editandoPrecio && <SiguientePaso trabajo={trabajo} alEditarPrecio={abrirEditor} alCambio={cargar} />}
-          <div id="precio" className="scroll-mt-24">
-            <Cotizacion
-              trabajo={trabajo}
-              editando={editandoPrecio}
-              alEditar={(si) => (si ? abrirEditor() : setEditandoPrecio(false))}
-              alGuardado={async () => {
-                setEditandoPrecio(false);
-                await cargar();
-              }}
-            />
-          </div>
-          <Fotos
+      {/* Arriba, a todo lo ancho, lo del trabajo en sí: el siguiente paso, el
+          diagnóstico y precio, y las fotos. */}
+      <div className="flex flex-col gap-6">
+        {!editandoPrecio && <SiguientePaso trabajo={trabajo} alEditarPrecio={abrirEditor} alCambio={cargar} />}
+        <div id="precio" className="scroll-mt-24">
+          <Cotizacion
             trabajo={trabajo}
-            fotos={fotos}
-            error={errorFotos}
-            alCambio={cargarFotos}
-            pedirLlegada={busqueda.get("fotos") === "llegada"}
+            editando={editandoPrecio}
+            alEditar={(si) => (si ? abrirEditor() : setEditandoPrecio(false))}
+            alGuardado={async () => {
+              setEditandoPrecio(false);
+              await cargar();
+            }}
           />
         </div>
+        <Fotos
+          trabajo={trabajo}
+          fotos={fotos}
+          error={errorFotos}
+          alCambio={cargarFotos}
+          pedirLlegada={busqueda.get("fotos") === "llegada"}
+        />
+      </div>
 
-        <div className="flex flex-col gap-6">
+      {/* Abajo, lo de consulta: pagos, datos, link del cliente, por dónde ha
+          pasado, historial y las acciones de poco uso. */}
+      <section aria-labelledby="mas-info" className="mt-12 border-t-2 border-linea pt-8">
+        <h2 id="mas-info" className="mb-1 text-2xl font-bold">
+          Más sobre este carro
+        </h2>
+        <p className="mb-5 text-lg text-gris">Toque una opción y se abre abajo.</p>
+        <GrupoDesplegables etiqueta="Más sobre este carro">
           <Pagos trabajo={trabajo} alCambio={cargar} />
           <DatosTrabajo trabajo={trabajo} />
           {trabajo.estado !== "cancelado" && <LinkCliente trabajo={trabajo} alCambio={cargar} />}
           <LineaTiempo historial={trabajo.historial} fotos={fotos ?? []} />
           <HistorialCliente trabajo={trabajo} fotos={fotos} />
-
+          <Desplegable emoji="📝" titulo="Cambios" resumen="Quién cambió qué en este trabajo">
+            <div className="p-6">
+              <ListaBitacora ordenId={trabajo.id} enlaces={false} />
+            </div>
+          </Desplegable>
           {activo && (
-            <section className="flex flex-col gap-2">
-              <p className="etiqueta">Otras acciones</p>
-              {anterior && anterior !== trabajo.estado && (
-                <Boton variante="gris" icono={Undo2} className="justify-start" onClick={() => setPreguntando("volver")}>
-                  Volver a «{ESTADOS[anterior]?.texto ?? anterior}»
+            <Desplegable emoji="⚙️" titulo="Otras acciones" resumen="Volver un paso o cancelar el trabajo">
+              <div className="grid gap-4 p-6 sm:grid-cols-2">
+                {anterior && anterior !== trabajo.estado && (
+                  <Boton variante="secundario" icono={Undo2} anchoCompleto onClick={() => setPreguntando("volver")}>
+                    Volver a «{ESTADOS[anterior]?.texto ?? anterior}»
+                  </Boton>
+                )}
+                <Boton variante="peligro" icono={Ban} anchoCompleto onClick={() => setPreguntando("cancelar")}>
+                  Cancelar este trabajo
                 </Boton>
-              )}
-              <Boton variante="gris" icono={Ban} className="justify-start" onClick={() => setPreguntando("cancelar")}>
-                Cancelar este trabajo
-              </Boton>
-            </section>
+              </div>
+            </Desplegable>
           )}
-        </div>
-      </div>
+        </GrupoDesplegables>
+      </section>
 
       <Confirmar
         abierto={preguntando !== null}
