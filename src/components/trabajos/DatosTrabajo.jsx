@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone } from "lucide-react";
-import { formatoTelefono, formatoKmYMillas, fechaLarga, soloDigitos } from "../../lib/formato";
+import { formatoKmYMillas, fechaLarga, soloDigitos } from "../../lib/formato";
 import { TEXTO_GASOLINA } from "../../lib/llegada";
 import Desplegable from "../ui/Desplegable";
 
@@ -49,8 +49,9 @@ export default function DatosTrabajo({ trabajo }) {
         {/* Los cuadritos se reparten todo el ancho, sin dejar huecos a la derecha. */}
         <dl className="flex flex-wrap gap-4">
           <Dato etiqueta="Qué dijo el cliente" emoji="💬" ancho>
-            {/* Justificado: todos los renglones del mismo largo, de orilla a orilla. */}
-            <p className="w-full text-justify text-2xl whitespace-pre-line [text-align-last:left] [hyphens:auto]" lang="es">
+            {/* Un bloque centrado con todos los renglones del mismo largo
+                (justificado) y el último centrado. */}
+            <p className="mx-auto max-w-3xl text-justify text-2xl whitespace-pre-line [text-align-last:center] [hyphens:auto]" lang="es">
               {trabajo.problema_reportado}
             </p>
           </Dato>
@@ -81,7 +82,7 @@ export default function DatosTrabajo({ trabajo }) {
           )}
           {trabajo.notas_recepcion && (
             <Dato etiqueta="Cómo llegó" emoji="📝" ancho>
-              <p className="w-full text-justify whitespace-pre-line [text-align-last:left] [hyphens:auto]" lang="es">
+              <p className="mx-auto max-w-3xl text-justify whitespace-pre-line [text-align-last:center] [hyphens:auto]" lang="es">
                 {trabajo.notas_recepcion}
               </p>
             </Dato>
@@ -95,7 +96,7 @@ export default function DatosTrabajo({ trabajo }) {
             className="flex min-h-16 w-full items-center justify-center gap-2.5 rounded-control border-2 border-linea-fuerte bg-tarjeta px-6 text-xl font-bold transition-[border-color,translate,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-tinta hover:shadow-elevada"
           >
             <Phone aria-hidden="true" size={22} />
-            Llamar a {cliente?.nombre ?? "el cliente"} al {formatoTelefono(telefono)}
+            Llamar a {cliente?.nombre ?? "el cliente"}
           </a>
         )}
       </div>
